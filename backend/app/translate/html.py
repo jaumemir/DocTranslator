@@ -1,13 +1,13 @@
 # translate/html.py
 """
-HTML/HTM文件翻译处理器
-核心策略：占位符替换法
-1. 用BeautifulSoup解析HTML
-2. 遍历DOM树，提取所有需要翻译的文本节点和属性值
-3. 用占位符替换原文，记录映射关系
-4. 对提取的文本分块并翻译
-5. 将翻译结果按映射关系替换回占位符
-6. 还原完整HTML，确保结构完全不变
+HTML/HTM file translation handler
+Core strategy: Placeholder replacement method
+1. Parse HTML with BeautifulSoup
+2. Traverse DOM tree, extract all text nodes and attribute values that need translation
+3. Replace original text with placeholders, record mapping relationships
+4. Chunk and translate extracted text
+5. Replace placeholders with translation results according to mapping relationships
+6. Restore complete HTML, ensure structure remains completely unchanged
 """
 
 import re
@@ -58,28 +58,28 @@ def start(trans: Dict) -> bool:
     try:
         content, encoding = _read_file(trans['file_path'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 读取文件失败: {e}")
-        to_translate.error(translate_id, f"读取文件失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to read file: {e}")
+        to_translate.error(translate_id, f"Failed to read file: {str(e)}")
         return False
 
     if not content or not content.strip():
-        logging.info(f"[任务{translate_id}] 文件内容为空")
+        logging.info(f"[Task {translate_id}] File content is empty")
         _write_file(trans['target_file'], "")
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0 seconds")
         return True
 
     try:
         from bs4 import BeautifulSoup
     except ImportError:
-        logging.error(f"[任务{translate_id}] 需要安装 beautifulsoup4")
-        to_translate.error(translate_id, "需要安装 beautifulsoup4: pip install beautifulsoup4")
+        logging.error(f"[Task {translate_id}] Need to install beautifulsoup4")
+        to_translate.error(translate_id, "Need to install beautifulsoup4: pip install beautifulsoup4")
         return False
 
     try:
         soup = BeautifulSoup(content, 'html.parser')
     except Exception as e:
-        logging.error(f"[任务{translate_id}] HTML解析失败: {e}")
-        to_translate.error(translate_id, f"HTML解析失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] HTML parsing failed: {e}")
+        to_translate.error(translate_id, f"HTML parsing failed: {str(e)}")
         return False
 
     placeholder_map = {}
@@ -88,28 +88,28 @@ def start(trans: Dict) -> bool:
     try:
         _extract_and_placeholder(soup, placeholder_map, extracted_texts)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 提取文本节点失败: {e}")
-        to_translate.error(translate_id, f"提取文本节点失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to extract text nodes: {e}")
+        to_translate.error(translate_id, f"Failed to extract text nodes: {str(e)}")
         return False
 
     if not extracted_texts:
-        logging.info(f"[任务{translate_id}] 没有需要翻译的文本内容")
+        logging.info(f"[Task {translate_id}] No text content to translate")
         _write_file(trans['target_file'], content)
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0 seconds")
         return True
 
     texts = _build_text_items(extracted_texts)
 
     to_translate_count = sum(1 for t in texts if not t.get('skip', False))
     if to_translate_count == 0:
-        logging.info(f"[任务{translate_id}] 没有需要翻译的内容")
+        logging.info(f"[Task {translate_id}] No content to translate")
         _write_file(trans['target_file'], content)
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0 seconds")
         return True
 
     logging.info(
-        f"[任务{translate_id}] 提取 {len(extracted_texts)} 个文本段，"
-        f"其中 {to_translate_count} 个需要翻译")
+        f"[Task {translate_id}] Extracted {len(extracted_texts)} text segments, "
+        f"{to_translate_count} need translation")
 
     event = threading.Event()
     success = to_translate.translate_batch(trans, texts, event)
@@ -119,8 +119,8 @@ def start(trans: Dict) -> bool:
     try:
         text_count = _write_result(trans, texts, extracted_texts, placeholder_map, soup)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 写入文件失败: {e}")
-        to_translate.error(translate_id, f"写入文件失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to write file: {e}")
+        to_translate.error(translate_id, f"Failed to write file: {str(e)}")
         return False
 
     end_time = datetime.datetime.now()
@@ -140,7 +140,7 @@ def _read_file(file_path: str) -> Tuple[str, str]:
             continue
         except Exception:
             raise
-    raise ValueError("无法识别文件编码")
+    raise ValueError("Unable to recognize file encoding")
 
 
 def _write_file(file_path: str, content: str):
@@ -150,8 +150,8 @@ def _write_file(file_path: str, content: str):
 
 def _extract_and_placeholder(soup, placeholder_map: Dict, extracted_texts: List[Dict]):
     """
-    遍历DOM树，提取文本并用占位符替换
-    所有操作都在同一个soup对象上完成，保证引用有效
+    Traverse DOM tree, extract text and replace with placeholders
+    All operations completed on the same soup object to ensure valid references
     """
     try:
         from bs4 import NavigableString, Comment, Tag, ProcessingInstruction, Doctype
@@ -231,7 +231,7 @@ def _extract_and_placeholder(soup, placeholder_map: Dict, extracted_texts: List[
                     walk(child, is_preserve)
 
         except Exception as e:
-            logging.warning(f"遍历DOM节点时异常(已跳过): {e}")
+            logging.warning(f"Exception while traversing DOM node (skipped): {e}")
 
     for child in list(soup.children):
         walk(child, False)
@@ -252,8 +252,8 @@ def _should_translate(text: str) -> bool:
 
 def _build_text_items(extracted_texts: List[Dict]) -> List[Dict]:
     """
-    将提取的文本段构建为翻译引擎需要的 texts 列表
-    超长文本进行切分，切分后的所有子块共享同一个占位符
+    Build extracted text segments into texts list needed by translation engine
+    Split overly long text, all sub-blocks after splitting share the same placeholder
     """
     texts = []
     for item in extracted_texts:
@@ -335,13 +335,13 @@ def _split_by_sentences(text: str, max_size: int) -> List[str]:
 def _write_result(trans: Dict, texts: List[Dict], extracted_texts: List[Dict],
                   placeholder_map: Dict, soup) -> int:
     """
-    写入翻译结果
-    步骤：
-    1. 从texts中收集每个占位符对应的翻译结果
-    2. 将attr类型的翻译结果直接设置到DOM元素上
-    3. 将soup序列化为HTML字符串
-    4. 用字符串替换将文本占位符替换为翻译结果
-    HTML文件始终保持完整HTML结构输出，不进行only_translation处理
+    Write translation results
+    Steps:
+    1. Collect translation results for each placeholder from texts
+    2. Directly set attr type translation results to DOM elements
+    3. Serialize soup to HTML string
+    4. Use string replacement to replace text placeholders with translation results
+    HTML files always maintain complete HTML structure output, no only_translation processing
     """
     text_count = 0
 
@@ -372,7 +372,7 @@ def _write_result(trans: Dict, texts: List[Dict], extracted_texts: List[Dict],
                 try:
                     element[attr_name] = translated_val
                 except Exception as e:
-                    logging.warning(f"替换属性值失败: {e}")
+                    logging.warning(f"Failed to replace attribute value: {e}")
 
     html_str = str(soup)
 

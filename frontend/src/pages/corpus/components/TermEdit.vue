@@ -155,9 +155,9 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 const termformRef = ref(null)
-// 快速编辑弹窗
+// Quick edit dialog
 const termQuickShow = ref(false)
-//快速编辑器form
+// Quick editor form
 const quickForm = ref({
   textarea: ''
 })
@@ -209,7 +209,7 @@ const open = () => {
   visible.value = true
 }
 
-// 关闭对话框
+// Close dialog
 const close = () => {
   visible.value = false
 }
@@ -217,22 +217,22 @@ const close = () => {
 const confirm = () => {
   termformRef.value.validate((valid) => {
     if (valid) {
-      emit('confirm', localForm.value) // 将 localForm 传递给父组件
+      emit('confirm', localForm.value) // Pass localForm to parent component
       close()
     }
   })
 }
 const quickFormRef = ref(null)
-//打开快速编辑
+// Open quick edit
 function openQuick() {
   termQuickShow.value = true
 }
 
-//快速编辑确认
+// Quick edit confirm
 function quickConfim() {
   quickFormRef.value.validate((valid, messages) => {
     if (valid) {
-      // 按行分割文本域内容
+      // Split textarea content by lines
       const lines = quickForm.value.textarea.trim().split('\n')
       const newTerms = []
 
@@ -249,19 +249,19 @@ function quickConfim() {
         }
       }
 
-      // 将解析后的数据批量添加到 localForm.content 数组中
+      // Batch add parsed data to localForm.content array
       localForm.value.content.push(...newTerms)
-      // 关闭快速编辑弹窗
+      // Close quick edit dialog
       termQuickShow.value = false
     }
   })
 }
 
-//添加对照翻译方法
+// Add comparison translation pair
 function addTermContent() {
   localForm.value.content.push({ origin: '', target: '' })
 }
-//删除对照语言一组
+// Delete comparison language pair
 function delTermContent(index) {
   if (localForm.value.content.length <= 1) {
     ElMessage({
@@ -272,14 +272,14 @@ function delTermContent(index) {
   }
   localForm.value.content.splice(index, 1)
 }
-// 更新form
+// Update form
 function updateForm(newForm) {
   if (!newForm.content || newForm.content.length === 0) {
     newForm.content = [{ origin: '', target: '' }]
   }
   localForm.value = newForm
 }
-// 暴露 open 方法给父组件
+// Expose open method to parent component
 defineExpose({
   open,
   close,
@@ -290,7 +290,7 @@ defineExpose({
 
 <style scoped lang="scss">
 ::v-deep {
-  //弹窗
+  // Dialog
   .term_dialog {
     padding-top: 20px;
     .el-dialog {

@@ -1,6 +1,6 @@
 # app/exceptions.py
 class APIException(Exception):
-    """基础API异常"""
+    """Base API exception"""
 
     def __init__(self, message, code=400, payload=None):
         super().__init__()

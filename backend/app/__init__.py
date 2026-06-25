@@ -13,13 +13,13 @@ def create_app(config_class=None):
     app = Flask(__name__)
 
     from .routes import register_routes
-    # 加载配置
+    # Load configuration
     if config_class is None:
         config_class = get_config()
     app.config.from_object(config_class)
-    # 初始化数据库
+    # Initialize database
     safe_init_mysql(app,'app/init.sql')
-    # 初始化扩展（此时不注册路由）
+    # Initialize extensions (routes not registered yet)
     init_extensions(app)
     register_routes(api)
 
@@ -31,19 +31,19 @@ def create_app(config_class=None):
 
     @app.errorhandler(ExpiredSignatureError)
     def handle_expired_token_error(e):
-        return jsonify({"message": "身份验证信息已过期，请重新登录"}), 401
+        return jsonify({"message": "Authentication information has expired, please log in again"}), 401
 
     @app.errorhandler(500)
     def handle_500(e):
-        return APIResponse.error(message='服务器错误', code=500)
+        return APIResponse.error(message='Server error', code=500)
 
-    # 初始化数据库
+    # Initialize database
     with app.app_context():
         db.create_all()
-        # 在这里调用 TranslateEngine
+        # Call TranslateEngine here if needed
         # engine = TranslateEngine(task_id=1, app=app)
         # engine.execute()
-        # 初始化默认配置
+        # Initialize default configuration
         # if not SystemSetting.query.filter_by(key='version').first():
         #     db.session.add(SystemSetting(key='version', value='business'))
         #     db.session.commit()

@@ -7,14 +7,14 @@ from flask import current_app
 class EmailService:
     @staticmethod
     def send_verification_code(email: str, code: str, user_name: str = None):
-        """发送注册验证码邮件"""
+        """Send registration verification code email"""
         try:
             user_data = {'name': user_name or '用户'}
 
-            # 生成HTML邮件内容
+            # Generate HTML email content
             html_content = generate_register_email(user_data, code)
 
-            # 创建邮件消息
+            # Create email message
             msg = Message(
                 subject="【DocTranslator】注册验证码",
                 recipients=[email],
@@ -22,21 +22,21 @@ class EmailService:
                 sender=current_app.config['MAIL_DEFAULT_SENDER']
             )
 
-            # 发送邮件
+            # Send email
             mail.send(msg)
-            current_app.logger.info(f"验证码邮件发送成功: {email}")
+            current_app.logger.info(f"Verification code email sent successfully: {email}")
             return True
 
         except Exception as e:
-            current_app.logger.error(f"发送验证码邮件失败: {e}")
+            current_app.logger.error(f"Failed to send verification code email: {e}")
             return False
 
 
     @staticmethod
     def send_forgot_password(email: str, reset_link: str):
-        """发送密码重置邮件"""
+        """Send password reset email"""
         try:
-            # 这里可以添加密码重置的模板
+            # Password reset template can be added here
             html_content = f"""
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2>密码重置</h2>
@@ -61,5 +61,5 @@ class EmailService:
             return True
 
         except Exception as e:
-            current_app.logger.error(f"发送密码重置邮件失败: {e}")
+            current_app.logger.error(f"Failed to send password reset email: {e}")
             return False

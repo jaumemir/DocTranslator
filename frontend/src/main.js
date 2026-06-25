@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-//引入路由
+// Import router
 import router from './router'
 import './style.css'
 import App from './App.vue'

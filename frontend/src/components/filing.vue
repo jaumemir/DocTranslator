@@ -1,5 +1,5 @@
 <template>
-  <!-- 版权信息 -->
+  <!-- Copyright information -->
   <div class="filing">
     <a
       href="https://github.com/mingchen666/DocTranslator"
@@ -42,7 +42,7 @@
   }
 }
 
-/* 移动端适配 */
+/* Mobile responsive */
 @media (max-width: 576px) {
   .filing {
     font-size: 12px;

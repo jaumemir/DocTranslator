@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '@/pages/layout/index.vue'
 import { useUserStore } from '@/store/user'
 import { ElMessage } from 'element-plus'
-//配置路由
+// Configure routes
 const constantRoute = [
   {
     path: '/',
@@ -34,7 +34,7 @@ const constantRoute = [
   {
     path: '/corpus',
     component: Layout,
-    redirect: '/corpus/index', // 重定向
+    redirect: '/corpus/index', // Redirect
     meta: { requiresAuth: true },
     children: [
       {
@@ -57,14 +57,14 @@ const constantRoute = [
       }
     ]
   },
-  // 登录注册
+  // Login/Registration
   {
     path: '/login',
     name: 'login',
     meta: { guestOnly: true },
     component: () => import('@/pages/login/index.vue')
   },
-  // 重置密码
+  // Reset password
   {
     path: '/password',
     name: 'password',
@@ -72,7 +72,7 @@ const constantRoute = [
     component: () => import('@/pages/password/index.vue')
   },
 
-  // 404 路由，放在最后
+  // 404 route, placed at the end
   {
     path: '/404',
     name: '404',
@@ -86,36 +86,36 @@ const constantRoute = [
   }
 ]
 
-// 创建路由器
+// Create router
 let router = createRouter({
   history: createWebHistory(),
   routes: constantRoute
 })
 
-// 添加全局前置守卫
-// 路由拦截逻辑
+// Add global before guard
+// Route interception logic
 router.beforeEach((to) => {
   const userStore = useUserStore()
-  // 检查是否需要登录
+  // Check if login is required
   if (to.meta.requiresAuth) {
-    // 未登录状态
+    // Not logged in
     if (!userStore.token) {
-      // 跳转到登录页，并携带原路径
+      // Redirect to login page with original path
       return {
         name: 'login',
         query: {
-          redirect: to.fullPath // 保存原始目标路径
+          redirect: to.fullPath // Save original target path
         }
       }
     }
   }
 
-  // 已登录状态访问登录页
+  // Logged-in users accessing login page
   // if (to.name === 'login' && userStore.token) {
-  //   ElMessage.warning('您已登录')
-  //   return '/' // 跳转到首页
+  //   ElMessage.warning('You are already logged in')
+  //   return '/' // Redirect to homepage
   // }
-  // 其他情况正常放行
+  // Otherwise allow passage
   return true
 })
 

@@ -15,21 +15,21 @@ def baidu_translate(
         use_term_base: bool = False,
 ) -> str:
     """
-    参数:
-        text: 要翻译的文本（多行文本用换行符分隔）
-        appid: 百度API的APP ID
-        key: 百度API的密钥
-        from_lang: 源语言代码（默认auto自动检测）
-        to_lang: 目标语言代码（默认en英语）
-        use_term_base: 是否启用术语库（通过needIntervene=1控制）
+    Parameters:
+        text: Text to translate (multiline text separated by newlines)
+        appid: Baidu API APP ID
+        key: Baidu API key
+        from_lang: Source language code (default auto for auto-detection)
+        to_lang: Target language code (default en for English)
+        use_term_base: Whether to enable term base (controlled by needIntervene=1)
 
     """
-    # 1. 生成签名参数
+    # 1. Generate signature parameters
     salt = str(random.randint(32768, 65536))
     sign_str = appid + text + salt + app_key
     sign = hashlib.md5(sign_str.encode()).hexdigest()
 
-    # 2. 构造请求参数
+    # 2. Construct request parameters
     params = {
         'q': text,
         'from': from_lang,
@@ -39,9 +39,9 @@ def baidu_translate(
         'sign': sign,
     }
     if use_term_base:
-        params['needIntervene'] = 1  # 启用术语库
+        params['needIntervene'] = 1  # Enable term base
 
-    # 3. 发送请求
+    # 3. Send request
     try:
         response = requests.get(
             "https://fanyi-api.baidu.com/api/trans/vip/translate",
@@ -51,12 +51,12 @@ def baidu_translate(
         result = response.json()
 
         if 'error_code' in result:
-            raise Exception(f"百度API错误 {result['error_code']}: {result['error_msg']}")
+            raise Exception(f"Baidu API error {result['error_code']}: {result['error_msg']}")
 
-        # 4. 拼接翻译结果（保留原文换行结构）
+        # 4. Join translation results (preserve original text line structure)
         return '\n'.join(item['dst'] for item in result['trans_result'])
 
     except requests.exceptions.RequestException as e:
-        raise Exception(f"网络请求失败: {str(e)}")
+        raise Exception(f"Network request failed: {str(e)}")
     except json.JSONDecodeError:
-        raise Exception("百度API返回数据解析失败")
+        raise Exception("Failed to parse Baidu API response")

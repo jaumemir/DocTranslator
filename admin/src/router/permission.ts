@@ -18,41 +18,41 @@ router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStoreHook()
   const permissionStore = usePermissionStoreHook()
   const token = getToken()
-  // 如果没有登陆
+  // If not logged in
   if (!token) {
-    // 如果在免登录的白名单中，则直接进入
+    // If in the whitelist, allow direct access
     if (isWhiteList(to)) return next()
-    // 其他没有访问权限的页面将被重定向到登录页面
+    // Other pages without access permission will be redirected to login page
     return next("/login")
   }
 
-  // 如果已经登录，并准备进入 Login 页面，则重定向到主页
+  // If already logged in and trying to enter Login page, redirect to home
   if (to.path === "/login") {
     return next({ path: "/" })
   }
 
-  // 如果用户已经获得其权限角色
+  // If user has already obtained their permission roles
   if (userStore.roles.length !== 0) return next()
 
-  // 否则要重新获取权限角色
+  // Otherwise, need to re-fetch permission roles
   try {
     // await userStore.getInfo()
-    // 注意：角色必须是一个数组！ 例如: ["admin"] 或 ["developer", "editor"]
+    // Note: roles must be an array! For example: ["admin"] or ["developer", "editor"]
     const roles = userStore.roles
-    // 生成可访问的 Routes
+    // Generate accessible Routes
     routeSettings.dynamic ? permissionStore.setRoutes(roles) : permissionStore.setAllRoutes()
-    // 将 "有访问权限的动态路由" 添加到 Router 中
+    // Add "dynamic routes with access permission" to Router
     permissionStore.addRoutes.forEach((route) => router.addRoute(route))
-    // 确保添加路由已完成
-    // 设置 replace: true, 因此导航将不会留下历史记录
+    // Ensure routes have been added
+    // Set replace: true so navigation won't leave history
     // next({ ...to, replace: true })
-    
+
     next()
   } catch (err: any) {
     console.log("catch")
-    // 过程中发生任何错误，都直接重置 Token，并重定向到登录页面
+    // If any error occurs, reset Token and redirect to login page
     userStore.resetToken()
-    ElMessage.error(err.message || "路由守卫过程发生错误")
+    ElMessage.error(err.message || "Error occurred during route guard process")
     next("/login")
   }
 })

@@ -11,12 +11,12 @@ from dotenv import load_dotenv, find_dotenv
 
 _ = load_dotenv(find_dotenv())
 
-# 全局锁
+# Global lock
 _db_lock = Lock()
 
 
 def get_conn():
-    """获取数据库连接"""
+    """Get database connection"""
     try:
         db_url = os.environ.get('PROD_DATABASE_URL')
         if not db_url:
@@ -54,7 +54,7 @@ def get_conn():
 
 @contextmanager
 def get_connection():
-    """上下文管理器获取连接"""
+    """Context manager to get connection"""
     conn = None
     try:
         conn = get_conn()
@@ -69,8 +69,8 @@ def get_connection():
 
 def execute(sql: str, *params) -> bool:
     """
-    执行SQL语句（INSERT/UPDATE/DELETE）
-    :return: 是否成功
+    Execute SQL statement (INSERT/UPDATE/DELETE)
+    :return: Whether successful
     """
     with _db_lock:
         try:
@@ -87,8 +87,8 @@ def execute(sql: str, *params) -> bool:
 
 def get(sql: str, *params) -> dict:
     """
-    查询单条记录
-    :return: 字典或空字典
+    Query single record
+    :return: Dictionary or empty dictionary
     """
     with _db_lock:
         try:
@@ -115,8 +115,8 @@ def get(sql: str, *params) -> dict:
 
 def get_all(sql: str, *params) -> list:
     """
-    查询多条记录
-    :return: 字典列表
+    Query multiple records
+    :return: List of dictionaries
     """
     with _db_lock:
         try:

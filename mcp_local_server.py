@@ -1,14 +1,14 @@
 """
-DocTranslator 本地 MCP 服务器 (stdio 传输)
+DocTranslator Local MCP Server (stdio transport)
 
-本地 MCP 可以直接读取本地文件进行翻译，无需手动 Base64 编码。
-翻译配置有两种来源：
-1. 环境变量（优先）：API_URL, API_KEY, MODEL 等
-2. 远程 MCP Key 配置：如果环境变量未设置，使用 MCP Key 中保存的配置
+The local MCP server can directly read local files for translation without manual Base64 encoding.
+Translation configuration comes from two sources:
+1. Environment variables (priority): API_URL, API_KEY, MODEL, etc.
+2. Remote MCP Key configuration: If environment variables are not set, uses configuration saved in MCP Key
 
-使用方法：
-无需手动安装依赖，首次运行会自动安装。
-在 Claude Desktop 的 claude_desktop_config.json 中添加：
+Usage:
+No need to manually install dependencies, they will be automatically installed on first run.
+Add to claude_desktop_config.json in Claude Desktop:
 
 {
   "mcpServers": {
@@ -25,7 +25,7 @@ DocTranslator 本地 MCP 服务器 (stdio 传输)
         "PROMPT_ID": "0",
         "BACKUP_MODEL": "",
         "THREADS": "5",
-        "LANG": "中文",
+        "LANG": "Chinese",
         "COMPARISON_ID": "",
         "DOC2X_FLAG": "N",
         "DOC2X_SECRET_KEY": ""
@@ -34,8 +34,8 @@ DocTranslator 本地 MCP 服务器 (stdio 传输)
   }
 }
 
-注意：如果 DOCTRANSLATOR_API_KEY 对应的 MCP Key 已经配置了翻译参数，
-      则环境变量中的 API_URL/API_KEY/MODEL 等可以不填，会自动使用 Key 中的配置。
+Note: If the MCP Key corresponding to DOCTRANSLATOR_API_KEY has already configured translation parameters,
+      then API_URL/API_KEY/MODEL in environment variables can be left empty, and the configuration in the Key will be used automatically.
 """
 
 import subprocess
@@ -51,7 +51,7 @@ def _ensure_deps():
         except ImportError:
             missing.append(dep)
     if missing:
-        sys.stderr.write(f"正在安装依赖: {', '.join(missing)} ...\n")
+        sys.stderr.write(f"Installing dependencies: {', '.join(missing)} ...\n")
         subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
 
 _ensure_deps()
@@ -79,7 +79,7 @@ ENV_CONFIG = {
     "prompt_id": int(os.environ.get("PROMPT_ID", "0")),
     "backup_model": os.environ.get("BACKUP_MODEL", ""),
     "threads": int(os.environ.get("THREADS", "5")),
-    "lang": os.environ.get("LANG", "中文"),
+    "lang": os.environ.get("LANG", "Chinese"),
     "comparison_id": os.environ.get("COMPARISON_ID") or None,
     "doc2x_flag": os.environ.get("DOC2X_FLAG", "N"),
     "doc2x_secret_key": os.environ.get("DOC2X_SECRET_KEY", ""),
@@ -93,9 +93,9 @@ def _has_env_config():
 mcp = FastMCP(
     "DocTranslator-Local",
     instructions=(
-        "DocTranslator 文档翻译本地服务。"
-        "你可以直接翻译本地文件（提供文件路径即可）、查询翻译进度、下载翻译结果。"
-        "翻译配置来自环境变量或 MCP Key 中保存的配置，无需每次传入。"
+        "DocTranslator document translation local service. "
+        "You can directly translate local files (just provide the file path), query translation progress, and download translation results. "
+        "Translation configuration comes from environment variables or the configuration saved in the MCP Key, no need to pass it every time."
     ),
 )
 
@@ -142,17 +142,17 @@ async def translate_file(
     comparison_id: Optional[int] = None,
 ) -> dict:
     """
-    翻译本地文档文件。直接提供本地文件路径，无需手动编码。
+    Translate a local document file. Simply provide the local file path without manual encoding.
 
     Args:
-        file_path: 本地文件绝对路径
-        target_lang: 目标语言（中文/英语/日语等），不填使用默认配置
-        origin_lang: 源语言，不填则自动检测
-        translate_type: 翻译类型，不填使用默认配置
-        comparison_id: 术语库ID
+        file_path: Local file absolute path
+        target_lang: Target language (Chinese/English/Japanese, etc.), leave empty to use default configuration
+        origin_lang: Source language, leave empty for auto-detection
+        translate_type: Translation type, leave empty to use default configuration
+        comparison_id: Terminology database ID
     """
     if not os.path.exists(file_path):
-        return {"error": f"文件不存在: {file_path}"}
+        return {"error": f"File does not exist: {file_path}"}
 
     with open(file_path, "rb") as f:
         file_content = base64.b64encode(f.read()).decode()
@@ -175,8 +175,8 @@ async def translate_file(
     try:
         return await _call_remote_tool("translate_file", args)
     except Exception as e:
-        logger.error(f"翻译调用失败: {e}")
-        return {"error": f"翻译调用失败: {str(e)}"}
+        logger.error(f"Translation call failed: {e}")
+        return {"error": f"Translation call failed: {str(e)}"}
 
 
 @mcp.tool
@@ -189,15 +189,15 @@ async def translate_by_url(
     comparison_id: Optional[int] = None,
 ) -> dict:
     """
-    通过URL下载文件并翻译。
+    Download and translate a file via URL.
 
     Args:
-        file_url: 文件下载链接
-        file_name: 文件名（可选，不填则从URL推断）
-        target_lang: 目标语言
-        origin_lang: 源语言
-        translate_type: 翻译类型
-        comparison_id: 术语库ID
+        file_url: File download link
+        file_name: File name (optional, will be inferred from URL if not provided)
+        target_lang: Target language
+        origin_lang: Source language
+        translate_type: Translation type
+        comparison_id: Terminology database ID
     """
     args = {
         "file_url": file_url,
@@ -215,22 +215,22 @@ async def translate_by_url(
     try:
         return await _call_remote_tool("translate_file", args)
     except Exception as e:
-        logger.error(f"URL翻译调用失败: {e}")
-        return {"error": f"翻译调用失败: {str(e)}"}
+        logger.error(f"URL translation call failed: {e}")
+        return {"error": f"Translation call failed: {str(e)}"}
 
 
 @mcp.tool
 async def query_translate_status(task_id: int) -> dict:
     """
-    查询翻译任务状态。
+    Query the status of a translation task.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     try:
         return await _call_remote_tool("query_translate_status", {"task_id": task_id})
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 @mcp.tool
@@ -241,13 +241,13 @@ async def list_translates(
     keyword: Optional[str] = None,
 ) -> dict:
     """
-    列出翻译历史记录。
+    List translation history records.
 
     Args:
-        page: 页码
-        limit: 每页数量
-        status: 按状态过滤
-        keyword: 关键词搜索
+        page: Page number
+        limit: Items per page
+        status: Filter by status
+        keyword: Keyword search
     """
     args = {"page": page, "limit": limit}
     if status:
@@ -257,100 +257,100 @@ async def list_translates(
     try:
         return await _call_remote_tool("list_translates", args)
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 @mcp.tool
 async def download_translate(task_id: int) -> dict:
     """
-    下载翻译结果文件，返回Base64编码内容。
+    Download the translation result file, returns Base64 encoded content.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     try:
         return await _call_remote_tool("download_translate", {"task_id": task_id})
     except Exception as e:
-        return {"error": f"下载失败: {str(e)}"}
+        return {"error": f"Download failed: {str(e)}"}
 
 
 @mcp.tool
 async def delete_translate(task_id: int) -> dict:
     """
-    删除翻译记录。
+    Delete a translation record.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     try:
         return await _call_remote_tool("delete_translate", {"task_id": task_id})
     except Exception as e:
-        return {"error": f"删除失败: {str(e)}"}
+        return {"error": f"Delete failed: {str(e)}"}
 
 
 @mcp.tool
 async def restart_translate(task_id: int) -> dict:
     """
-    重新启动一个失败或未开始的翻译任务。仅状态为 failed 或 none 的任务可重启。
+    Restart a failed or not-yet-started translation task. Only tasks with status 'failed' or 'none' can be restarted.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     try:
         return await _call_remote_tool("restart_translate", {"task_id": task_id})
     except Exception as e:
-        return {"error": f"重启失败: {str(e)}"}
+        return {"error": f"Restart failed: {str(e)}"}
 
 
 @mcp.tool
 async def list_comparisons() -> dict:
-    """获取术语库列表。"""
+    """Get the list of terminology databases."""
     try:
         return await _call_remote_tool("list_comparisons", {})
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 @mcp.tool
 async def list_prompts() -> dict:
-    """获取提示词模板列表。"""
+    """Get the list of prompt templates."""
     try:
         return await _call_remote_tool("list_prompts", {})
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 @mcp.tool
 async def get_account_info() -> dict:
-    """获取当前账户信息。"""
+    """Get current account information."""
     try:
         return await _call_remote_tool("get_account_info", {})
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 @mcp.tool
 async def get_supported_formats() -> dict:
-    """获取支持的文件格式列表。"""
+    """Get the list of supported file formats."""
     try:
         return await _call_remote_tool("get_supported_formats", {})
     except Exception as e:
-        return {"error": f"查询失败: {str(e)}"}
+        return {"error": f"Query failed: {str(e)}"}
 
 
 if __name__ == "__main__":
     if not REMOTE_URL:
-        sys.stderr.write("错误: 请设置 DOCTRANSLATOR_URL 环境变量（如 https://your-domain.com:5002）\n")
+        sys.stderr.write("Error: Please set the DOCTRANSLATOR_URL environment variable (e.g., https://your-domain.com:5002)\n")
         sys.exit(1)
     if not API_KEY:
-        sys.stderr.write("错误: 请设置 DOCTRANSLATOR_API_KEY 环境变量（如 dtk_xxxxx）\n")
+        sys.stderr.write("Error: Please set the DOCTRANSLATOR_API_KEY environment variable (e.g., dtk_xxxxx)\n")
         sys.exit(1)
 
-    logger.info(f"本地 MCP 服务器启动，远程端点: {REMOTE_URL}/mcp/user")
+    logger.info(f"Local MCP server starting, remote endpoint: {REMOTE_URL}/mcp/user")
     logger.info(f"API Key: {API_KEY[:12]}...")
     if _has_env_config():
-        logger.info("翻译配置来源: 环境变量")
+        logger.info("Translation configuration source: Environment variables")
     else:
-        logger.info("翻译配置来源: MCP Key 中保存的配置（环境变量未设置翻译参数）")
+        logger.info("Translation configuration source: Configuration saved in MCP Key (translation parameters not set in environment variables)")
 
     mcp.run(transport="stdio")

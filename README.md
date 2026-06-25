@@ -1,131 +1,130 @@
-🎉 **DocTranslator Pro 版本现已发布！** 欢迎体验，功能更强大！
+🎉 **DocTranslator Pro Version Now Released!** Welcome to experience more powerful features!
 
-## ✨ Pro 版本核心优势
+## ✨ Pro Version Core Advantages
 
-- **智能分块策略**: 能更好地识别段落、列表等结构，提升翻译质量与上下文连贯性。
-- **成本优化**: 通过更高效的提示词设计和注入策略，显著减少 Token 消耗，有效降低翻译成本。
-- **术语库**: 支持用户定义术语对照表，确保专业术语翻译的准确性和一致性。
-- **翻译记忆库**: 智能复用历史翻译，提升效率、降低成本。
-- **AI模型服务商管理**: 可配置 OpenAI, Qwen, DeepSeek 等多种大模型，用户可根据需求选择或由系统智能路由。
-- **批量处理**: 支持文档上传选择多个术语库和翻译记忆，并发翻译，处理效率更高更准确。
-- **消耗统计**: 提供Token消耗统计等管理后台功能。
+- **Intelligent Chunking Strategy**: Better recognition of paragraphs, lists, and other structures to improve translation quality and contextual coherence.
+- **Cost Optimization**: Significantly reduced token consumption through more efficient prompt design and injection strategies, effectively lowering translation costs.
+- **Terminology Database**: Support for user-defined terminology comparison tables, ensuring accuracy and consistency of professional term translations.
+- **Translation Memory**: Intelligently reuse historical translations to improve efficiency and reduce costs.
+- **AI Model Provider Management**: Configure multiple large models such as OpenAI, Qwen, DeepSeek - users can choose according to their needs or use intelligent routing.
+- **Batch Processing**: Support document uploads with multiple terminology databases and translation memories for concurrent translation with higher efficiency and accuracy.
+- **Usage Statistics**: Provides token consumption statistics and other management backend functions.
 
-[![Pro版在线体验](https://img.shields.io/badge/Pro%20版-在线体验-71a7f4?style=for-the-badge&logoColor=white)](https://pro.doctranslator.cn)  
+[![Pro Version Online Experience](https://img.shields.io/badge/Pro%20Version-Online%20Experience-71a7f4?style=for-the-badge&logoColor=white)](https://pro.doctranslator.cn)  
 
 ---
 
-# 📄 DocTranslator - 文档 AI 翻译工具 🚀
+# 📄 DocTranslator - AI Document Translation Tool 🚀
 
-**DocTranslator** 文档翻译，支持多种文件格式的翻译，兼容 OpenAI 格式的 API，并支持批量操作和多线程处理。无论是个人用户还是企业团队，DocTranslator 都能帮助你高效完成文档翻译任务！✨
+**DocTranslator** document translation supports multiple file format translations, is compatible with OpenAI format APIs, and supports batch operations and multi-threaded processing. Whether you're an individual user or enterprise team, DocTranslator can help you efficiently complete document translation tasks! ✨
 
 [[English]](README_en.md)
 
 ---
 
 
-| 🌐 **在线体验**     | [立即访问](https://dc.starpms.cn/) |
-|:--------------------:|:----------------------------------:|
-| 📚 **官方文档**     | [查看文档](https://www.doctranslator.cn/)      |
-| 👉 **推荐API中转站**    | [立即使用](https://www.ezworkapi.com)     |
+| 🌐 **Online Experience**     | [Visit Now](https://dc.starpms.cn/) |
+|:-----------------------------:|:------------------------------------:|
+| 📚 **Official Documentation** | [View Docs](https://www.doctranslator.cn/)      |
+| 👉 **Recommended API Gateway**| [Use Now](https://www.ezworkapi.com)     |
 
 
 
 
-
-[🔥GPT中转站推荐-低价优惠-点击此处跳转🔥](https://www.ezworkapi.com) 
+[🔥Recommended GPT Gateway - Low Price Discounts - Click Here🔥](https://www.ezworkapi.com) 
 
 ---
 
-## 🌟 功能特性
+## 🌟 Features
 
-- **支持多种文档格式**  
-  📑 **txt**、📝 **markdown**、📄 **word**、📊 **csv**、📈 **excel**、📑 **pdf(非扫描版)**、📽️ **ppt** 文档的 AI 翻译。
+- **Support Multiple Document Formats**  
+  📑 **txt**, 📝 **markdown**, 📄 **word**, 📊 **csv**, 📈 **excel**, 📑 **pdf (non-scanned)**, 📽️ **ppt** document AI translation.
   
 
-- **兼容 OpenAI 格式的 API**  
-  🤖 支持任何符合 OpenAI 格式的端点 API（中转 API），灵活适配多种 AI 模型。
+- **Compatible with OpenAI Format APIs**  
+  🤖 Supports any endpoint API that complies with OpenAI format (gateway APIs), flexibly adapting to various AI models.
 
-- **批量操作**  
-  🚀 支持批量上传和翻译文档，提升工作效率。
+- **Batch Operations**  
+  🚀 Supports batch uploading and translating documents to improve work efficiency.
 
-- **多线程支持**  
-  ⚡ 利用多线程技术，加速文档翻译过程。
+- **Multi-threading Support**  
+  ⚡ Utilizes multi-threading technology to accelerate document translation processes.
 
-- **Docker 部署**  
-  🐳 支持 Docker 一键部署，简单易用。
-
----
-
-## 🛠️ 技术栈
-
-- **前端**：Vue 3 + Vite  
-- **后端**：Python + Flask+MySQL/SQLite  
-- **AI 翻译**：兼容 OpenAI 格式 
-- **部署**：Docker + Nginx  
+- **Docker Deployment**  
+  🐳 Supports one-click Docker deployment, simple and easy to use.
 
 ---
 
-## 效果如图:
-### 用户端页面演示
-![用户端页面](docs/images/image1.png)
-![用户端页面2](docs/images/image2.png)
-![用户端页面3](docs/images/image.png)
+## 🛠️ Tech Stack
 
-### 管理端页面演示
-![管理端页面](docs/images/image3.png)
-![管理端页面2](docs/images/image4.png)
-![管理端页面3](docs/images/image5.png)
+- **Frontend**: Vue 3 + Vite  
+- **Backend**: Python + Flask + MySQL/SQLite  
+- **AI Translation**: Compatible with OpenAI format 
+- **Deployment**: Docker + Nginx  
 
-## 一键部署
+---
+
+## Demo Screenshots:
+### User Interface Demo
+![User Interface](docs/images/image1.png)
+![User Interface 2](docs/images/image2.png)
+![User Interface 3](docs/images/image.png)
+
+### Admin Interface Demo
+![Admin Interface](docs/images/image3.png)
+![Admin Interface 2](docs/images/image4.png)
+![Admin Interface 3](docs/images/image5.png)
+
+## One-Click Deployment
 ```bash
 
 git clone https://github.com/mingchen666/DocTranslator.git
 cd DocTranslator
 
-# 2. 配置后端环境变量 (重要！)
+# 2. Configure backend environment variables (Important!)
 cp backend/.env.example backend/.env
-# 然后编辑 backend/.env 文件，填写数据库等信息
+# Then edit backend/.env file and fill in database information
 
-# 3. 一键部署
+# 3. One-click deployment
 chmod +x deploy.sh && ./deploy.sh
 
 ```
 
 
-## 🚀 本地开发
+## 🚀 Local Development
 
-### 1. 克隆项目
+### 1. Clone the Project
 
 ```bash
 git clone https://github.com/mingchen666/DocTranslator.git
 cd DocTranslator
 ```
 
-### 2. 配置环境变量
+### 2. Configure Environment Variables
 
-在 `backend/.env` 文件中填写必要的环境变量
+Fill in necessary environment variables in the `backend/.env` file
 
 
-### 3. 启动后端
+### 3. Start Backend
 
-进入后端目录安装依赖：
+Enter backend directory and install dependencies:
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 4. 启动后端
+### 4. Start Backend
 
 ```bash
 python app.py
 ```
 
-### 5. 启动前端和管理端
-> **/dist 文件夹已经是打包好了的，直接部署使用即可，不本地开发可以忽略下面步骤**
+### 5. Start Frontend and Admin
+> **The /dist folder is already built and can be deployed directly. Skip the following steps if not developing locally**
 >
 
-*前端*
+*Frontend*
 
 ```bash
 cd frontend
@@ -133,7 +132,7 @@ pnpm install
 pnpm dev
 ```
 
-*管理端*
+*Admin*
 
 ```bash
 cd admin
@@ -142,24 +141,24 @@ pnpm dev
 ```
 
 
-### 6. 访问项目
+### 6. Access the Project
 
-- **前端**：http://localhost:1475  
-- **管理端**：http://localhost:8081  
-- **后端 API**：http://localhost:5000  
+- **Frontend**: http://localhost:1475  
+- **Admin**: http://localhost:8081  
+- **Backend API**: http://localhost:5000  
 
 ---
 
 
-## 🐳 一、Docker 部署（在线镜像beta版本）
+## 🐳 Option 1: Docker Deployment (Online Image Beta Version)
 
-### 1. 创建 Docker 网络
+### 1. Create Docker Network
 
 ```bash
 docker network create my-network
 ```
 
-### 2. 运行后端容器
+### 2. Run Backend Container
 
 ```bash
 cd ..
@@ -170,7 +169,7 @@ docker run -d \
   -v $(pwd)/backend/db:/app/db \
   eggsunsky/doctranslator:latest
 ```
-### 3. 启动 Nginx
+### 3. Start Nginx
 
 ```bash
 docker run -d \
@@ -184,45 +183,45 @@ docker run -d \
   nginx:stable-alpine
 ```
 
-### 4. 访问服务
+### 4. Access Services
 
-- **前端**：http://localhost:1475  
-- **管理端**：http://localhost:8081  
-- **后端 API**：http://localhost:5000 
+- **Frontend**: http://localhost:1475  
+- **Admin**: http://localhost:8081  
+- **Backend API**: http://localhost:5000 
 
-## 🐳 二、Docker 部署（自行构建镜像）
+## 🐳 Option 2: Docker Deployment (Build Your Own Image)
 
-### 1. 项目结构
+### 1. Project Structure
 
 ```plaintext
 DocTranslator/
-├── frontend/          # 前端代码
-├── admin/             # 管理员端代码
-├── backend/           # 后端代码
-├── nginx/             # Nginx 配置
-│   └── nginx.conf     # Nginx 配置文件
+├── frontend/          # Frontend code
+├── admin/             # Admin code
+├── backend/           # Backend code
+├── nginx/             # Nginx configuration
+│   └── nginx.conf     # Nginx configuration file
 ```
 
-### 2. 创建 Docker 网络
+### 2. Create Docker Network
 
 ```bash
 docker network create my-network
 ```
 
-### 3. 后端部署
+### 3. Backend Deployment
 
-#### 3.1 配置环境变量
+#### 3.1 Configure Environment Variables
 
-确保 `DocTranslator/backend/.env` 文件已正确填写环境变量。
+Ensure the `DocTranslator/backend/.env` file has been filled in correctly with environment variables.
 
-#### 3.2 构建后端镜像
+#### 3.2 Build Backend Image
 
 ```bash
 cd DocTranslator/backend
 docker build -t doctranslator .
 ```
 
-#### 3.3 运行后端容器
+#### 3.3 Run Backend Container
 
 ```bash
 cd ..
@@ -234,7 +233,7 @@ docker run -d \
   doctranslator
 ```
 
-### 4. 启动 Nginx
+### 4. Start Nginx
 
 ```bash
 docker run -d \
@@ -248,23 +247,23 @@ docker run -d \
   nginx:stable-alpine
 ```
 
-### 5. 访问服务
+### 5. Access Services
 
-- **前端**：http://localhost:1475  
-- **管理端**：http://localhost:8081  
-- **后端 API**：http://localhost:5000  
-  - *账号*：admin ; *密码*：123456
+- **Frontend**: http://localhost:1475  
+- **Admin**: http://localhost:8081  
+- **Backend API**: http://localhost:5000  
+  - *Account*: admin ; *Password*: 123456
 
 ---
 
-## 🐳 三、Docker-Compose 部署（自行构建镜像）
-###  启动项目
+## 🐳 Option 3: Docker-Compose Deployment (Build Your Own Image)
+###  Start Project
 ```shell
 cd DocTranslator
 docker-compose up -d
 ```
 
-### 更新项目
+### Update Project
 ```shell
 cd /DocTranslator
 docker compose down
@@ -274,24 +273,24 @@ docker compose up -d
 ```
 
 
-## 💖 赞赏支持
+## 💖 Support & Appreciation
 
-维护此项目需要耗费大量精力，如果DocTranslator对你有帮助，欢迎赞赏支持！你的支持是我持续开发的动力！😊  
-<img src="docs/e652698b250efb6e5151b084bd08814.jpg" alt="赞赏码" width="300">
+Maintaining this project requires considerable effort. If DocTranslator has helped you, feel free to support us! Your support is my motivation to continue development! 😊  
+<img src="docs/e652698b250efb6e5151b084bd08814.jpg" alt="Support QR Code" width="300">
 ---
 
-## 📢 交流群
-有任何问题想交流，欢迎加入我们的交流群
-<img src="docs/images/qq-group.png" alt="交流群" width="300">
+## 📢 Community Group
+For any questions or discussions, welcome to join our community group
+<img src="docs/images/qq-group.png" alt="Community Group" width="300">
 
 
-## 🤝 贡献指南
+## 🤝 Contribution Guide
 
-欢迎贡献代码！
+Contributions are welcome!
 
 ---
 
-## 📜 许可
+## 📜 License
 
 [Apache-2.0 license](LICENSE)
 
@@ -299,22 +298,22 @@ docker compose up -d
 
 
 
-## 📞 联系我
+## 📞 Contact Me
 
-如有任何问题或建议，请联系我：  
+For any questions or suggestions, please contact me:  
 ---
 
-## 👋 关于我
+## 👋 About Me
 
-在读生一枚，有点喜欢前端，喜欢探索AI应用和工具开发
-🎉 感谢大家的支持！欢迎 Star ⭐️ 和 Fork 🍴，一起完善 DocTranslator！
+A student who likes frontend development and enjoys exploring AI applications and tool development
+🎉 Thanks for everyone's support! Welcome to Star ⭐️ and Fork 🍴, let's improve DocTranslator together!
 
 
-## 📌 说明
+## 📌 Note
 
-本项目基于 [ezwork](https://github.com/EHEWON/ezwork-ai-doc-translation) 进行重构优化，感谢原作者的贡献！🙏
+This project is based on [ezwork](https://github.com/EHEWON/ezwork-ai-doc-translation) with refactoring and optimization, thanks to the original author's contribution! 🙏
 
-## 🙏 感谢
+## 🙏 Acknowledgments
 
   [BabelDOC](https://github.com/funstory-ai/BabelDOC)
 

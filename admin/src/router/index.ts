@@ -5,8 +5,8 @@ import routeSettings from "@/config/route"
 const Layouts = () => import("@/layouts/index.vue")
 
 /**
- * 常驻路由
- * 除了 redirect/403/404/login 等隐藏页面，其他页面建议设置 Name 属性
+ * Constant routes
+ * Except for hidden pages like redirect/403/404/login, other pages should set Name attribute
  */
 export const constantRoutes: RouteRecordRaw[] = [
   {
@@ -55,7 +55,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/dashboard/index.vue"),
         name: "Dashboard",
         meta: {
-          title: "首页",
+          title: "Dashboard",
           svgIcon: "dashboard",
           affix: true
         }
@@ -71,7 +71,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/customer/index.vue"),
         name: "customer",
         meta: {
-          title: "用户管理",
+          title: "User Management",
           elIcon: "user",
           affix: true
         }
@@ -87,7 +87,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/translate/index.vue"),
         name: "translate_list",
         meta: {
-          title: "翻译任务",
+          title: "Translation Tasks",
           elIcon: "tickets",
           affix: true
         }
@@ -98,7 +98,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     path: "/setting",
     component: Layouts,
     meta: {
-      title: "系统设置",
+      title: "System Settings",
       elIcon: "setting",
       affix: true
     },
@@ -108,7 +108,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/setting/api.vue"),
         name: "setting_api",
         meta: {
-          title: "API设置",
+          title: "API Settings",
           elIcon: "key",
           affix: true
         }
@@ -119,7 +119,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/password/index.vue"),
         name: "ChangePassword",
         meta: {
-          title: "修改密码",
+          title: "Change Password",
           elIcon: "lock",
           affix: true
         }
@@ -129,7 +129,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/setting/file.vue"),
         name: "FileStorage",
         meta: {
-          title: "文件存储管理",
+          title: "File Storage Management",
           elIcon: "files",
           affix: true
         }
@@ -139,7 +139,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/setting/mcp.vue"),
         name: "McpSetting",
         meta: {
-          title: "MCP 管理",
+          title: "MCP Management",
           elIcon: "connection",
           affix: true
         }
@@ -149,7 +149,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/setting/other.vue"),
         name: "setting_other",
         meta: {
-          title: "其他设置",
+          title: "Other Settings",
           elIcon: "tools",
           affix: true
         }
@@ -159,7 +159,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/views/setting/site.vue"),
         name: "setting_site",
         meta: {
-          title: "站点设置",
+          title: "Site Settings",
           elIcon: "setting",
           affix: true
         }
@@ -169,9 +169,9 @@ export const constantRoutes: RouteRecordRaw[] = [
 ]
 
 /**
- * 动态路由
- * 用来放置有权限 (Roles 属性) 的路由
- * 必须带有 Name 属性
+ * Dynamic routes
+ * Used for routes with permissions (Roles attribute)
+ * Must have Name attribute
  */
 export const dynamicRoutes: RouteRecordRaw[] = []
 
@@ -180,9 +180,9 @@ const router = createRouter({
   routes: routeSettings.thirdLevelRouteCache ? flatMultiLevelRoutes(constantRoutes) : constantRoutes
 })
 console.log(routeSettings.thirdLevelRouteCache ? flatMultiLevelRoutes(constantRoutes) : constantRoutes)
-/** 重置路由 */
+/** Reset router */
 export function resetRouter() {
-  // 注意：所有动态路由路由必须带有 Name 属性，否则可能会不能完全重置干净
+  // Note: All dynamic routes must have Name attribute, otherwise they may not be completely reset
   try {
     router.getRoutes().forEach((route) => {
       const { name, meta } = route
@@ -191,7 +191,7 @@ export function resetRouter() {
       }
     })
   } catch {
-    // 强制刷新浏览器也行，只是交互体验不是很好
+    // Force refresh browser is also acceptable, but user experience is not great
     window.location.reload()
   }
 }

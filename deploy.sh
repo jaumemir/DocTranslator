@@ -1,38 +1,38 @@
 #!/bin/bash
 
-# 设置脚本在遇到错误时立即退出
+# Exit immediately if a command exits with a non-zero status
 set -e
 
 echo "=========================================="
-echo "🚀 开始一键部署 DocTranslator"
+echo "🚀 Starting one-click deployment of DocTranslator"
 echo "=========================================="
 
-# 1. 检查并创建 Docker 网络
-echo "📡 检查 Docker 网络..."
+# 1. Check and create Docker network
+echo "📡 Checking Docker network..."
 if ! docker network ls | grep -q my-network; then
-  echo "   -> 创建网络 my-network..."
+  echo "   -> Creating network my-network..."
   docker network create my-network
 else
-  echo "   -> 网络 my-network 已存在，跳过创建。"
+  echo "   -> Network my-network already exists, skipping creation."
 fi
 
-# 2. 创建本地存储目录
-echo "📁 创建本地存储目录..."
+# 2. Create local storage directory
+echo "📁 Creating local storage directory..."
 mkdir -p ./backend-storage
 
-# 3. 停止并删除旧容器（如果存在，避免冲突）
-echo "🧹 清理旧容器..."
+# 3. Stop and remove old containers (if they exist, to avoid conflicts)
+echo "🧹 Cleaning up old containers..."
 docker stop backend-container 2>/dev/null || true
 docker rm backend-container 2>/dev/null || true
 docker stop nginx-container 2>/dev/null || true
 docker rm nginx-container 2>/dev/null || true
 
-# 4. 构建后端镜像
-echo "🔨 构建后端 Docker 镜像..."
+# 4. Build backend image
+echo "🔨 Building backend Docker image..."
 docker build -t doctranslator ./backend
 
-# 5. 启动后端容器
-echo "🌐 启动后端容器..."
+# 5. Start backend container
+echo "🌐 Starting backend container..."
 docker run -d \
   --name backend-container \
   --network my-network \
@@ -41,8 +41,8 @@ docker run -d \
   -v ./backend-storage:/app/storage \
   doctranslator
 
-# 6. 启动 Nginx 容器
-echo "🌍 启动 Nginx 容器..."
+# 6. Start Nginx container
+echo "🌍 Starting Nginx container..."
 docker run -d \
   --name nginx-container \
   -p 1475:80 \
@@ -55,13 +55,13 @@ docker run -d \
 
 echo ""
 echo "=========================================="
-echo "✅ 部署完成！"
+echo "✅ Deployment complete!"
 echo "=========================================="
-echo "前端地址: http://localhost:1475"
-echo "管理端地址: http://localhost:8081"
-echo "后端 API: http://localhost:5000"
+echo "Frontend URL: http://localhost:1475"
+echo "Admin URL: http://localhost:8081"
+echo "Backend API: http://localhost:5000"
 echo "=========================================="
 echo ""
-echo "📌 提示："
-echo "   - 首次部署请使用此脚本。"
-echo "   - 日常更新请使用 './update.sh' 脚本。"
+echo "📌 Tips:"
+echo "   - Use this script for initial deployment."
+echo "   - Use './update.sh' script for daily updates."

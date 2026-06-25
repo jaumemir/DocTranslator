@@ -2,7 +2,7 @@
 from datetime import datetime
 
 def generate_register_email(user: dict, code: str) -> str:
-    """生成注册验证码邮件HTML模板"""
+    """Generate registration verification code email HTML template"""
     return f"""
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -202,7 +202,7 @@ def generate_register_email(user: dict, code: str) -> str:
 
 
 def generate_reset_password_email(user: dict, code: str) -> str:
-    """生成密码重置验证码邮件HTML模板"""
+    """Generate password reset verification code email HTML template"""
     return f"""
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -516,7 +516,7 @@ def generate_reset_password_email(user: dict, code: str) -> str:
 
 
 def generate_new_user_notification(user: dict) -> str:
-    """生成新用户注册通知邮件HTML"""
+    """Generate new user registration notification email HTML"""
     return f"""
     <html>
       <style>
@@ -539,7 +539,7 @@ def generate_new_user_notification(user: dict) -> str:
     """
 
 def generate_password_reset_email(user: dict, code: str) -> str:
-    """生成密码重置邮件HTML"""
+    """Generate password reset email HTML"""
     return f"""
     <html>
       <style>
@@ -558,7 +558,7 @@ def generate_password_reset_email(user: dict, code: str) -> str:
     """
 
 def generate_password_change_email(user: dict) -> str:
-    """生成密码修改通知邮件HTML"""
+    """Generate password change notification email HTML"""
     return f"""
     <html>
       <style>

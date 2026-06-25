@@ -2,7 +2,7 @@
     "name": "DocTranslator",
     "private": true,
     "version": "1.6.0",
-    "description": "一个免费开源的文档翻译服务",
+    "description": "A free and open-source document translation service",
     "type": "module",
     "scripts": {
         "dev": "vite",

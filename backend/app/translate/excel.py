@@ -12,55 +12,55 @@ from . import common
 
 def start(trans: Dict[str, Any]) -> bool:
     """
-    Excel文件翻译入口
-    :param trans: 翻译配置字典
-    :return: 是否成功
+    Excel file translation entry point
+    :param trans: Translation configuration dictionary
+    :return: Whether successful
     """
     translate_id = trans['id']
     start_time = datetime.datetime.now()
 
-    # 加载工作簿
+    # Load workbook
     try:
         wb = openpyxl.load_workbook(trans['file_path'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 无法打开Excel文件: {e}")
-        to_translate.error(translate_id, f"无法打开Excel文件: {str(e)}")
+        logging.error(f"[Task {translate_id}] Unable to open Excel file: {e}")
+        to_translate.error(translate_id, f"Unable to open Excel file: {str(e)}")
         return False
 
-    # 提取所有需要翻译的单元格
+    # Extract all cells that need translation
     texts = []
-    cell_map = []  # 记录单元格位置，用于回写
+    cell_map = []  # Record cell positions for write-back
 
     try:
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
             _extract_sheet_texts(ws, sheet_name, texts, cell_map)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 提取文本失败: {e}")
-        to_translate.error(translate_id, f"提取文本失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Text extraction failed: {e}")
+        to_translate.error(translate_id, f"Text extraction failed: {str(e)}")
         return False
 
     if not texts:
-        logging.info(f"[任务{translate_id}] Excel中没有需要翻译的内容")
+        logging.info(f"[Task {translate_id}] No content to translate in Excel file")
         wb.save(trans['target_file'])
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0s")
         return True
 
-    logging.info(f"[任务{translate_id}] 提取到 {len(texts)} 个单元格需要翻译")
+    logging.info(f"[Task {translate_id}] Extracted {len(texts)} cells for translation")
 
-    # 【关键修改】使用线程池批量翻译
+    # [Key modification] Use thread pool for batch translation
     event = Event()
     success = to_translate.translate_batch(trans, texts, event)
     if not success:
         return False
 
-    # 回写翻译结果
+    # Write back translation results
     try:
         text_count = _apply_translation(wb, texts, cell_map, trans.get('type', ''))
         wb.save(trans['target_file'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 保存文件失败: {e}")
-        to_translate.error(translate_id, f"保存文件失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to save file: {e}")
+        to_translate.error(translate_id, f"Failed to save file: {str(e)}")
         return False
 
     end_time = datetime.datetime.now()
@@ -71,16 +71,16 @@ def start(trans: Dict[str, Any]) -> bool:
 
 def _extract_sheet_texts(ws: Worksheet, sheet_name: str, texts: List[Dict], cell_map: List[Dict]):
     """
-    提取工作表中的文本
-    :param ws: 工作表对象
-    :param sheet_name: 工作表名称
-    :param texts: 文本列表（输出）
-    :param cell_map: 单元格位置映射（输出）
+    Extract text from worksheet
+    :param ws: Worksheet object
+    :param sheet_name: Worksheet name
+    :param texts: Text list (output)
+    :param cell_map: Cell position mapping (output)
     """
-    # 获取合并单元格范围，避免重复翻译
+    # Get merged cell ranges to avoid duplicate translation
     merged_cells = set()
     for merged_range in ws.merged_cells.ranges:
-        # 只保留合并区域的第一个单元格，其他跳过
+        # Only keep the first cell of merged area, skip others
         first_cell = True
         for row in range(merged_range.min_row, merged_range.max_row + 1):
             for col in range(merged_range.min_col, merged_range.max_col + 1):
@@ -89,10 +89,10 @@ def _extract_sheet_texts(ws: Worksheet, sheet_name: str, texts: List[Dict], cell
                 else:
                     merged_cells.add((row, col))
 
-    # 遍历所有单元格
+    # Iterate through all cells
     for row_idx, row in enumerate(ws.iter_rows(), start=1):
         for col_idx, cell in enumerate(row, start=1):
-            # 跳过合并单元格的非首单元格
+            # Skip non-first cells of merged cells
             if (row_idx, col_idx) in merged_cells:
                 continue
 
@@ -114,7 +114,7 @@ def _extract_sheet_texts(ws: Worksheet, sheet_name: str, texts: List[Dict], cell
 
 
 def _should_translate(value) -> bool:
-    """判断单元格值是否需要翻译"""
+    """Determine if cell value needs translation"""
     if value is None:
         return False
     if isinstance(value, (int, float, complex)):
@@ -136,8 +136,8 @@ def _should_translate(value) -> bool:
 
 def _apply_translation(wb, texts: List[Dict], cell_map: List[Dict], trans_type: str) -> int:
     """
-    应用翻译结果到工作簿
-    :return: 翻译字数统计
+    Apply translation results to workbook
+    :return: Translation word count statistics
     """
     text_count = 0
     keep_both = 'both' in trans_type
@@ -161,10 +161,10 @@ def _apply_translation(wb, texts: List[Dict], cell_map: List[Dict], trans_type: 
         translated = text_item.get('text', original)
 
         if keep_both:
-            # 保留原文和译文，用换行分隔
+            # Keep both original and translation, separated by newline
             cell.value = f"{original}\n{translated}"
         else:
-            # 仅保留译文
+            # Keep only translation
             cell.value = translated
 
     return text_count

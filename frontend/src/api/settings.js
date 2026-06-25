@@ -1,15 +1,15 @@
 import request from '@/utils/request'
 /**
- * 获取环境配置信息
+ * Get environment configuration information
  */
-// 版本信息
+// Version information
 export function getVersionSetting() {
   return request({
     url: '/api/common/version',
     method: 'GET',
   });
 }
-// 获取系统设置
+// Get system settings
 export function getSystemSetting() {
   return request({
     url: '/api/common/all_settings',
@@ -17,7 +17,7 @@ export function getSystemSetting() {
   });
 }
 /**
- * 获取翻译设置
+ * Get translation settings
  */
 export function getTranslateSetting() {
   return request({

@@ -6,26 +6,26 @@ from app.translate import word, excel, powerpoint, pdf,txt, csv_handle, md, html
 
 def main_wrapper(task_id, config, origin_path):
     """
-    翻译任务核心逻辑
-    :param task_id: 任务ID
-    :param origin_path: 原始文件绝对路径
-    :param target_path: 目标文件绝对路径
-    :param config: 翻译配置字典
-    :return: 是否成功
+    Translation task core logic
+    :param task_id: Task ID
+    :param origin_path: Original file absolute path
+    :param target_path: Target file absolute path
+    :param config: Translation configuration dictionary
+    :return: Whether successful
     """
     try:
-        # 获取任务对象
+        # Get task object
         task = Translate.query.get(task_id)
         if not task:
-            current_app.logger.error(f"任务 {task_id} 不存在")
+            current_app.logger.error(f"Task {task_id} does not exist")
             return False
 
-        # 初始化翻译配置   (提示词-术语库加载)
+        # Initialize translation configuration (prompt-terminology loading)
         _init_translate_config(task)
         to_translate.init_openai(config['api_url'], config['api_key'])
-        # 获取文件扩展名
+        # Get file extension
         extension = os.path.splitext(origin_path)[1].lower()
-        # 调用文件处理器
+        # Call file handler
         handler_map = {
             ('.docx', '.doc'): word,
             ('.xlsx', '.xls'): excel,
@@ -37,22 +37,22 @@ def main_wrapper(task_id, config, origin_path):
             ('.html', '.htm'): html
         }
 
-        # 查找匹配的处理器
+        # Find matching handler
         for ext_group, handler in handler_map.items():
             if extension in ext_group:
-             
+
                 status = handler.start(
-          
-                    trans=config  # 传递翻译配置
+
+                    trans=config  # Pass translation configuration
                 )
-                print('config配置项', config)
+                print('config settings', config)
                 return status
 
-        current_app.logger.error(f"不支持的文件类型: {extension}")
+        current_app.logger.error(f"Unsupported file type: {extension}")
         return False
 
     except Exception as e:
-        current_app.logger.error(f"翻译任务执行异常: {str(e)}", exc_info=True)
+        current_app.logger.error(f"Translation task execution exception: {str(e)}", exc_info=True)
         return False
 
 
@@ -69,29 +69,29 @@ def pdf_handler(config, origin_path):
 
 def _init_translate_config(trans):
     """
-    初始化翻译配置
-    :param trans: 翻译任务对象
+    Initialize translation configuration
+    :param trans: Translation task object
     """
-    # 设置OpenAI API
+    # Set OpenAI API
     if trans.api_url and trans.api_key:
         set_openai_config(trans.api_url, trans.api_key)
 
 
 def set_openai_config(api_url, api_key):
-    """设置OpenAI API配置"""
+    """Set OpenAI API configuration"""
     import openai
 
-    # 确保URL以/v1/结尾
+    # Ensure URL ends with /v1/
     base_url = api_url
     if not base_url.endswith("/v1/"):
         if base_url.endswith("/v1"):
-            # 如果以 /v1 结尾，添加 /
+            # If ends with /v1, add /
             base_url = base_url + "/"
         elif base_url.endswith("/"):
-            # 如果以 / 结尾，添加 v1/
+            # If ends with /, add v1/
             base_url = base_url + "v1/"
         else:
-            # 如果不以 / 结尾，添加 /v1/
+            # If does not end with /, add /v1/
             base_url = base_url + "/v1/"
 
     openai.base_url = base_url

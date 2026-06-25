@@ -5,7 +5,7 @@
     "useDefineForClassFields": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    /** TS 严格模式 */
+    /** TypeScript strict mode */
     "strict": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
@@ -22,13 +22,13 @@
     "types": [
       "node",
       "vite/client",
-      /** Element Plus 的 Volar 插件支持 */
+      /** Element Plus Volar plugin support */
       "element-plus/global",
       "vitest"
     ],
-    /** baseUrl 用来告诉编译器到哪里去查找模块，使用非相对模块时必须配置此项 */
+    /** baseUrl tells the compiler where to find modules, must be configured when using non-relative modules */
     "baseUrl": ".",
-    /** 非相对模块导入的路径映射配置，根据 baseUrl 配置进行路径计算 */
+    /** Path mapping configuration for non-relative module imports, paths are calculated based on baseUrl */
     "paths": {
       "@/*": ["src/*"],
     }
@@ -43,6 +43,6 @@
     "vite.config.ts",
     "vitest.config.ts"
   ],
-  /** 编译器默认排除的编译文件 */
+  /** Files excluded from compilation by default */
   "exclude": ["node_modules", "dist"]
 }

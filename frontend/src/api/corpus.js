@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-//术语-添加对照数据
+// Terminology - Add comparison data
 export function comparison(params) {
   return request({
       url: `/api/comparison`,
@@ -9,7 +9,7 @@ export function comparison(params) {
   });
 }
 
-//编辑对照数据
+// Edit comparison data
 export function comparison_edit(id,params){
   return request({
       url: `/api/comparison/${id}`,
@@ -18,7 +18,7 @@ export function comparison_edit(id,params){
   });
 }
 
-//删除对照数据
+// Delete comparison data
 export function comparison_del(id){
   return request({
       url: `/api/comparison/${id}`,
@@ -28,7 +28,7 @@ export function comparison_del(id){
 
 
 /**
- * 获取术语表
+ * Get terminology list
  */
 export function comparison_my(){
   return request({
@@ -38,7 +38,7 @@ export function comparison_my(){
 }
 
 
-//更新分享状态
+// Update share status
 export function comparison_share(id,params){
   return request({
       url: `/api/comparison/share/${id}`,
@@ -48,7 +48,7 @@ export function comparison_share(id,params){
 }
 
 /**
- * 获取提示语
+ * Get prompts
  */
 export function prompt_my(){
   return request({
@@ -57,7 +57,7 @@ export function prompt_my(){
   });
 }
 
-//添加提示语
+// Add prompt
 export function prompt_add(params) {
   return request({
       url: `/api/prompt`,
@@ -66,7 +66,7 @@ export function prompt_add(params) {
   });
 }
 
-//编辑提示语
+// Edit prompt
 export function prompt_edit(id,params){
   return request({
       url: `/api/prompt/${id}`,
@@ -75,7 +75,7 @@ export function prompt_edit(id,params){
   });
 }
 
-//更新提示语分享状态
+// Update prompt share status
 export function prompt_share(id,params){
   return request({
       url: `/api/prompt/share/${id}`,
@@ -85,7 +85,7 @@ export function prompt_share(id,params){
 }
 
 
-//删除提示语
+// Delete prompt
 export function prompt_del(id){
   return request({
       url: `/api/prompt/${id}`,

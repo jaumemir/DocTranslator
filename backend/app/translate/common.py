@@ -7,7 +7,7 @@ import platform
 import subprocess
 from typing import Union
 
-# 线程控制常量
+# Thread control constants
 MIN_THREADS = 1
 MAX_THREADS = 10
 DEFAULT_THREADS = 5
@@ -15,7 +15,7 @@ DEFAULT_THREADS = 5
 
 def is_all_punc(strings) -> bool:
     """
-    判断字符串是否全部由标点符号、数字、空白组成
+    Check if a string consists entirely of punctuation marks, digits, and whitespace
     """
     if strings is None:
         return True
@@ -38,14 +38,14 @@ def is_all_punc(strings) -> bool:
 
 
 def is_chinese(char: str) -> bool:
-    """判断字符是否为中文"""
+    """Check if a character is Chinese"""
     if len(char) != 1:
         return False
     return '\u4e00' <= char <= '\u9fff'
 
 
 def get_chinese_punctuation() -> list:
-    """获取中文标点符号列表"""
+    """Get list of Chinese punctuation marks"""
     return ['：', '【', '】', '，', '。', '、', '？', '」', '「',
             '；', '！', '@', '￥', '（', '）', '"', '"', ''', ''',
             '《', '》', '—', '…', '·']
@@ -53,7 +53,7 @@ def get_chinese_punctuation() -> list:
 
 def display_spend(start_time: datetime.datetime, end_time: datetime.datetime) -> str:
     """
-    格式化显示耗时
+    Format and display elapsed time
     """
     left_time = end_time - start_time
     days = left_time.days
@@ -74,13 +74,13 @@ def display_spend(start_time: datetime.datetime, end_time: datetime.datetime) ->
 
 
 def random_uuid(length: int = 8) -> str:
-    """生成随机UUID"""
+    """Generate a random UUID"""
     result = str(uuid.uuid4()).replace('-', '')[:length]
     return result
 
 
 def find_command_location(command: str) -> str:
-    """查找命令的安装位置"""
+    """Find the installation location of a command"""
     if platform.system() == 'Windows':
         cmd = 'where'
     else:
@@ -90,11 +90,11 @@ def find_command_location(command: str) -> str:
         location = subprocess.check_output([cmd, command]).strip()
         return location.decode('utf-8')
     except subprocess.CalledProcessError as e:
-        raise Exception(f"未安装{command}")
+        raise Exception(f"{command} is not installed")
 
 
 def format_file_path(filepath: str) -> str:
-    """格式化文件路径（处理空格等特殊字符）"""
+    """Format file path (handle spaces and other special characters)"""
     filename = os.path.basename(filepath)
     filename = filename.replace(" ", r"\ ").replace("/", "\\")
     parentpath = os.path.dirname(filepath)
@@ -102,7 +102,7 @@ def format_file_path(filepath: str) -> str:
 
 
 def convert_language_name_to_code(language_name: str) -> str:
-    """将中文语言名称转换为标准语言代码"""
+    """Convert Chinese language name to standard language code"""
     language_mapping = {
         '中文': 'zh',
         '英语': 'en',
@@ -128,16 +128,16 @@ def convert_language_name_to_code(language_name: str) -> str:
 
 def parse_threads(threads_config: Union[int, str, None]) -> int:
     """
-    安全解析线程数配置
-    :param threads_config: 可能是 int, str, None
-    :return: 有效的线程数 (1-10)
+    Safely parse thread count configuration
+    :param threads_config: Can be int, str, or None
+    :return: Valid thread count (1-10)
     """
     try:
-        # 处理 None
+        # Handle None
         if threads_config is None:
             return DEFAULT_THREADS
 
-        # 处理字符串
+        # Handle string
         if isinstance(threads_config, str):
             threads_config = threads_config.strip()
             if not threads_config:
@@ -146,7 +146,7 @@ def parse_threads(threads_config: Union[int, str, None]) -> int:
         else:
             threads = int(threads_config)
 
-        # 边界检查
+        # Boundary check
         if threads < MIN_THREADS:
             return MIN_THREADS
         if threads > MAX_THREADS:
@@ -160,8 +160,8 @@ def parse_threads(threads_config: Union[int, str, None]) -> int:
 
 def count_words(text: str) -> int:
     """
-    统计文本字数
-    中文按字计数，英文按0.5计数
+    Count words in text
+    Chinese characters count as 1, English characters count as 0.5
     """
     if not text:
         return 0
@@ -178,10 +178,10 @@ def count_words(text: str) -> int:
 
 def safe_filename(filename: str) -> str:
     """
-    生成安全的文件名
-    移除或替换不安全的字符
+    Generate safe filename
+    Remove or replace unsafe characters
     """
-    # 不安全字符
+    # Unsafe characters
     unsafe_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
     for char in unsafe_chars:
         filename = filename.replace(char, '_')
@@ -190,8 +190,8 @@ def safe_filename(filename: str) -> str:
 
 def ensure_dir(dir_path: str) -> bool:
     """
-    确保目录存在
-    :return: 是否成功
+    Ensure directory exists
+    :return: Whether successful
     """
     try:
         os.makedirs(dir_path, exist_ok=True)
@@ -201,12 +201,12 @@ def ensure_dir(dir_path: str) -> bool:
 
 
 def get_file_extension(filepath: str) -> str:
-    """获取文件扩展名（小写）"""
+    """Get file extension (lowercase)"""
     return os.path.splitext(filepath)[1].lower()
 
 
 def is_supported_file(filepath: str) -> bool:
-    """判断是否为支持的文件类型"""
+    """Check if the file type is supported"""
     supported_extensions = [
         '.docx', '.doc',
         '.xlsx', '.xls',

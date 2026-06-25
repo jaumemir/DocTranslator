@@ -104,7 +104,7 @@ const fetchTermList = async () => {
       termList.value = res.data.data
     }
   } catch (error) {
-    console.error('获取术语列表失败:', error)
+    console.error('Failed to get terminology list:', error)
     ElMessage.error('获取术语列表失败')
   }
 }
@@ -128,7 +128,7 @@ const submitForm = async () => {
     translateStore.updateAIServerSettings({ comparison_id: form.value.comparison_id })
     ElMessage.success('保存成功!')
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('Form validation failed:', error)
     ElMessage.error('请检查表单填写是否正确')
   }
 }

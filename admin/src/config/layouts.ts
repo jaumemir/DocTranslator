@@ -1,39 +1,39 @@
 import { getConfigLayout } from "@/utils/cache/local-storage"
 import { LayoutModeEnum } from "@/constants/app-key"
 
-/** 项目配置类型 */
+/** Project configuration type */
 export interface LayoutSettings {
-  /** 是否显示 Settings Panel */
+  /** Whether to show Settings Panel */
   showSettings: boolean
-  /** 布局模式 */
+  /** Layout mode */
   layoutMode: LayoutModeEnum
-  /** 是否显示标签栏 */
+  /** Whether to show tags view */
   showTagsView: boolean
-  /** 是否显示 Logo */
+  /** Whether to show Logo */
   showLogo: boolean
-  /** 是否固定 Header */
+  /** Whether to fix Header */
   fixedHeader: boolean
-  /** 是否显示页脚 Footer */
+  /** Whether to show Footer */
   showFooter: boolean
-  /** 是否显示消息通知 */
+  /** Whether to show notifications */
   showNotify: boolean
-  /** 是否显示切换主题按钮 */
+  /** Whether to show theme switch button */
   showThemeSwitch: boolean
-  /** 是否显示全屏按钮 */
+  /** Whether to show fullscreen button */
   showScreenfull: boolean
-  /** 是否显示搜索按钮 */
+  /** Whether to show search menu button */
   showSearchMenu: boolean
-  /** 是否缓存标签栏 */
+  /** Whether to cache tags view */
   cacheTagsView: boolean
-  /** 开启系统水印 */
+  /** Enable system watermark */
   showWatermark: boolean
-  /** 是否显示灰色模式 */
+  /** Whether to show grey mode */
   showGreyMode: boolean
-  /** 是否显示色弱模式 */
+  /** Whether to show color weakness mode */
   showColorWeakness: boolean
 }
 
-/** 默认配置 */
+/** Default configuration */
 const defaultSettings: LayoutSettings = {
   layoutMode: LayoutModeEnum.Left,
   showSettings: true,
@@ -51,5 +51,5 @@ const defaultSettings: LayoutSettings = {
   showColorWeakness: false
 }
 
-/** 项目配置 */
+/** Project configuration */
 export const layoutSettings: LayoutSettings = { ...defaultSettings, ...getConfigLayout() }

@@ -8,7 +8,7 @@ from app.models.customer import Customer
 
 class GuestIdResource(Resource):
     def get(self):
-        """生成临时访客唯一标识"""
+        """Generate temporary guest unique identifier"""
         guest_id = str(uuid.uuid4())
         return APIResponse.success({
             'guest_id': guest_id
@@ -18,7 +18,7 @@ class GuestIdResource(Resource):
 class CustomerDetailResource(Resource):
     @jwt_required()
     def get(self, customer_id):
-        """获取客户详细信息"""
+        """Get customer detailed information"""
         customer = Customer.query.get_or_404(customer_id)
         return APIResponse.success({
             'id': customer.id,

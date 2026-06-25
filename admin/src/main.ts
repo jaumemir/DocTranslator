@@ -19,11 +19,11 @@ import "@/styles/index.scss"
 
 const app = createApp(App)
 
-/** 加载插件 */
+/** Load plugins */
 loadPlugins(app)
-/** 加载全局 SVG */
+/** Load global SVG */
 loadSvg(app)
-/** 加载自定义指令 */
+/** Load custom directives */
 loadDirectives(app)
 
 app.use(store).use(router)

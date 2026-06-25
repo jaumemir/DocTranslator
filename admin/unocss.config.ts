@@ -1,16 +1,16 @@
 import { defineConfig, presetAttributify, presetUno } from "unocss"
 
 export default defineConfig({
-  /** 预设 */
+  /** Presets */
   presets: [
-    /** 属性化模式 & 无值的属性模式 */
+    /** Attributify mode & valueless attribute mode */
     presetAttributify(),
-    /** 默认预设 */
+    /** Default preset */
     presetUno()
   ],
-  /** 自定义规则 */
+  /** Custom rules */
   rules: [["uno-padding-20", { padding: "20px" }]],
-  /** 自定义快捷方式 */
+  /** Custom shortcuts */
   shortcuts: {
     "uno-wh-full": "w-full h-full",
     "uno-flex-center": "flex justify-center items-center",

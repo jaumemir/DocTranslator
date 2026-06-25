@@ -14,16 +14,16 @@ import pytz
 class TranslateEngine:
     def __init__(self, task_id):
         self.task_id = task_id
-        self.app = current_app._get_current_object()  # 获取真实app对象
+        self.app = current_app._get_current_object()  # Get real app object
 
     def execute(self):
-        """启动翻译任务入口"""
+        """Start translation task entry point"""
         try:
-            # 在主线程上下文中准备任务
+            # Prepare task in main thread context
             with self.app.app_context():
                 task = self._prepare_task()
 
-            # 启动线程时传递真实app对象和任务ID
+            # Pass real app object and task ID when starting thread
             thr = Thread(
                 target=self._async_wrapper,
                 args=(self.app, self.task_id)
@@ -31,63 +31,63 @@ class TranslateEngine:
             thr.start()
             return True
         except Exception as e:
-            self.app.logger.error(f"任务初始化失败: {str(e)}", exc_info=True)
+            self.app.logger.error(f"Task initialization failed: {str(e)}", exc_info=True)
             return False
 
     def _async_wrapper(self, app, task_id):
-        """异步执行包装器"""
+        """Async execution wrapper"""
         with app.app_context():
-            from app.extensions import db  # 确保在每个线程中导入
+            from app.extensions import db  # Ensure import in each thread
             try:
-                # 使用新会话获取任务对象
+                # Get task object using new session
                 task = db.session.query(Translate).get(task_id)
                 if not task:
-                    app.logger.error(f"任务 {task_id} 不存在")
+                    app.logger.error(f"Task {task_id} does not exist")
                     return
 
-                # 执行核心逻辑
+                # Execute core logic
                 success = self._execute_core(task)
                 self._complete_task(success)
             except Exception as e:
-                app.logger.error(f"任务执行异常: {str(e)}", exc_info=True)
+                app.logger.error(f"Task execution exception: {str(e)}", exc_info=True)
                 self._complete_task(False)
             finally:
-                db.session.remove()  # 清理线程局部session
+                db.session.remove()  # Clean up thread-local session
 
     def _execute_core(self, task):
-        """执行核心翻译逻辑"""
+        """Execute core translation logic"""
         try:
-            # 初始化翻译配置
+            # Initialize translation configuration
             self._init_translate_config(task)
 
-            # 构建符合要求的 trans 字典
+            # Build trans dictionary as required
             trans_config = self._build_trans_config(task)
 
-            # 调用 main_wrapper 执行翻译
+            # Call main_wrapper to execute translation
             return main_wrapper(task_id=task.id, config=trans_config,
                                 origin_path=task.origin_filepath)
         except Exception as e:
-            current_app.logger.error(f"翻译执行失败: {str(e)}", exc_info=True)
+            current_app.logger.error(f"Translation execution failed: {str(e)}", exc_info=True)
             return False
 
     def _prepare_task(self):
-        """准备翻译任务"""
+        """Prepare translation task"""
         task = Translate.query.get(self.task_id)
         if not task:
-            raise ValueError(f"任务 {self.task_id} 不存在")
+            raise ValueError(f"Task {self.task_id} does not exist")
 
-        # 验证文件存在性
+        # Verify file exists
         if not os.path.exists(task.origin_filepath):
-            raise FileNotFoundError(f"原始文件不存在: {task.origin_filepath}")
+            raise FileNotFoundError(f"Original file does not exist: {task.origin_filepath}")
 
-        # 更新任务状态
+        # Update task status
         task.status = 'process'
-        task.start_at = datetime.now(pytz.timezone(self.app.config['TIMEZONE']))  # 使用配置的时区
+        task.start_at = datetime.now(pytz.timezone(self.app.config['TIMEZONE']))  # Use configured timezone
         db.session.commit()
         return task
 
     def _build_trans_config(self, task):
-        """构建符合文件处理器要求的 trans 字典"""
+        """Build trans dictionary as required by file handlers"""
         config = {
             'id': task.id,  # 任务ID
             'target_lang': task.lang,
@@ -120,62 +120,62 @@ class TranslateEngine:
 
     def _get_final_prompt(self, task):
         """
-        获取最终的prompt
-        优先使用prompt_id对应的模板，其次使用task.prompt
+        Get final prompt
+        Prioritize using template from prompt_id, otherwise use task.prompt
         """
-        # 如果有prompt_id，查询数据库
+        # If has prompt_id, query database
         if task.prompt_id and task.prompt_id != 0:
             try:
                 prompt_obj = db.session.query(Prompt).filter_by(id=task.prompt_id).first()
                 if prompt_obj and prompt_obj.content:
-                    logging.info(f"[任务{task.id}] 使用提示词模板ID: {task.prompt_id}")
+                    logging.info(f"[Task{task.id}] Using prompt template ID: {task.prompt_id}")
                     return prompt_obj.content
                 else:
                     logging.warning(
-                        f"[任务{task.id}] 提示词模板ID {task.prompt_id} 不存在或内容为空")
+                        f"[Task{task.id}] Prompt template ID {task.prompt_id} does not exist or is empty")
             except Exception as e:
-                logging.error(f"[任务{task.id}] 获取提示词模板失败: {e}")
+                logging.error(f"[Task{task.id}] Failed to get prompt template: {e}")
 
-        # 使用任务中的prompt
-        prompt = task.prompt or "请将以下文本翻译成{target_lang}，保持原文的格式和风格："
+        # Use prompt from task
+        prompt = task.prompt or "Please translate the following text to {target_lang}, maintaining the original format and style:"
 
-        logging.info(f"[任务{task.id}] 使用任务自带prompt")
+        logging.info(f"[Task{task.id}] Using task's built-in prompt")
         return prompt
 
     def _get_matched_terms(self, task):
         """
-        获取术语库内容（用于AI翻译动态匹配）
-        返回解析后的术语对列表
+        Get terminology content (for AI translation dynamic matching)
+        Return parsed term pair list
         """
         if not task.comparison_id or task.comparison_id == 0:
-            logging.info(f"[任务{task.id}] 未设置术语库ID")
+            logging.info(f"[Task{task.id}] No terminology ID set")
             return None
 
-        logging.info(f"[任务{task.id}] 开始查询术语库ID: {task.comparison_id}")
+        logging.info(f"[Task{task.id}] Starting to query terminology ID: {task.comparison_id}")
 
         try:
-            # 添加更详细的查询条件，确保未删除
+            # Add more detailed query conditions, ensure not deleted
             comparison = db.session.query(Comparison).filter(
                 Comparison.id == task.comparison_id,
                 Comparison.deleted_flag == 'N'
             ).first()
 
             if not comparison:
-                logging.warning(f"[任务{task.id}] 术语库ID {task.comparison_id} 不存在或已删除")
+                logging.warning(f"[Task{task.id}] Terminology ID {task.comparison_id} does not exist or is deleted")
                 return None
 
             if not comparison.content or comparison.content.strip() == '':
-                logging.warning(f"[任务{task.id}] 术语库ID {task.comparison_id} 内容为空")
+                logging.warning(f"[Task{task.id}] Terminology ID {task.comparison_id} content is empty")
                 return None
 
             logging.info(
-                f"[任务{task.id}] 找到术语库: {comparison.title}, 内容长度: {len(comparison.content)}")
+                f"[Task{task.id}] Found terminology: {comparison.title}, content length: {len(comparison.content)}")
 
-            # 解析术语库内容
+            # Parse terminology content
             terms_content = comparison.content.strip()
             term_pairs = []
 
-            # 支持多种分隔符
+            # Support multiple separators
             separator = ';'
             if ';' not in terms_content:
                 if '\n' in terms_content:
@@ -188,7 +188,7 @@ class TranslateEngine:
                 if not term_pair:
                     continue
 
-                # 支持多种格式：逗号、制表符、冒号
+                # Support multiple formats: comma, tab, colon
                 if ',' in term_pair:
                     parts = term_pair.split(',', 1)
                 elif '\t' in term_pair:
@@ -211,52 +211,52 @@ class TranslateEngine:
                     })
 
             if term_pairs:
-                logging.info(f"[任务{task.id}] 成功解析术语库，共 {len(term_pairs)} 个术语对")
-                # 打印前几个术语对作为示例
+                logging.info(f"[Task{task.id}] Successfully parsed terminology, total {len(term_pairs)} term pairs")
+                # Print first few term pairs as example
                 sample = term_pairs[:3]
                 for i, pair in enumerate(sample):
                     logging.info(
-                        f"[任务{task.id}] 术语示例{i + 1}: {pair['source']} → {pair['target']}")
+                        f"[Task{task.id}] Term example{i + 1}: {pair['source']} → {pair['target']}")
                 return term_pairs
             else:
                 logging.warning(
-                    f"[任务{task.id}] 术语库解析后为空，原始内容: {terms_content[:100]}...")
+                    f"[Task{task.id}] Terminology is empty after parsing, original content: {terms_content[:100]}...")
                 return None
 
         except Exception as e:
-            logging.error(f"[任务{task.id}] 获取术语库失败: {e}")
+            logging.error(f"[Task{task.id}] Failed to get terminology: {e}")
             import traceback
             traceback.print_exc()
             return None
 
     def _should_use_baidu_terms(self, task):
         """
-        判断百度翻译是否启用术语库
+        Determine if Baidu translation should enable terminology
         """
         if task.server != 'baidu':
             return False
 
-        # 百度翻译：comparison_id=1表示启用术语库
+        # Baidu translation: comparison_id=1 means enable terminology
         return task.comparison_id == 1
 
     def _init_translate_config(self, task):
-        """初始化翻译配置"""
+        """Initialize translation configuration"""
         if task.api_url and task.api_key:
             import openai
             openai.api_base = task.api_url
             openai.api_key = task.api_key
 
     def _complete_task(self, success):
-        """更新任务状态"""
+        """Update task status"""
         try:
             task = db.session.query(Translate).get(self.task_id)
             if task:
                 task.status = 'done' if success else 'failed'
-                task.end_at = datetime.now(pytz.timezone(self.app.config['TIMEZONE']))  # 使用配置的时区
+                task.end_at = datetime.now(pytz.timezone(self.app.config['TIMEZONE']))  # Use configured timezone
                 task.process = 100.00 if success else 0.00
                 db.session.commit()
         except Exception as e:
             db.session.rollback()
-            self.app.logger.error(f"状态更新失败: {str(e)}", exc_info=True)
+            self.app.logger.error(f"Status update failed: {str(e)}", exc_info=True)
 
 

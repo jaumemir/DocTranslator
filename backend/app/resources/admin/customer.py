@@ -9,14 +9,14 @@ from app.utils.auth_tools import hash_password
 from app.utils.response import APIResponse
 
 
-# 获取用户列表
+# Get customer list
 class AdminCustomerListResource(Resource):
     @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('page', type=int, required=False, location='args')  # 可选，默认值为 1
-        parser.add_argument('limit', type=int, required=False, location='args')  # 可选，默认值为 10
-        parser.add_argument('keyword', type=str, required=False, location='args')  # 可选，无默认值
+        parser.add_argument('page', type=int, required=False, location='args')  # Optional, default 1
+        parser.add_argument('limit', type=int, required=False, location='args')  # Optional, default 10
+        parser.add_argument('keyword', type=str, required=False, location='args')  # Optional, no default
         args = parser.parse_args()
         query = Customer.query
         if args['keyword']:
@@ -30,45 +30,45 @@ class AdminCustomerListResource(Resource):
         })
 
 
-# 更新用户状态
+# Update customer status
 class CustomerStatusResource(Resource):
     @jwt_required()
     def post(self, id):
-        # 解析请求体中的状态参数
+        # Parse status parameter from request body
         parser = reqparse.RequestParser()
         parser.add_argument('status', type=str, required=True, choices=('enabled', 'disabled'),
-                            help="状态必须是 'enabled' 或 'disabled'")
+                            help="Status must be 'enabled' or 'disabled'")
         args = parser.parse_args()
 
-        # 查询用户
+        # Query customer
         customer = Customer.query.get(id)
         if not customer:
-            return APIResponse.error(message="用户不存在", code=404)
+            return APIResponse.error(message="Customer does not exist", code=404)
 
-        # 更新用户状态
+        # Update customer status
         customer.status = args['status']
-        db.session.commit()  # 假设 db 是你的 SQLAlchemy 实例
-        # 更新用户状态
+        db.session.commit()  # Assuming db is your SQLAlchemy instance
+        # Update customer status
         customer.status = args['status']
-        print(f"更新前的状态: {customer.status}")  # 调试
+        print(f"Status before update: {customer.status}")  # Debug
         db.session.commit()
-        print(f"更新后的状态: {customer.status}")  # 调试
+        print(f"Status after update: {customer.status}")  # Debug
 
-        # 返回更新后的用户信息
+        # Return updated customer info
         return APIResponse.success(data=customer.to_dict())
 
 
-# 创建新用户
+# Create new customer
 class AdminCreateCustomerResource(Resource):
     @jwt_required()
     def put(self):
         data = request.json
         required_fields = ['email', 'password']  # 'name',
         if not all(field in data for field in required_fields):
-            return APIResponse.error('缺少必要参数!', 400)
+            return APIResponse.error('Missing required parameters!', 400)
 
         if Customer.query.filter_by(email=data['email']).first():
-            return APIResponse.error('邮箱已存在', 400)
+            return APIResponse.error('Email already exists', 400)
 
         customer = Customer(
             # name=data['name'],
@@ -80,11 +80,11 @@ class AdminCreateCustomerResource(Resource):
         db.session.commit()
         return APIResponse.success({
             'customer_id': customer.id,
-            'message': '用户创建成功'
+            'message': 'Customer created successfully'
         })
 
 
-# 获取用户信息
+# Get customer information
 class AdminCustomerDetailResource(Resource):
     @jwt_required()
     def get(self, id):
@@ -101,7 +101,7 @@ class AdminCustomerDetailResource(Resource):
         })
 
 
-# 编辑用户信息
+# Edit customer information
 class AdminUpdateCustomerResource(Resource):
     @jwt_required()
     def post(self, id):
@@ -109,7 +109,7 @@ class AdminUpdateCustomerResource(Resource):
         data = request.json
 
         if 'email' in data and Customer.query.filter(Customer.email == data['email'],Customer.id != id).first():
-            return APIResponse.error('邮箱已被使用', 400)
+            return APIResponse.error('Email already in use', 400)
 
         if 'name' in data:
             customer.name = data['name']
@@ -120,14 +120,14 @@ class AdminUpdateCustomerResource(Resource):
         if 'add_storage' in data:
             customer.total_storage += int(data['add_storage']) * 1024 * 1024
         db.session.commit()
-        return APIResponse.success(message='用户信息更新成功')
+        return APIResponse.success(message='Customer information updated successfully')
 
 
-# 删除用户
+# Delete customer
 class AdminDeleteCustomerResource(Resource):
     @jwt_required()
     def delete(self, id):
         customer = Customer.query.get_or_404(id)
         customer.deleted_flag = 'Y'
         db.session.commit()
-        return APIResponse.success(message='用户删除成功')
+        return APIResponse.success(message='Customer deleted successfully')

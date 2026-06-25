@@ -33,7 +33,7 @@ def get_flask_app():
 def flask_app_context():
     app = get_flask_app()
     if app is None:
-        raise RuntimeError("Flask app 不可用")
+        raise RuntimeError("Flask app not available")
     with app.app_context():
         yield app
 
@@ -50,7 +50,7 @@ async def _run_in_thread(func, *args):
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, func, *args)
     except Exception as e:
-        logger.error(f"MCP tool 执行失败: {e}", exc_info=True)
+        logger.error(f"MCP tool execution failed: {e}", exc_info=True)
         return {'error': str(e)}
 
 
@@ -78,28 +78,28 @@ async def translate_file(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    翻译文档文件。
+    Translate document file.
 
-    传文件方式（三选一）：
-    - file_content: 文件Base64编码（推荐，适用于Claude Desktop等MCP客户端）
-    - file_url: 文件下载URL（需公网可访问）
-    - 两者都不传时，file_name 视为服务器本地绝对路径
+    File transfer methods (choose one):
+    - file_content: File Base64 encoding (recommended, suitable for Claude Desktop and other MCP clients)
+    - file_url: File download URL (needs public network access)
+    - If neither is provided, file_name is treated as server local absolute path
 
-    api_url/api_key/model/prompt_id/threads 等配置由你的MCP密钥自动提供，无需传入。
+    api_url/api_key/model/prompt_id/threads and other configs are automatically provided by your MCP key, no need to pass in.
 
     Args:
-        file_content: 文件内容的Base64编码
-        file_url: 文件下载链接
-        file_name: 原始文件名（含扩展名，如report.docx）
-        target_lang: 目标语言（中文/英语/日语/韩语/法语/德语/西班牙语/俄语等），不填则使用MCP密钥配置中的默认语言
-        origin_lang: 源语言（不填则自动检测）
-        translate_type: 翻译类型 - trans_all_only_inherit(继承原版面,默认), trans_all_both_inherit(双语继承版面), trans_text_only(仅译文), trans_text_only_new(仅译文新排版)
-        comparison_id: 术语库ID（可通过list_comparisons获取）
+        file_content: File content Base64 encoded
+        file_url: File download link
+        file_name: Original filename (with extension, e.g., report.docx)
+        target_lang: Target language (Chinese/English/Japanese/Korean/French/German/Spanish/Russian, etc.), if not filled, uses default language from MCP key config
+        origin_lang: Source language (auto-detect if not filled)
+        translate_type: Translation type - trans_all_only_inherit(inherit layout, default), trans_all_both_inherit(bilingual inherit layout), trans_text_only(translation only), trans_text_only_new(translation only new layout)
+        comparison_id: Terminology ID (can be obtained via list_comparisons)
     """
     from app.mcp.tools import translate_file as do_translate
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
     config = token.claims['config']
@@ -122,16 +122,16 @@ async def query_translate_status(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    查询翻译任务进度和状态。
+    Query translation task progress and status.
 
     Args:
-        task_id: 翻译任务ID（启动翻译时返回）
-        uuid: 翻译任务UUID(推荐使用这个查询)
+        task_id: Translation task ID (returned when starting translation)
+        uuid: Translation task UUID (recommended for queries)
     """
     from app.mcp.tools import query_translate_status as do_query
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -150,17 +150,17 @@ async def list_translates(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    获取翻译历史记录列表。
+    Get translation history list.
 
     Args:
-        page: 页码，默认1
-        limit: 每页数量，默认20
-        status: 按状态过滤（none/process/done/failed）
+        page: Page number, default 1
+        limit: Items per page, default 20
+        status: Filter by status (none/process/done/failed)
     """
     from app.mcp.tools import list_translates as do_list
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -177,15 +177,15 @@ async def download_translate(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    下载翻译完成的文件，返回Base64编码的文件内容。
+    Download completed translation file, returns Base64 encoded file content.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     from app.mcp.tools import download_translate as do_download
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -202,15 +202,15 @@ async def delete_translate(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    删除翻译记录。
+    Delete translation record.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     from app.mcp.tools import delete_translate as do_delete
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -225,11 +225,11 @@ async def delete_translate(
 async def list_comparisons(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取我的术语库列表。返回每个术语库的ID、标题、源语言、目标语言和术语数量。"""
+    """Get my terminology list. Returns ID, title, source language, target language, and term count for each terminology."""
     from app.mcp.tools import list_comparisons as do_list
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -244,11 +244,11 @@ async def list_comparisons(
 async def list_prompts(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取我的提示词模板列表。返回每个模板的ID、标题和共享状态。"""
+    """Get my prompt template list. Returns ID, title, and sharing status for each template."""
     from app.mcp.tools import list_prompts as do_list
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -263,11 +263,11 @@ async def list_prompts(
 async def get_account_info(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取当前账户信息，包括邮箱、会员等级、存储空间使用情况。"""
+    """Get current account information, including email, membership level, and storage space usage."""
     from app.mcp.tools import get_account_info as do_get
 
     if not token:
-        return {'error': '鉴权失败'}
+        return {'error': 'Authentication failed'}
 
     customer_id = int(token.claims['customer_id'])
 
@@ -280,7 +280,7 @@ async def get_account_info(
 
 @user_mcp.tool
 async def get_supported_formats() -> dict:
-    """获取系统支持的文件翻译格式列表。"""
+    """Get list of file translation formats supported by the system."""
     from app.mcp.tools import get_supported_formats as do_get
     return do_get()
 
@@ -290,8 +290,8 @@ admin_mcp = FastMCP(
     stateless_http=True,
     auth=McpApiKeyAuthProvider(scope='admin'),
     instructions=(
-        "DocTranslator 管理后台MCP服务。"
-        "你可以查看翻译统计、管理用户、管理翻译任务、修改系统设置。"
+        "DocTranslator admin backend MCP service."
+        "You can view translation statistics, manage users, manage translation tasks, and modify system settings."
     ),
 )
 
@@ -300,7 +300,7 @@ admin_mcp = FastMCP(
 async def get_statistics(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取翻译统计信息：总数、完成数、处理中、失败数。"""
+    """Get translation statistics: total count, completed count, processing count, failed count."""
     from app.models.translate import Translate
 
     @_run_sync
@@ -327,12 +327,12 @@ async def list_customers(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    获取客户列表。
+    Get customer list.
 
     Args:
-        page: 页码
-        limit: 每页数量
-        search: 按邮箱搜索
+        page: Page number
+        limit: Items per page
+        search: Search by email
     """
     from app.models.customer import Customer
 
@@ -367,13 +367,13 @@ async def update_customer(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    更新客户信息。
+    Update customer information.
 
     Args:
-        customer_id: 客户ID
-        level: 会员等级（common/vip）
-        add_storage_mb: 追加存储空间（MB）
-        status: 账户状态（enabled/disabled）
+        customer_id: Customer ID
+        level: Membership level (common/vip)
+        add_storage_mb: Add storage space (MB)
+        status: Account status (enabled/disabled)
     """
     from app.extensions import db
     from app.models.customer import Customer
@@ -382,7 +382,7 @@ async def update_customer(
     def _do():
         customer = Customer.query.get(customer_id)
         if not customer:
-            return {'error': '客户不存在'}
+            return {'error': 'Customer does not exist'}
 
         if level and level in ('common', 'vip'):
             customer.level = level
@@ -392,7 +392,7 @@ async def update_customer(
             customer.status = status
 
         db.session.commit()
-        return {'message': '更新成功'}
+        return {'message': 'Updated successfully'}
 
     return await _run_in_thread(_do)
 
@@ -406,13 +406,13 @@ async def admin_list_translates(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    获取所有翻译记录（管理员视图）。
+    Get all translation records (admin view).
 
     Args:
-        page: 页码
-        limit: 每页数量
-        status: 按状态过滤
-        keyword: 按文件名搜索
+        page: Page number
+        limit: Items per page
+        status: Filter by status
+        keyword: Search by filename
     """
     from app.models.translate import Translate
     from app.models.customer import Customer
@@ -429,7 +429,7 @@ async def admin_list_translates(
             page=page, per_page=limit, error_out=False
         )
 
-        status_map = {'none': '未开始', 'process': '进行中', 'done': '已完成', 'failed': '失败'}
+        status_map = {'none': 'Not started', 'process': 'In progress', 'done': 'Completed', 'failed': 'Failed'}
         data = []
         for t in pagination.items:
             customer = Customer.query.get(t.customer_id)
@@ -437,9 +437,9 @@ async def admin_list_translates(
                 'task_id': t.id,
                 'file_name': t.origin_filename,
                 'status': t.status,
-                'status_name': status_map.get(t.status, '未知'),
+                'status_name': status_map.get(t.status, 'Unknown'),
                 'progress': float(t.process),
-                'customer_email': customer.email if customer else '未知',
+                'customer_email': customer.email if customer else 'Unknown',
                 'target_lang': t.lang,
                 'model': t.model,
             })
@@ -455,10 +455,10 @@ async def admin_restart_translate(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    重启失败的翻译任务。
+    Restart failed translation task.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     from app.extensions import db
     from app.models.translate import Translate
@@ -467,16 +467,16 @@ async def admin_restart_translate(
     def _do():
         record = Translate.query.get(task_id)
         if not record:
-            return {'error': '翻译记录不存在'}
+            return {'error': 'Translation record does not exist'}
         if record.status not in ('failed', 'done'):
-            return {'error': f'当前状态 {record.status} 无法重启'}
+            return {'error': f'Current status {record.status} cannot be restarted'}
 
         record.status = 'none'
         record.start_at = None
         record.end_at = None
         record.failed_reason = None
         db.session.commit()
-        return {'message': '任务已重启'}
+        return {'message': 'Task has been restarted'}
 
     return await _run_in_thread(_do)
 
@@ -487,10 +487,10 @@ async def admin_delete_translate(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
     """
-    删除翻译记录。
+    Delete translation record.
 
     Args:
-        task_id: 翻译任务ID
+        task_id: Translation task ID
     """
     from app.extensions import db
     from app.models.translate import Translate
@@ -499,10 +499,10 @@ async def admin_delete_translate(
     def _do():
         record = Translate.query.get(task_id)
         if not record:
-            return {'error': '翻译记录不存在'}
+            return {'error': 'Translation record does not exist'}
         db.session.delete(record)
         db.session.commit()
-        return {'message': '记录删除成功'}
+        return {'message': 'Record deleted successfully'}
 
     return await _run_in_thread(_do)
 
@@ -511,7 +511,7 @@ async def admin_delete_translate(
 async def get_system_settings(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取系统设置：API配置、默认模型、线程数等。"""
+    """Get system settings: API configuration, default model, thread count, etc."""
     from app.models.setting import Setting
 
     @_run_sync
@@ -533,7 +533,7 @@ async def get_system_settings(
 async def get_storage_info(
     token: AccessToken = CurrentAccessToken(),
 ) -> dict:
-    """获取系统存储空间使用详情。"""
+    """Get system storage space usage details."""
 
     @_run_sync
     def _do():
@@ -542,7 +542,7 @@ async def get_storage_info(
         storage_path = os.path.join(base_dir, 'storage')
 
         if not os.path.exists(storage_path):
-            return {'error': 'storage目录不存在'}
+            return {'error': 'Storage directory does not exist'}
 
         result = {}
         for category in os.listdir(storage_path):

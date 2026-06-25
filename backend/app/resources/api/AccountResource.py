@@ -19,16 +19,16 @@ import random
 class ChangePasswordResource(Resource):
     @jwt_required()
     def post(self):
-        """修改密码（旧密码验证）"""
+        """Change password (old password verification)"""
         user_id = get_jwt_identity()
         data = request.json
 
-        # 参数校验
+        # Parameter validation
         required_fields = ['oldpwd', 'newpwd', 'newpwd_confirmation']
         if not all(field in data for field in required_fields):
             return APIResponse.error('缺少必要参数', 400)
 
-        # 密码一致性验证
+        # Password consistency verification
         is_valid, msg = validate_password_confirmation({
             'password': data['newpwd'],
             'password_confirmation': data['newpwd_confirmation']
@@ -36,7 +36,7 @@ class ChangePasswordResource(Resource):
         if not is_valid:
             return APIResponse.error(msg, 400)
 
-        # 密码复杂度验证
+        # Password complexity verification
         is_valid, msg = validate_password_complexity(data['newpwd'])
         if not is_valid:
             return APIResponse.error(msg, 422)
@@ -54,13 +54,13 @@ class ChangePasswordResource(Resource):
 class SendChangeCodeResource(Resource):
     @jwt_required()
     def post(self):
-        """发送修改密码验证码"""
+        """Send password change verification code"""
         user_id = get_jwt_identity()
         customer = Customer.query.get(user_id)
 
         code = ''.join(random.choices('0123456789', k=6))
         send_code = SendCode(
-            send_type=3,  # 密码修改验证码类型[^6]
+            send_type=3,  # Password change verification code type
             send_to=customer.email,
             code=code,
             created_at=datetime.utcnow()
@@ -78,16 +78,16 @@ class SendChangeCodeResource(Resource):
 class EmailChangePasswordResource(Resource):
     @jwt_required()
     def post(self):
-        """通过邮箱验证码修改密码"""
+        """Change password via email verification code"""
         user_id = get_jwt_identity()
         data = request.json
 
-        # 参数校验
+        # Parameter validation
         required_fields = ['code', 'newpwd', 'newpwd_confirmation']
         if not all(field in data for field in required_fields):
             return APIResponse.error('缺少必要参数', 400)
 
-        # 密码一致性验证
+        # Password consistency verification
         is_valid, msg = validate_password_confirmation({
             'password': data['newpwd'],
             'password_confirmation': data['newpwd_confirmation']
@@ -95,7 +95,7 @@ class EmailChangePasswordResource(Resource):
         if not is_valid:
             return APIResponse.error(msg, 400)
 
-        # 验证码有效性验证
+        # Verification code validity check
         customer = Customer.query.get(user_id)
         is_valid, msg = validate_verification_code(
             customer.email, data['code'], 3
@@ -103,7 +103,7 @@ class EmailChangePasswordResource(Resource):
         if not is_valid:
             return APIResponse.error(msg, 400)
 
-        # 更新密码
+        # Update password
         customer.password = hash_password(data['newpwd'])
         customer.updated_at = datetime.utcnow()
         db.session.commit()
@@ -113,12 +113,12 @@ class EmailChangePasswordResource(Resource):
 class StorageInfoResource(Resource):
     @jwt_required()
     def get(self):
-        """获取存储空间信息"""
+        """Get storage space information"""
         user_id = get_jwt_identity()
         customer = Customer.query.get(user_id)
 
-        total_storage = customer.total_storage # current_app.config['MAX_USER_STORAGE'] / (1024 * 1024)  # 转换为MB
-        used = customer.storage # / (1024 * 1024)  # 转换为MB
+        total_storage = customer.total_storage # current_app.config['MAX_USER_STORAGE'] / (1024 * 1024)  # Convert to MB
+        used = customer.storage # / (1024 * 1024)  # Convert to MB
         percentage = (used / total_storage) * 100 if total_storage > 0 else 0
 
         return APIResponse.success({
@@ -131,7 +131,7 @@ class StorageInfoResource(Resource):
 class UserInfoResource(Resource):
     @jwt_required()
     def get(self):
-        """获取用户基本信息"""
+        """Get user basic information"""
         user_id = get_jwt_identity()
         customer = Customer.query.get(user_id)
 

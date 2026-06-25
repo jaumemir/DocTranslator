@@ -8,7 +8,7 @@
     :close-on-click-modal="false"
     @close="formCancel"
   >
-    <!-- 当前服务显示 -->
+    <!-- Current service display -->
     <div class="current-service-display">
       <span class="current-service-label">当前翻译服务：</span>
       <span class="current-service-value">{{ getServiceName(settingsForm.currentService) }}</span>
@@ -23,7 +23,7 @@
         </el-select>
       </el-form-item>
 
-      <!-- AI翻译设置 -->
+      <!-- AI translation settings -->
       <template v-if="settingsForm.currentService === 'ai'">
         <el-form-item label="模型" required width="100%">
           <el-select
@@ -69,7 +69,7 @@
           </el-select>
         </el-form-item>
 
-        <!-- 提示语选择 -->
+        <!-- Prompt selection -->
         <el-form-item label="选择提示语" required width="100%">
           <el-select
             v-model="settingsForm.aiServer.prompt_id"
@@ -115,7 +115,7 @@
         </el-form-item>
       </template>
 
-      <!-- 百度翻译设置 -->
+      <!-- Baidu translation settings -->
       <template v-else-if="settingsForm.currentService === 'baidu'">
         <el-form-item label="源语言" required width="100%">
           <el-select v-model="settingsForm.baidu.from_lang" placeholder="请选择源语言">
@@ -137,7 +137,7 @@
             />
           </el-select>
         </el-form-item>
-        <!-- 是否使用术语库 -->
+        <!-- Whether to use terminology -->
         <el-form-item label="是否使用术语">
           <el-switch
             v-model="settingsForm.baidu.needIntervene"
@@ -148,7 +148,7 @@
         </el-form-item>
       </template>
 
-      <!-- 谷歌翻译设置 -->
+      <!-- Google translation settings -->
       <template v-else-if="settingsForm.currentService === 'google'">
         <el-form-item label="项目ID" required width="100%">
           <el-input v-model="settingsForm.google.project_id" placeholder="请输入谷歌翻译项目ID" />
@@ -175,9 +175,9 @@
         </el-form-item>
       </template>
 
-      <!-- 通用设置 -->
+      <!-- Common settings -->
       <el-divider />
-      <!-- 译文形式 -->
+      <!-- Translation format -->
       <el-form-item label="译文形式" required>
         <el-cascader
           v-model="settingsForm.common.type"
@@ -278,7 +278,7 @@ const settingsForm = ref({
   google: { ...translateStore.google },
   common: { ...translateStore.common }
 })
-// 定义语言映射
+// Define language mapping
 const languageMap = {
   chi_sim: '中文',
   // chi_tra: '中文（繁体）',
@@ -291,14 +291,14 @@ const languageMap = {
   ara: '阿拉伯语',
   deu: '德语'
 }
-// 创建语言选项数组
+// Create language options array
 const languageOptions = computed(() => {
   return Object.values(languageMap).map((label) => ({
-    value: label, // key 和 value 都使用中文名称
+    value: label, // Both key and value use Chinese names
     label: label
   }))
 })
-// 译文形式选项
+// Translation format options
 const typeOptions = [
   {
     value: 'trans_text',
@@ -345,7 +345,7 @@ const typeOptions = [
     ]
   }
 ]
-// 监听当前服务变化
+// Watch for current service changes
 watch(
   () => settingsForm.value.currentService,
   (newVal) => {
@@ -353,7 +353,7 @@ watch(
   }
 )
 
-// 服务名称映射
+// Service name mapping
 const getServiceName = (service) => {
   const names = {
     ai: 'AI翻译',
@@ -363,7 +363,7 @@ const getServiceName = (service) => {
   return names[service] || service
 }
 
-// 获取术语库
+// Get terminology database
 const comparison_id_focus = async () => {
   try {
     const res = await comparison_my()
@@ -371,63 +371,63 @@ const comparison_id_focus = async () => {
       translateStore.terms = res.data.data
     }
   } catch (error) {
-    console.error('获取术语库失败:', error)
+    console.error('Failed to get terminology:', error)
   }
 }
-// 获取提示语数据 - 优化版本
+// Get prompt data - optimized version
 const getPromptData = async () => {
-  if (promptData.value.length > 0) return // 避免重复加载
+  if (promptData.value.length > 0) return // Avoid duplicate loading
 
   promptLoading.value = true
   try {
     const res = await prompt_my()
     if (res.code === 200) {
-      // 添加默认提示词到开头
+      // Add default prompt to the beginning
       const defaultPrompt = {
-        id: '0', // 使用字符串ID避免类型问题
+        id: '0', // Use string ID to avoid type issues
         title: '默认系统提示语',
         content: settingsStore.system_settings.prompt_template
       }
 
-      // 确保数据格式正确
+      // Ensure data format is correct
       const prompts = Array.isArray(res.data.data) ? res.data.data : []
       promptData.value = [defaultPrompt, ...prompts]
 
-      // 检查当前选中的prompt_id是否有效
+      // Check if the currently selected prompt_id is valid
       const currentId = settingsForm.value.aiServer.prompt_id
       const exists = promptData.value.some((item) => String(item.id) === String(currentId))
 
-      // 如果当前选中的ID不存在，重置为默认
+      // If the currently selected ID does not exist, reset to default
       if (!exists) {
         settingsForm.value.aiServer.prompt_id = '0'
         settingsForm.value.aiServer.prompt = defaultPrompt.content
       }
     }
   } catch (error) {
-    console.error('获取提示语数据失败:', error)
+    console.error('Failed to get prompt data:', error)
     ElMessage.error('获取提示语数据失败')
   } finally {
     promptLoading.value = false
   }
 }
 
-// 提示语选择变化 - 优化版本
+// Prompt selection change - optimized version
 const prompt_id_change = (id) => {
   const selectedPrompt = promptData.value.find((item) => String(item.id) === String(id))
   if (selectedPrompt) {
     settingsForm.value.aiServer.prompt = selectedPrompt.content
-    settingsForm.value.aiServer.prompt_id = String(id) // 确保保存为字符串
+    settingsForm.value.aiServer.prompt_id = String(id) // Ensure saved as string
   }
 }
 
-// 获取提示语数据
+// Get prompt data
 const prompt_id_focus = async () => {
   try {
     const res = await prompt_my()
     if (res.code === 200) {
       // promptData.value.push(res.data.data)
       promptData.value = res.data.data
-      // 添加默认提示词
+      // Add default prompt
       promptData.value.unshift({
         id: 0,
         title: '默认系统提示语',
@@ -435,7 +435,7 @@ const prompt_id_focus = async () => {
       })
     }
   } catch (error) {
-    console.error('获取提示语数据失败:', error)
+    console.error('Failed to get prompt data:', error)
   }
 }
 
@@ -482,7 +482,7 @@ const rules = {
     }
   ]
 }
-// doc2x检查
+// doc2x check
 function docx2_check1() {
   docx2_loading.value = true
   let _prarms = {
@@ -516,13 +516,13 @@ function docx2_check1() {
       })
     })
 }
-// //检查功能实现
+// Check functionality implementation
 const check = async () => {
   checking.value = true
   check_text.value = ''
 
   try {
-    // 根据当前服务调用不同的检查API
+    // Call different check APIs based on current service
     let res
     if (settingsForm.value.currentService === 'ai') {
       res = await checkOpenAI(settingsForm.value.aiServer)
@@ -544,7 +544,7 @@ const check = async () => {
   }
 }
 
-// 重置设置
+// Reset settings
 const formReset = () => {
   settingsForm.value = {
     currentService: translateStore.currentService,
@@ -557,12 +557,12 @@ const formReset = () => {
   check_text.value = ''
 }
 
-// 保存弹窗翻译设置
+// Save dialog translation settings
 const formConfim = (formEl) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      // 更新store中的数据
+      // Update data in store
       translateStore.updateCurrentService(settingsForm.value.currentService)
 
       if (settingsForm.value.currentService === 'ai') {
@@ -580,14 +580,14 @@ const formConfim = (formEl) => {
   })
 }
 
-// 取消设置
+// Cancel settings
 const formCancel = () => {
   formSetShow.value = false
 }
 const open = async () => {
   formSetShow.value = true
 
-  // 初始化表单数据
+  // Initialize form data
   settingsForm.value = {
     currentService: translateStore.currentService,
     aiServer: {
@@ -599,7 +599,7 @@ const open = async () => {
     common: { ...translateStore.common }
   }
 
-  // 立即加载提示语数据
+  // Load prompt data immediately
   await getPromptData()
 }
 
@@ -636,14 +636,14 @@ function docx2_check() {
       })
     })
 }
-// 暴露方法
+// Expose methods
 defineExpose({
   open
 })
 </script>
 
 <style scoped lang="scss">
-/* 当前服务显示样式 */
+/* Current service display styles */
 .current-service-display {
   display: flex;
   align-items: center;
@@ -664,7 +664,7 @@ defineExpose({
   }
 }
 
-/* 弹窗样式 */
+/* Dialog styles */
 .setting_dialog {
   .el-dialog {
     max-width: 800px;
@@ -741,7 +741,7 @@ defineExpose({
 </style>
 
 <style lang="scss">
-/* 全局样式 - 完全按照原项目写法 */
+/* Global styles - following the original project approach */
 @media screen and (max-width: 767px) {
   .current-service-display {
     margin-bottom: 15px;

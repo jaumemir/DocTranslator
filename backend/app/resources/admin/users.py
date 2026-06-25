@@ -11,7 +11,7 @@ from app.utils.response import APIResponse
 class AdminUserListResource(Resource):
     @jwt_required()
     def get(self):
-        """获取用户列表"""
+        """Get user list"""
         parser = reqparse.RequestParser()
         parser.add_argument('page', type=int, default=1)
         parser.add_argument('limit', type=int, default=20)
@@ -36,18 +36,18 @@ class AdminUserListResource(Resource):
         })
 
 
-# 创建新用户
+# Create new user
 class AdminCreateUserResource(Resource):
     @jwt_required()
     def put(self):
-        """创建新用户"""
+        """Create new user"""
         data = request.json
         required_fields = ['name', 'email', 'password']
         if not all(field in data for field in required_fields):
-            return APIResponse.error('缺少必要参数', 400)
+            return APIResponse.error('Missing required parameters', 400)
 
         if User.query.filter_by(email=data['email']).first():
-            return APIResponse.error('邮箱已存在', 400)
+            return APIResponse.error('Email already exists', 400)
 
         user = User(
             name=data['name'],
@@ -58,15 +58,15 @@ class AdminCreateUserResource(Resource):
         db.session.commit()
         return APIResponse.success({
             'user_id': user.id,
-            'message': '用户创建成功'
+            'message': 'User created successfully'
         })
 
 
-# 获取用户详细信息
+# Get user details
 class AdminUserDetailResource(Resource):
     @jwt_required()
     def get(self, id):
-        """获取用户详细信息"""
+        """Get user detailed information"""
         user = User.query.get_or_404(id)
         return APIResponse.success({
             'id': user.id,
@@ -77,16 +77,16 @@ class AdminUserDetailResource(Resource):
         })
 
 
-# 编辑用户信息
+# Edit user information
 class AdminUpdateUserResource(Resource):
     @jwt_required()
     def post(self, id):
-        """编辑用户信息"""
+        """Edit user information"""
         user = User.query.get_or_404(id)
         data = request.json
 
         if 'email' in data and User.query.filter(User.email == data['email'],User.id != id).first():
-            return APIResponse.error('邮箱已被使用', 400)
+            return APIResponse.error('Email already in use', 400)
 
         if 'name' in data:
             user.name = data['name']
@@ -94,15 +94,15 @@ class AdminUpdateUserResource(Resource):
             user.email = data['email']
 
         db.session.commit()
-        return APIResponse.success(message='用户信息更新成功')
+        return APIResponse.success(message='User information updated successfully')
 
 
-# 删除用户
+# Delete user
 class AdminDeleteUserResource(Resource):
     @jwt_required()
     def delete(self, id):
-        """删除用户"""
+        """Delete user"""
         user = User.query.get_or_404(id)
         user.deleted_flag = 'Y'
         db.session.commit()
-        return APIResponse.success(message='用户删除成功')
+        return APIResponse.success(message='User deleted successfully')

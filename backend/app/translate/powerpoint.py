@@ -1,19 +1,19 @@
 # translate/powerpoint.py
 """
-PPT文档翻译处理器 (.pptx)
+PowerPoint document translation handler (.pptx)
 
-核心功能：
-1. 识别并区分标题/副标题/正文/表格等元素
-2. 保留图片、图表等非文本元素
-3. 智能调整容器大小和字体以适应译文
-4. 防止元素重叠和超出边界
-5. 双语模式正确复制幻灯片
+Core functionality:
+1. Identify and distinguish titles/subtitles/body/table elements
+2. Preserve non-text elements like images and charts
+3. Intelligently adjust container size and font to fit translated text
+4. Prevent element overlap and boundary overflow
+5. Correctly duplicate slides in bilingual mode
 
-元素处理策略：
-- 标题/副标题：不换行，优先扩展宽度或缩小字体
-- 正文文本框：可换行，可扩展高度
-- 表格：保持大小，缩小字体
-- 图片/图表：完全保留不处理
+Element handling strategies:
+- Title/Subtitle: No line breaks, prioritize width expansion or font reduction
+- Body text frames: Allow line breaks, can expand height
+- Tables: Maintain size, reduce font
+- Images/Charts: Preserve completely without processing
 """
 
 import datetime
@@ -38,18 +38,18 @@ from lxml import etree
 from . import to_translate
 from . import common
 
-# ==================== 配置 ====================
+# ==================== Configuration ====================
 
 MAX_CHUNK_SIZE = 2000
-MIN_FONT_SIZE = Pt(10)  # 最小字体
-MAX_WIDTH_EXPANSION = 1.3  # 最大宽度扩展比例
-MAX_HEIGHT_EXPANSION = 1.5  # 最大高度扩展比例
-FONT_SHRINK_STEP = 0.9  # 字体缩小步长
-MIN_FONT_SCALE = 0.6  # 最小字体缩放比例
+MIN_FONT_SIZE = Pt(10)  # Minimum font size
+MAX_WIDTH_EXPANSION = 1.3  # Maximum width expansion ratio
+MAX_HEIGHT_EXPANSION = 1.5  # Maximum height expansion ratio
+FONT_SHRINK_STEP = 0.9  # Font shrink step
+MIN_FONT_SCALE = 0.6  # Minimum font scale ratio
 
 
 class ElementType(Enum):
-    """元素类型"""
+    """Element type"""
     TITLE = "title"
     SUBTITLE = "subtitle"
     BODY = "body"
@@ -60,7 +60,7 @@ class ElementType(Enum):
 
 @dataclass
 class RunStyle:
-    """Run样式"""
+    """Run style"""
     font_name: Optional[str] = None
     font_name_ea: Optional[str] = None
     font_size: Optional[int] = None
@@ -72,7 +72,7 @@ class RunStyle:
 
 @dataclass
 class ShapeGeometry:
-    """形状几何信息"""
+    """Shape geometry information"""
     left: int = 0
     top: int = 0
     width: int = 0
@@ -81,42 +81,42 @@ class ShapeGeometry:
 
 @dataclass
 class TextBlock:
-    """文本块"""
+    """Text block"""
     uid: str
     slide_index: int
     shape_id: int
     element_type: ElementType
 
-    # 位置信息
+    # Location information
     location_type: str = "textframe"  # textframe, table_cell
     paragraph_index: int = 0
     cell_row: int = -1
     cell_col: int = -1
 
-    # 文本内容
+    # Text content
     original_text: str = ""
     translated_text: str = ""
 
-    # 样式和几何
+    # Style and geometry
     run_style: Optional[RunStyle] = None
     geometry: Optional[ShapeGeometry] = None
 
-    # 状态
+    # Status
     complete: bool = False
     skip: bool = False
     count: int = 0
 
-    # 子块信息
+    # Sub-block information
     is_sub: bool = False
     sub_index: int = 0
     sub_total: int = 1
     parent_uid: str = ""
 
 
-# ==================== 入口函数 ====================
+# ==================== Entry Functions ====================
 
 def start(trans: Dict[str, Any]) -> bool:
-    """PPT翻译入口"""
+    """PPT translation entry point"""
     translate_id = trans['id']
     start_time = datetime.datetime.now()
 
@@ -126,39 +126,39 @@ def start(trans: Dict[str, Any]) -> bool:
     target_lang = trans.get('lang', '英语')
 
     logging.info(
-        f"[任务{translate_id}] PPT翻译模式: only={only_translation}, bilingual={is_bilingual}")
+        f"[Task {translate_id}] PPT translation mode: only={only_translation}, bilingual={is_bilingual}")
 
-    # 打开文件
+    # Open file
     try:
         prs = Presentation(trans['file_path'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 打开PPT失败: {e}")
-        to_translate.error(translate_id, f"打开PPT失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to open PPT: {e}")
+        to_translate.error(translate_id, f"Failed to open PPT: {str(e)}")
         return False
 
-    # 获取幻灯片尺寸（用于边界检测）
+    # Get slide dimensions (for boundary detection)
     slide_width = prs.slide_width
     slide_height = prs.slide_height
 
-    # 提取文本块
+    # Extract text blocks
     try:
         all_blocks = _extract_all_blocks(prs)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 提取文本失败: {e}")
-        to_translate.error(translate_id, f"提取文本失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to extract text: {e}")
+        to_translate.error(translate_id, f"Failed to extract text: {str(e)}")
         return False
 
     to_translate_blocks = [b for b in all_blocks if not b.skip]
 
     if not to_translate_blocks:
-        logging.info(f"[任务{translate_id}] 没有需要翻译的文本")
+        logging.info(f"[Task {translate_id}] No text to translate")
         prs.save(trans['target_file'])
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0 seconds")
         return True
 
-    logging.info(f"[任务{translate_id}] 共{len(all_blocks)}块，{len(to_translate_blocks)}块需翻译")
+    logging.info(f"[Task {translate_id}] Total {len(all_blocks)} blocks, {len(to_translate_blocks)} need translation")
 
-    # 执行翻译
+    # Execute translation
     texts = _blocks_to_api_format(to_translate_blocks)
     event = Event()
     success = to_translate.translate_batch(trans, texts, event)
@@ -168,7 +168,7 @@ def start(trans: Dict[str, Any]) -> bool:
 
     _sync_translation_results(to_translate_blocks, texts)
 
-    # 应用翻译
+    # Apply translation
     try:
         if is_bilingual:
             text_count = _apply_bilingual_mode(prs, all_blocks, target_lang,
@@ -179,8 +179,8 @@ def start(trans: Dict[str, Any]) -> bool:
 
         prs.save(trans['target_file'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 保存失败: {e}")
-        to_translate.error(translate_id, f"保存失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Save failed: {e}")
+        to_translate.error(translate_id, f"Save failed: {str(e)}")
         return False
 
     end_time = datetime.datetime.now()
@@ -189,10 +189,10 @@ def start(trans: Dict[str, Any]) -> bool:
     return True
 
 
-# ==================== 文本提取 ====================
+# ==================== Text Extraction ====================
 
 def _extract_all_blocks(prs: Presentation) -> List[TextBlock]:
-    """提取所有文本块"""
+    """Extract all text blocks"""
     blocks = []
     uid_counter = [0]
 
@@ -209,21 +209,21 @@ def _extract_all_blocks(prs: Presentation) -> List[TextBlock]:
 
 
 def _extract_shape_blocks(shape: BaseShape, slide_idx: int, next_uid) -> List[TextBlock]:
-    """提取形状中的文本块"""
+    """Extract text blocks from shape"""
     blocks = []
     shape_id = shape.shape_id
 
-    # 1. 跳过图片
+    # 1. Skip pictures
     if _is_picture(shape):
-        logging.debug(f"跳过图片: shape_id={shape_id}")
+        logging.debug(f"Skip picture: shape_id={shape_id}")
         return blocks
 
-    # 2. 跳过图表
+    # 2. Skip charts
     if _is_chart(shape):
-        logging.debug(f"跳过图表: shape_id={shape_id}")
+        logging.debug(f"Skip chart: shape_id={shape_id}")
         return blocks
 
-    # 3. 跳过媒体/OLE对象
+    # 3. Skip media/OLE objects
     try:
         skip_types = {
             MSO_SHAPE_TYPE.MEDIA,
@@ -236,7 +236,7 @@ def _extract_shape_blocks(shape: BaseShape, slide_idx: int, next_uid) -> List[Te
     except:
         pass
 
-    # 4. 组合形状递归处理
+    # 4. Recursively process group shapes
     if shape.shape_type == MSO_SHAPE_TYPE.GROUP:
         try:
             for sub_shape in shape.shapes:
@@ -246,19 +246,19 @@ def _extract_shape_blocks(shape: BaseShape, slide_idx: int, next_uid) -> List[Te
             pass
         return blocks
 
-    # 5. 获取形状几何信息
+    # 5. Get shape geometry information
     geometry = _get_shape_geometry(shape)
 
-    # 6. 识别元素类型
+    # 6. Identify element type
     element_type = _identify_element_type(shape)
 
-    # 7. 表格
+    # 7. Tables
     if shape.has_table:
         blocks.extend(_extract_table_blocks(shape.table, slide_idx, shape_id,
                                             geometry, next_uid))
         return blocks
 
-    # 8. 文本框
+    # 8. Text frames
     if shape.has_text_frame:
         blocks.extend(_extract_textframe_blocks(shape.text_frame, slide_idx, shape_id,
                                                 element_type, geometry, next_uid))
@@ -267,31 +267,31 @@ def _extract_shape_blocks(shape: BaseShape, slide_idx: int, next_uid) -> List[Te
 
 
 def _is_picture(shape: BaseShape) -> bool:
-    """判断是否是图片"""
-    # 检查shape类型
+    """Check if shape is a picture"""
+    # Check shape type
     try:
         if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
             return True
     except:
         pass
 
-    # 检查是否是图片占位符
+    # Check if it's a picture placeholder
     try:
         if isinstance(shape, PlaceholderPicture):
             return True
     except:
         pass
 
-    # 检查XML中是否包含图片
+    # Check if XML contains picture
     try:
         elem = shape._element
-        # 检查blip（图片引用）
+        # Check for blip (picture reference)
         blips = elem.findall('.//' + qn('a:blip'))
         if blips:
-            # 如果有blip但没有文本框，是纯图片
+            # If has blip but no text frame, it's a pure picture
             if not shape.has_text_frame:
                 return True
-            # 如果有文本框但为空，也当作图片
+            # If has text frame but empty, also treat as picture
             if shape.has_text_frame and not shape.text_frame.text.strip():
                 return True
     except:
@@ -301,14 +301,14 @@ def _is_picture(shape: BaseShape) -> bool:
 
 
 def _is_chart(shape: BaseShape) -> bool:
-    """判断是否是图表"""
+    """Check if shape is a chart"""
     try:
         if shape.shape_type == MSO_SHAPE_TYPE.CHART:
             return True
     except:
         pass
 
-    # 检查XML
+    # Check XML
     try:
         elem = shape._element
         charts = elem.findall('.//' + qn('c:chart'))
@@ -327,7 +327,7 @@ def _is_chart(shape: BaseShape) -> bool:
 
 
 def _get_shape_geometry(shape: BaseShape) -> ShapeGeometry:
-    """获取形状几何信息"""
+    """Get shape geometry information"""
     try:
         return ShapeGeometry(
             left=shape.left or 0,
@@ -340,27 +340,27 @@ def _get_shape_geometry(shape: BaseShape) -> ShapeGeometry:
 
 
 def _identify_element_type(shape: BaseShape) -> ElementType:
-    """识别元素类型"""
-    # 检查是否是占位符
+    """Identify element type"""
+    # Check if it's a placeholder
     try:
         if shape.is_placeholder:
             ph_type = shape.placeholder_format.type
 
-            # 标题类型
+            # Title types
             if ph_type in [PP_PLACEHOLDER.TITLE, PP_PLACEHOLDER.CENTER_TITLE]:
                 return ElementType.TITLE
 
-            # 副标题类型
+            # Subtitle types
             if ph_type in [PP_PLACEHOLDER.SUBTITLE]:
                 return ElementType.SUBTITLE
 
-            # 正文类型
+            # Body types
             if ph_type in [PP_PLACEHOLDER.BODY, PP_PLACEHOLDER.OBJECT]:
                 return ElementType.BODY
     except:
         pass
 
-    # 非占位符的文本框
+    # Non-placeholder text boxes
     if shape.has_text_frame:
         return ElementType.TEXT_BOX
 
@@ -370,7 +370,7 @@ def _identify_element_type(shape: BaseShape) -> ElementType:
 def _extract_textframe_blocks(text_frame: TextFrame, slide_idx: int, shape_id: int,
                               element_type: ElementType, geometry: ShapeGeometry,
                               next_uid) -> List[TextBlock]:
-    """提取文本框中的段落"""
+    """Extract paragraphs from text frame"""
     blocks = []
 
     for para_idx, paragraph in enumerate(text_frame.paragraphs):
@@ -397,7 +397,7 @@ def _extract_textframe_blocks(text_frame: TextFrame, slide_idx: int, shape_id: i
             ))
             continue
 
-        # 分块
+        # Split into chunks
         if len(text) <= MAX_CHUNK_SIZE:
             blocks.append(TextBlock(
                 uid=next_uid(),
@@ -435,7 +435,7 @@ def _extract_textframe_blocks(text_frame: TextFrame, slide_idx: int, shape_id: i
 
 def _extract_table_blocks(table, slide_idx: int, shape_id: int,
                           geometry: ShapeGeometry, next_uid) -> List[TextBlock]:
-    """提取表格文本"""
+    """Extract table text"""
     blocks = []
     processed_cells: Set[int] = set()
 
@@ -511,7 +511,7 @@ def _extract_table_blocks(table, slide_idx: int, shape_id: int,
 
 
 def _get_paragraph_text(paragraph: _Paragraph) -> str:
-    """获取段落文本"""
+    """Get paragraph text"""
     parts = []
     for run in paragraph.runs:
         if run.text:
@@ -520,7 +520,7 @@ def _get_paragraph_text(paragraph: _Paragraph) -> str:
 
 
 def _get_cell_text(cell) -> str:
-    """获取单元格文本"""
+    """Get cell text"""
     parts = []
     for para in cell.text_frame.paragraphs:
         para_text = _get_paragraph_text(para)
@@ -530,7 +530,7 @@ def _get_cell_text(cell) -> str:
 
 
 def _extract_first_run_style(paragraph: _Paragraph) -> Optional[RunStyle]:
-    """提取段落第一个有效run的样式"""
+    """Extract style from first valid run in paragraph"""
     for run in paragraph.runs:
         if run.text and run.text.strip():
             return _extract_run_style(run)
@@ -538,14 +538,14 @@ def _extract_first_run_style(paragraph: _Paragraph) -> Optional[RunStyle]:
 
 
 def _extract_run_style(run: _Run) -> RunStyle:
-    """提取run样式"""
+    """Extract run style"""
     style = RunStyle()
 
     try:
         font = run.font
         style.font_name = font.name
 
-        # 东亚字体
+        # East Asian font
         try:
             rPr = run._r.get_or_add_rPr()
             ea = rPr.find(qn('a:ea'))
@@ -574,7 +574,7 @@ def _extract_run_style(run: _Run) -> RunStyle:
 
 
 def _should_translate(text: str) -> bool:
-    """判断是否需要翻译"""
+    """Check if text should be translated"""
     text = text.strip()
 
     if not text:
@@ -586,15 +586,15 @@ def _should_translate(text: str) -> bool:
     if common.is_all_punc(text):
         return False
 
-    # 纯数字/符号
+    # Pure numbers/symbols
     if re.match(r'^[\d\s\.\-\+\*\/\=\%\(\)\[\]\{\}\#\@\&\|\\\:\;\,\<\>\$\€\¥\£]+$', text):
         return False
 
-    # 页码
+    # Page numbers
     if re.match(r'^(第?\s*\d+\s*页?|Page\s*\d+|\d+\s*/\s*\d+)$', text, re.IGNORECASE):
         return False
 
-    # 日期时间
+    # Date time
     if re.match(r'^\d{4}[-/]\d{1,2}[-/]\d{1,2}', text):
         return False
 
@@ -602,7 +602,7 @@ def _should_translate(text: str) -> bool:
     if re.match(r'^https?://', text):
         return False
 
-    # 邮箱
+    # Email
     if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', text):
         return False
 
@@ -610,7 +610,7 @@ def _should_translate(text: str) -> bool:
 
 
 def _split_by_sentences(text: str, max_size: int) -> List[str]:
-    """按句子边界切分"""
+    """Split by sentence boundaries"""
     endings = r'([.!?。！？；;]\s*)'
     parts = re.split(endings, text)
 
@@ -649,10 +649,10 @@ def _split_by_sentences(text: str, max_size: int) -> List[str]:
     return chunks if chunks else [text]
 
 
-# ==================== 翻译接口 ====================
+# ==================== Translation Interface ====================
 
 def _blocks_to_api_format(blocks: List[TextBlock]) -> List[Dict]:
-    """转换为API格式"""
+    """Convert to API format"""
     return [{
         'text': b.original_text,
         'original': b.original_text,
@@ -663,7 +663,7 @@ def _blocks_to_api_format(blocks: List[TextBlock]) -> List[Dict]:
 
 
 def _sync_translation_results(blocks: List[TextBlock], texts: List[Dict]):
-    """同步翻译结果"""
+    """Sync translation results"""
     uid_map = {b.uid: b for b in blocks}
     for t in texts:
         uid = t.get('_uid')
@@ -674,14 +674,14 @@ def _sync_translation_results(blocks: List[TextBlock], texts: List[Dict]):
             block.complete = True
 
 
-# ==================== 仅译文模式 ====================
+# ==================== Translation-Only Mode ====================
 
 def _apply_translation_mode(prs: Presentation, blocks: List[TextBlock],
                             target_lang: str, slide_width: int, slide_height: int) -> int:
-    """应用仅译文模式"""
+    """Apply translation-only mode"""
     text_count = 0
 
-    # 按幻灯片分组
+    # Group by slide
     slide_blocks = _group_by_slide(blocks)
 
     for slide_idx, slide in enumerate(prs.slides):
@@ -691,10 +691,10 @@ def _apply_translation_mode(prs: Presentation, blocks: List[TextBlock],
         sblocks = slide_blocks[slide_idx]
         shape_map = _build_shape_map(slide)
 
-        # 获取所有形状的几何信息（用于碰撞检测）
+        # Get all shape geometries (for collision detection)
         all_geometries = _get_all_shape_geometries(slide)
 
-        # 按shape分组
+        # Group by shape
         shape_blocks = _group_by_shape(sblocks)
 
         for shape_id, blocks_list in shape_blocks.items():
@@ -710,7 +710,7 @@ def _apply_translation_mode(prs: Presentation, blocks: List[TextBlock],
 
 
 def _group_by_slide(blocks: List[TextBlock]) -> Dict[int, List[TextBlock]]:
-    """按幻灯片分组"""
+    """Group by slide"""
     result = {}
     for b in blocks:
         if b.slide_index not in result:
@@ -720,7 +720,7 @@ def _group_by_slide(blocks: List[TextBlock]) -> Dict[int, List[TextBlock]]:
 
 
 def _group_by_shape(blocks: List[TextBlock]) -> Dict[int, List[TextBlock]]:
-    """按shape分组"""
+    """Group by shape"""
     result = {}
     for b in blocks:
         if b.shape_id not in result:
@@ -730,7 +730,7 @@ def _group_by_shape(blocks: List[TextBlock]) -> Dict[int, List[TextBlock]]:
 
 
 def _build_shape_map(slide) -> Dict[int, BaseShape]:
-    """构建shape_id到shape的映射"""
+    """Build mapping from shape_id to shape"""
     shape_map = {}
 
     def add_shape(shape):
@@ -749,7 +749,7 @@ def _build_shape_map(slide) -> Dict[int, BaseShape]:
 
 
 def _get_all_shape_geometries(slide) -> List[ShapeGeometry]:
-    """获取幻灯片上所有形状的几何信息"""
+    """Get geometry information of all shapes on slide"""
     geometries = []
 
     def collect_geometry(shape):
@@ -776,7 +776,7 @@ def _get_all_shape_geometries(slide) -> List[ShapeGeometry]:
 def _apply_to_shape(shape: BaseShape, blocks: List[TextBlock], target_lang: str,
                     slide_width: int, slide_height: int,
                     all_geometries: List[ShapeGeometry]) -> int:
-    """应用翻译到形状"""
+    """Apply translation to shape"""
     if shape.has_table:
         return _apply_to_table(shape.table, blocks, target_lang)
     elif shape.has_text_frame:
@@ -788,11 +788,11 @@ def _apply_to_shape(shape: BaseShape, blocks: List[TextBlock], target_lang: str,
 def _apply_to_textframe(shape: BaseShape, blocks: List[TextBlock], target_lang: str,
                         slide_width: int, slide_height: int,
                         all_geometries: List[ShapeGeometry]) -> int:
-    """应用翻译到文本框"""
+    """Apply translation to text frame"""
     text_count = 0
     text_frame = shape.text_frame
 
-    # 按段落分组
+    # Group by paragraph
     para_blocks = {}
     for b in blocks:
         if b.location_type != 'textframe':
@@ -801,7 +801,7 @@ def _apply_to_textframe(shape: BaseShape, blocks: List[TextBlock], target_lang: 
             para_blocks[b.paragraph_index] = []
         para_blocks[b.paragraph_index].append(b)
 
-    # 处理每个段落
+    # Process each paragraph
     for para_idx, paragraph in enumerate(text_frame.paragraphs):
         if para_idx not in para_blocks:
             continue
@@ -811,7 +811,7 @@ def _apply_to_textframe(shape: BaseShape, blocks: List[TextBlock], target_lang: 
         if pblocks[0].skip:
             continue
 
-        # 合并子块
+        # Merge sub-blocks
         if any(b.is_sub for b in pblocks):
             translated = ''.join(b.translated_text or b.original_text for b in pblocks)
             original_text = ''.join(b.original_text for b in pblocks)
@@ -823,7 +823,7 @@ def _apply_to_textframe(shape: BaseShape, blocks: List[TextBlock], target_lang: 
         element_type = pblocks[0].element_type
         run_style = pblocks[0].run_style
 
-        # 根据元素类型决定处理方式
+        # Decide processing method based on element type
         _replace_paragraph_text_smart(
             paragraph=paragraph,
             shape=shape,
@@ -841,10 +841,10 @@ def _apply_to_textframe(shape: BaseShape, blocks: List[TextBlock], target_lang: 
 
 
 def _apply_to_table(table, blocks: List[TextBlock], target_lang: str) -> int:
-    """应用翻译到表格"""
+    """Apply translation to table"""
     text_count = 0
 
-    # 按单元格分组
+    # Group by cell
     cell_blocks = {}
     for b in blocks:
         if b.location_type != 'table_cell':
@@ -888,8 +888,8 @@ def _replace_paragraph_text_smart(paragraph: _Paragraph, shape: BaseShape,
                                   slide_width: int, slide_height: int,
                                   all_geometries: List[ShapeGeometry]):
     """
-    智能替换段落文本
-    根据元素类型和文本长度变化调整容器和字体
+    Smart paragraph text replacement
+    Adjust container and font based on element type and text length change
     """
     runs = list(paragraph.runs)
 
@@ -899,21 +899,21 @@ def _replace_paragraph_text_smart(paragraph: _Paragraph, shape: BaseShape,
         _apply_run_style(run, run_style, target_lang)
         return
 
-    # 计算长度变化
+    # Calculate length change
     original_len = len(original_text)
     new_len = len(new_text)
     length_ratio = new_len / max(original_len, 1)
 
-    # 替换文本
+    # Replace text
     first_run = runs[0]
     first_run.text = new_text
     for run in runs[1:]:
         run.text = ""
 
-    # 确保字体兼容
+    # Ensure font compatibility
     _ensure_font_compatibility(first_run, target_lang, run_style)
 
-    # 如果文本变长，需要调整
+    # If text becomes longer, need adjustment
     if length_ratio > 1.1:
         _adjust_for_longer_text(
             paragraph=paragraph,
@@ -934,19 +934,19 @@ def _adjust_for_longer_text(paragraph: _Paragraph, shape: BaseShape, first_run: 
                             slide_width: int, slide_height: int,
                             all_geometries: List[ShapeGeometry]):
     """
-    调整以适应更长的文本
-    策略：
-    1. 标题/副标题：优先缩小字体，其次扩展宽度，避免换行
-    2. 正文/文本框：优先扩展高度，其次缩小字体，允许换行
-    3. 所有调整都要检查边界和碰撞
+    Adjust to accommodate longer text
+    Strategy:
+    1. Title/Subtitle: Prioritize font reduction, then expand width, avoid line breaks
+    2. Body/Text box: Prioritize height expansion, then font reduction, allow line breaks
+    3. All adjustments must check boundaries and collisions
     """
 
     if element_type in [ElementType.TITLE, ElementType.SUBTITLE]:
-        # 标题类：优先缩小字体
+        # Title type: prioritize font reduction
         _adjust_title_element(shape, first_run, length_ratio, run_style,
                               slide_width, slide_height, all_geometries)
     else:
-        # 正文类：优先扩展容器
+        # Body type: prioritize container expansion
         _adjust_body_element(shape, first_run, length_ratio, run_style,
                              slide_width, slide_height, all_geometries)
 
@@ -956,28 +956,28 @@ def _adjust_title_element(shape: BaseShape, run: _Run, length_ratio: float,
                           slide_width: int, slide_height: int,
                           all_geometries: List[ShapeGeometry]):
     """
-    调整标题元素
-    策略：缩小字体 > 扩展宽度 > 移动位置
+    Adjust title element
+    Strategy: Reduce font > Expand width > Move position
     """
-    # 1. 首先尝试缩小字体
+    # 1. First try to reduce font
     font_scale = _calculate_font_scale_for_title(length_ratio)
     if font_scale < 1.0:
         _scale_run_font(run, font_scale, run_style)
 
-    # 2. 如果还是太长，尝试扩展宽度
+    # 2. If still too long, try expanding width
     if length_ratio > 1.5 and font_scale >= MIN_FONT_SCALE:
         try:
             current_width = shape.width
             current_left = shape.left
 
-            # 计算需要的新宽度
+            # Calculate required new width
             needed_width = int(current_width * min(length_ratio * 0.8, MAX_WIDTH_EXPANSION))
 
-            # 检查右边界
-            max_width = slide_width - current_left - Emu(Inches(0.2))  # 留边距
+            # Check right boundary
+            max_width = slide_width - current_left - Emu(Inches(0.2))  # Leave margin
             new_width = min(needed_width, max_width)
 
-            # 检查是否会与其他元素重叠
+            # Check if it would overlap with other elements
             new_geo = ShapeGeometry(
                 left=current_left,
                 top=shape.top,
@@ -988,11 +988,11 @@ def _adjust_title_element(shape: BaseShape, run: _Run, length_ratio: float,
             if not _would_overlap(new_geo, all_geometries, shape.shape_id, shape):
                 shape.width = new_width
             else:
-                # 如果扩展会重叠，进一步缩小字体
+                # If expansion would overlap, further reduce font
                 _scale_run_font(run, 0.85, run_style)
 
         except Exception as e:
-            logging.debug(f"调整标题宽度失败: {e}")
+            logging.debug(f"Failed to adjust title width: {e}")
 
 
 def _adjust_body_element(shape: BaseShape, run: _Run, length_ratio: float,
@@ -1000,22 +1000,22 @@ def _adjust_body_element(shape: BaseShape, run: _Run, length_ratio: float,
                          slide_width: int, slide_height: int,
                          all_geometries: List[ShapeGeometry]):
     """
-    调整正文元素
-    策略：扩展高度 > 缩小字体
+    Adjust body element
+    Strategy: Expand height > Reduce font
     """
-    # 1. 首先尝试扩展高度（允许换行）
+    # 1. First try to expand height (allow line breaks)
     if length_ratio > 1.2:
         try:
             current_height = shape.height
 
-            # 计算需要的新高度
+            # Calculate required new height
             needed_height = int(current_height * min(length_ratio * 0.9, MAX_HEIGHT_EXPANSION))
 
-            # 检查下边界
+            # Check bottom boundary
             max_height = slide_height - shape.top - Emu(Inches(0.2))
             new_height = min(needed_height, max_height)
 
-            # 检查是否会与其他元素重叠
+            # Check if it would overlap with other elements
             new_geo = ShapeGeometry(
                 left=shape.left,
                 top=shape.top,
@@ -1026,24 +1026,24 @@ def _adjust_body_element(shape: BaseShape, run: _Run, length_ratio: float,
             if not _would_overlap(new_geo, all_geometries, shape.shape_id, shape):
                 shape.height = new_height
             else:
-                # 如果扩展会重叠，缩小字体
+                # If expansion would overlap, reduce font
                 font_scale = _calculate_font_scale_for_body(length_ratio)
                 _scale_run_font(run, font_scale, run_style)
 
         except Exception as e:
-            logging.debug(f"调整正文高度失败: {e}")
-            # 失败时缩小字体
+            logging.debug(f"Failed to adjust body height: {e}")
+            # On failure, reduce font
             font_scale = _calculate_font_scale_for_body(length_ratio)
             _scale_run_font(run, font_scale, run_style)
 
-    # 2. 如果比例过大，还需要缩小字体
+    # 2. If ratio is too large, also need to reduce font
     if length_ratio > 1.8:
         font_scale = _calculate_font_scale_for_body(length_ratio)
         _scale_run_font(run, font_scale, run_style)
 
 
 def _calculate_font_scale_for_title(length_ratio: float) -> float:
-    """计算标题的字体缩放比例"""
+    """Calculate font scale ratio for title"""
     if length_ratio <= 1.2:
         return 1.0
     elif length_ratio <= 1.5:
@@ -1057,7 +1057,7 @@ def _calculate_font_scale_for_title(length_ratio: float) -> float:
 
 
 def _calculate_font_scale_for_body(length_ratio: float) -> float:
-    """计算正文的字体缩放比例"""
+    """Calculate font scale ratio for body text"""
     if length_ratio <= 1.5:
         return 1.0
     elif length_ratio <= 2.0:
@@ -1071,38 +1071,38 @@ def _calculate_font_scale_for_body(length_ratio: float) -> float:
 
 
 def _scale_run_font(run: _Run, scale: float, run_style: Optional[RunStyle]):
-    """缩放run的字体大小"""
+    """Scale run font size"""
     try:
-        # 获取当前字体大小
+        # Get current font size
         current_size = run.font.size
         if current_size is None and run_style and run_style.font_size:
             current_size = run_style.font_size
         if current_size is None:
-            current_size = Pt(18)  # 默认大小
+            current_size = Pt(18)  # Default size
 
-        # 计算新大小
+        # Calculate new size
         new_size = int(current_size * scale)
         if new_size < MIN_FONT_SIZE:
             new_size = MIN_FONT_SIZE
 
         run.font.size = new_size
     except Exception as e:
-        logging.debug(f"缩放字体失败: {e}")
+        logging.debug(f"Failed to scale font: {e}")
 
 
 def _would_overlap(new_geo: ShapeGeometry, all_geometries: List[ShapeGeometry],
                    exclude_shape_id: int, shape: BaseShape) -> bool:
-    """检查新几何是否会与其他形状重叠"""
-    # 获取当前形状的几何
+    """Check if new geometry would overlap with other shapes"""
+    # Get current shape geometry
     current_geo = _get_shape_geometry(shape)
 
     for geo in all_geometries:
-        # 跳过自己
+        # Skip self
         if (geo.left == current_geo.left and geo.top == current_geo.top and
                 geo.width == current_geo.width and geo.height == current_geo.height):
             continue
 
-        # 检查是否重叠
+        # Check if overlapping
         if _geometries_overlap(new_geo, geo):
             return True
 
@@ -1110,12 +1110,12 @@ def _would_overlap(new_geo: ShapeGeometry, all_geometries: List[ShapeGeometry],
 
 
 def _geometries_overlap(geo1: ShapeGeometry, geo2: ShapeGeometry) -> bool:
-    """检查两个几何是否重叠"""
-    # AABB碰撞检测
+    """Check if two geometries overlap"""
+    # AABB collision detection
     left1, top1, right1, bottom1 = geo1.left, geo1.top, geo1.left + geo1.width, geo1.top + geo1.height
     left2, top2, right2, bottom2 = geo2.left, geo2.top, geo2.left + geo2.width, geo2.top + geo2.height
 
-    # 如果不重叠，返回False
+    # If not overlapping, return False
     if right1 <= left2 or right2 <= left1:
         return False
     if bottom1 <= top2 or bottom2 <= top1:
@@ -1126,11 +1126,11 @@ def _geometries_overlap(geo1: ShapeGeometry, geo2: ShapeGeometry) -> bool:
 
 def _replace_cell_text_smart(cell, new_text: str, original_text: str,
                              run_style: Optional[RunStyle], target_lang: str):
-    """智能替换单元格文本"""
+    """Smart cell text replacement"""
     paragraphs = cell.text_frame.paragraphs
     lines = new_text.split('\n')
 
-    # 计算长度变化
+    # Calculate length change
     length_ratio = len(new_text) / max(len(original_text), 1)
     font_scale = 1.0
     if length_ratio > 1.3:
@@ -1156,14 +1156,14 @@ def _replace_cell_text_smart(cell, new_text: str, original_text: str,
                     _scale_run_font(run, font_scale, run_style)
                 _apply_run_style(run, run_style, target_lang)
         elif paragraphs:
-            # 追加到最后一个段落
+            # Append to last paragraph
             last_para = paragraphs[-1]
             if last_para.runs:
                 last_para.runs[-1].text += '\n' + line
 
 
 def _apply_run_style(run: _Run, style: Optional[RunStyle], target_lang: str):
-    """应用run样式"""
+    """Apply run style"""
     if not style:
         _set_default_font(run, target_lang)
         return
@@ -1189,7 +1189,7 @@ def _apply_run_style(run: _Run, style: Optional[RunStyle], target_lang: str):
 
 
 def _ensure_font_compatibility(run: _Run, target_lang: str, style: Optional[RunStyle]):
-    """确保字体兼容目标语言"""
+    """Ensure font compatibility with target language"""
     try:
         current_font = run.font.name
 
@@ -1201,19 +1201,19 @@ def _ensure_font_compatibility(run: _Run, target_lang: str, style: Optional[RunS
 
 
 def _set_font_names(run: _Run, style: Optional[RunStyle], target_lang: str):
-    """设置字体名称"""
+    """Set font names"""
     try:
-        # 西文字体
+        # Latin font
         latin_font = 'Arial'
         if style and style.font_name:
             latin_font = style.font_name
 
-        # 东亚字体
+        # East Asian font
         ea_font = None
         if style and style.font_name_ea:
             ea_font = style.font_name_ea
 
-        # 根据目标语言设置东亚字体
+        # Set East Asian font based on target language
         if target_lang in ['中文', '日语', '韩语']:
             if not ea_font or not _is_cjk_font(ea_font):
                 if target_lang == '中文':
@@ -1225,18 +1225,18 @@ def _set_font_names(run: _Run, style: Optional[RunStyle], target_lang: str):
 
         run.font.name = latin_font
 
-        # 设置东亚字体
+        # Set East Asian font
         if ea_font:
             try:
                 rPr = run._r.get_or_add_rPr()
 
-                # 设置latin字体
+                # Set latin font
                 latin = rPr.find(qn('a:latin'))
                 if latin is None:
                     latin = etree.SubElement(rPr, qn('a:latin'))
                 latin.set('typeface', latin_font)
 
-                # 设置ea字体
+                # Set ea font
                 ea = rPr.find(qn('a:ea'))
                 if ea is None:
                     ea = etree.SubElement(rPr, qn('a:ea'))
@@ -1249,7 +1249,7 @@ def _set_font_names(run: _Run, style: Optional[RunStyle], target_lang: str):
 
 
 def _set_default_font(run: _Run, target_lang: str):
-    """设置默认字体"""
+    """Set default font"""
     try:
         if target_lang in ['中文', '日语', '韩语']:
             run.font.name = 'Microsoft YaHei'
@@ -1260,7 +1260,7 @@ def _set_default_font(run: _Run, target_lang: str):
 
 
 def _is_cjk_font(font_name: str) -> bool:
-    """检查是否是CJK字体"""
+    """Check if it's a CJK font"""
     if not font_name:
         return False
 
@@ -1278,55 +1278,55 @@ def _is_cjk_font(font_name: str) -> bool:
     return any(kw in font_lower for kw in cjk_keywords)
 
 
-# ==================== 双语模式 ====================
+# ==================== Bilingual Mode ====================
 
 def _apply_bilingual_mode(prs: Presentation, blocks: List[TextBlock],
                           target_lang: str, slide_width: int, slide_height: int) -> int:
     """
-    双语模式：每个原文幻灯片后插入译文幻灯片
+    Bilingual mode: Insert translated slide after each original slide
     """
     text_count = 0
 
-    # 按幻灯片分组
+    # Group by slide
     slide_blocks = _group_by_slide(blocks)
 
     original_count = len(prs.slides)
 
-    # 从后往前处理
+    # Process from back to front
     for slide_idx in range(original_count - 1, -1, -1):
         try:
             original_slide = prs.slides[slide_idx]
 
-            # 复制幻灯片（包含图片等所有元素）
+            # Duplicate slide (including all elements and pictures)
             new_slide = _duplicate_slide(prs, original_slide)
 
             if new_slide is None:
-                logging.warning(f"复制幻灯片 {slide_idx} 失败")
+                logging.warning(f"Failed to duplicate slide {slide_idx}")
                 continue
 
-            # 移动到正确位置
+            # Move to correct position
             _move_slide(prs, len(prs.slides) - 1, slide_idx + 1)
 
-            # 获取新幻灯片并应用翻译
+            # Get new slide and apply translation
             translated_slide = prs.slides[slide_idx + 1]
 
             if slide_idx in slide_blocks:
                 sblocks = slide_blocks[slide_idx]
 
-                # 建立位置映射
+                # Build position mapping
                 shape_mapping = _build_shape_mapping_by_position(original_slide, translated_slide)
 
-                # 统计
+                # Statistics
                 for b in sblocks:
                     if not b.skip:
                         text_count += b.count
 
-                # 应用翻译
+                # Apply translation
                 _apply_blocks_with_mapping(translated_slide, sblocks, shape_mapping,
                                            target_lang, slide_width, slide_height)
 
         except Exception as e:
-            logging.error(f"双语模式处理幻灯片 {slide_idx} 失败: {e}")
+            logging.error(f"Failed to process slide {slide_idx} in bilingual mode: {e}")
             import traceback
             traceback.print_exc()
 
@@ -1335,25 +1335,25 @@ def _apply_bilingual_mode(prs: Presentation, blocks: List[TextBlock],
 
 def _duplicate_slide(prs: Presentation, source_slide) -> Optional[object]:
     """
-    完整复制幻灯片，包括所有元素和图片关系
+    Completely duplicate slide, including all elements and picture relationships
 
-    关键：正确处理图片的relationship引用
+    Key: Correctly handle picture relationship references
     """
     try:
-        # 使用源幻灯片的布局创建新幻灯片
+        # Create new slide using source slide layout
         new_slide = prs.slides.add_slide(source_slide.slide_layout)
 
-        # 获取源幻灯片和新幻灯片的part（用于处理关系）
+        # Get source and new slide parts (for handling relationships)
         source_part = source_slide.part
         new_part = new_slide.part
 
-        # 清除新幻灯片上由布局自动生成的形状
+        # Clear shapes auto-generated by layout on new slide
         spTree = new_slide.shapes._spTree
         shapes_to_remove = []
 
         for child in spTree:
             tag = child.tag
-            # 保留 nvGrpSpPr 和 grpSpPr（组属性），删除其他形状
+            # Keep nvGrpSpPr and grpSpPr (group properties), delete other shapes
             if tag.endswith('}nvGrpSpPr') or tag.endswith('}grpSpPr'):
                 continue
             if (tag.endswith('}sp') or tag.endswith('}pic') or
@@ -1364,17 +1364,17 @@ def _duplicate_slide(prs: Presentation, source_slide) -> Optional[object]:
         for elem in shapes_to_remove:
             spTree.remove(elem)
 
-        # 复制源幻灯片的所有形状，并正确处理关系
+        # Copy all shapes from source slide and correctly handle relationships
         for shape in source_slide.shapes:
             _copy_shape_with_relationships(shape, spTree, source_part, new_part)
 
-        # 复制背景
+        # Copy background
         _copy_slide_background(source_slide, new_slide)
 
         return new_slide
 
     except Exception as e:
-        logging.error(f"复制幻灯片失败: {e}")
+        logging.error(f"Failed to duplicate slide: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -1383,59 +1383,59 @@ def _duplicate_slide(prs: Presentation, source_slide) -> Optional[object]:
 def _copy_shape_with_relationships(shape: BaseShape, target_spTree,
                                    source_part, target_part):
     """
-    复制形状及其关联的资源（图片等）
+    Copy shape and its associated resources (pictures, etc.)
 
-    关键步骤：
-    1. 深拷贝XML元素
-    2. 查找并复制所有关系引用（如图片blip）
-    3. 将新关系ID更新到复制的XML中
+    Key steps:
+    1. Deep copy XML element
+    2. Find and copy all relationship references (like picture blip)
+    3. Update new relationship IDs in copied XML
     """
     try:
-        # 深拷贝形状的XML元素
+        # Deep copy shape's XML element
         new_elem = copy.deepcopy(shape._element)
 
-        # 处理元素中的所有关系引用
+        # Handle all relationship references in element
         _remap_relationships(new_elem, source_part, target_part)
 
-        # 添加到目标幻灯片
+        # Add to target slide
         target_spTree.append(new_elem)
 
     except Exception as e:
-        logging.warning(f"复制形状失败: {e}")
+        logging.warning(f"Failed to copy shape: {e}")
 
 
 def _remap_relationships(element, source_part, target_part):
     """
-    重新映射元素中的所有关系引用
+    Remap all relationship references in element
 
-    处理的关系类型：
-    - a:blip (图片)
-    - a:hlinkClick (超链接)
-    - r:link (外部链接)
-    - c:chart (图表)
-    等
+    Handled relationship types:
+    - a:blip (picture)
+    - a:hlinkClick (hyperlink)
+    - r:link (external link)
+    - c:chart (chart)
+    etc.
     """
-    # 定义需要处理的命名空间和属性
+    # Define namespaces and attributes to process
     EMBED_ATTRS = [
-        (qn('r:embed'), RT.IMAGE),  # 图片嵌入
-        (qn('r:link'), None),  # 外部链接
+        (qn('r:embed'), RT.IMAGE),  # Picture embed
+        (qn('r:link'), None),  # External link
     ]
 
     LINK_ATTRS = [
-        qn('r:id'),  # 通用关系ID
+        qn('r:id'),  # Generic relationship ID
     ]
 
-    # 收集所有需要重映射的rId
+    # Collect all rIds that need remapping
     rids_to_remap = set()
 
-    # 查找所有带有 r:embed 属性的元素（主要是图片）
+    # Find all elements with r:embed attribute (mainly pictures)
     for attr_name, rel_type in EMBED_ATTRS:
         for elem in element.iter():
             rid = elem.get(attr_name)
             if rid:
                 rids_to_remap.add((elem, attr_name, rid))
 
-    # 查找 a:blip 元素中的 r:embed（图片的主要引用方式）
+    # Find r:embed in a:blip elements (main picture reference method)
     for blip in element.findall('.//' + qn('a:blip')):
         embed_rid = blip.get(qn('r:embed'))
         if embed_rid:
@@ -1444,77 +1444,77 @@ def _remap_relationships(element, source_part, target_part):
         if link_rid:
             rids_to_remap.add((blip, qn('r:link'), link_rid))
 
-    # 查找超链接
+    # Find hyperlinks
     for hlinkClick in element.findall('.//' + qn('a:hlinkClick')):
         rid = hlinkClick.get(qn('r:id'))
         if rid:
             rids_to_remap.add((hlinkClick, qn('r:id'), rid))
 
-    # 查找图表引用
+    # Find chart references
     for chart in element.findall('.//' + qn('c:chart')):
         rid = chart.get(qn('r:id'))
         if rid:
             rids_to_remap.add((chart, qn('r:id'), rid))
 
-    # 查找oleObject
+    # Find oleObject
     for oleObj in element.findall('.//' + qn('p:oleObj')):
         rid = oleObj.get(qn('r:id'))
         if rid:
             rids_to_remap.add((oleObj, qn('r:id'), rid))
 
-    # 执行重映射
+    # Execute remapping
     for elem, attr_name, old_rid in rids_to_remap:
         try:
             new_rid = _copy_relationship(source_part, target_part, old_rid)
             if new_rid:
                 elem.set(attr_name, new_rid)
         except Exception as e:
-            logging.debug(f"重映射关系失败 {old_rid}: {e}")
+            logging.debug(f"Failed to remap relationship {old_rid}: {e}")
 
 
 def _copy_relationship(source_part, target_part, rid: str) -> Optional[str]:
     """
-    复制关系及其目标资源
+    Copy relationship and its target resource
 
-    返回新的关系ID
+    Returns new relationship ID
     """
     try:
-        # 获取源关系
+        # Get source relationship
         source_rels = source_part.rels
         if rid not in source_rels:
-            return rid  # 关系不存在，保持原样
+            return rid  # Relationship doesn't exist, keep as is
 
         rel = source_rels[rid]
 
-        # 检查是否是外部关系
+        # Check if it's an external relationship
         if rel.is_external:
-            # 外部链接，直接创建新关系
+            # External link, directly create new relationship
             new_rid = target_part.relate_to(rel.target_ref, rel.reltype, is_external=True)
             return new_rid
 
-        # 内部关系，需要复制目标资源
+        # Internal relationship, need to copy target resource
         target_resource = rel.target_part
 
-        # 检查目标part中是否已经有相同的资源
-        # 通过比较blob（二进制内容）来判断
+        # Check if target part already has the same resource
+        # Judge by comparing blob (binary content)
         existing_rid = _find_existing_resource(target_part, target_resource)
         if existing_rid:
             return existing_rid
 
-        # 复制资源并创建新关系
+        # Copy resource and create new relationship
         new_rid = target_part.relate_to(target_resource, rel.reltype)
         return new_rid
 
     except Exception as e:
-        logging.debug(f"复制关系 {rid} 失败: {e}")
-        return rid  # 失败时保持原rId
+        logging.debug(f"Failed to copy relationship {rid}: {e}")
+        return rid  # Keep original rId on failure
 
 
 def _find_existing_resource(target_part, resource_part) -> Optional[str]:
     """
-    在目标part中查找是否已存在相同的资源
+    Find if the same resource already exists in target part
 
-    通过比较资源的blob来判断
+    Judge by comparing resource blob
     """
     try:
         resource_blob = resource_part.blob
@@ -1534,7 +1534,7 @@ def _find_existing_resource(target_part, resource_part) -> Optional[str]:
 
 
 def _copy_slide_background(source_slide, new_slide):
-    """复制幻灯片背景"""
+    """Copy slide background"""
     try:
         source_cSld = source_slide._element.find(qn('p:cSld'))
         if source_cSld is not None:
@@ -1542,25 +1542,25 @@ def _copy_slide_background(source_slide, new_slide):
             if source_bg is not None:
                 new_cSld = new_slide._element.find(qn('p:cSld'))
                 if new_cSld is not None:
-                    # 移除已有背景
+                    # Remove existing background
                     old_bg = new_cSld.find(qn('p:bg'))
                     if old_bg is not None:
                         new_cSld.remove(old_bg)
 
-                    # 深拷贝背景
+                    # Deep copy background
                     new_bg = copy.deepcopy(source_bg)
 
-                    # 重映射背景中的关系（如背景图片）
+                    # Remap relationships in background (like background pictures)
                     _remap_relationships(new_bg, source_slide.part, new_slide.part)
 
-                    # 插入到cSld的开头
+                    # Insert at beginning of cSld
                     new_cSld.insert(0, new_bg)
     except Exception as e:
-        logging.debug(f"复制背景失败: {e}")
+        logging.debug(f"Failed to copy background: {e}")
 
 
 def _move_slide(prs: Presentation, from_idx: int, to_idx: int):
-    """移动幻灯片位置"""
+    """Move slide position"""
     try:
         sldIdLst = prs.slides._sldIdLst
         slides = list(sldIdLst)
@@ -1569,7 +1569,7 @@ def _move_slide(prs: Presentation, from_idx: int, to_idx: int):
             slide = slides[from_idx]
             sldIdLst.remove(slide)
 
-            # 调整目标索引
+            # Adjust target index
             actual_to = to_idx if to_idx < from_idx else to_idx - 1
             actual_to = min(actual_to, len(list(sldIdLst)))
 
@@ -1578,21 +1578,21 @@ def _move_slide(prs: Presentation, from_idx: int, to_idx: int):
             else:
                 sldIdLst.insert(actual_to, slide)
     except Exception as e:
-        logging.warning(f"移动幻灯片失败: {e}")
+        logging.warning(f"Failed to move slide: {e}")
 
 
 def _build_shape_mapping_by_position(original_slide, new_slide) -> Dict[int, BaseShape]:
     """
-    通过位置建立形状映射
+    Build shape mapping by position
 
-    使用形状的位置和大小来匹配，比单纯按顺序更可靠
+    Use shape position and size for matching, more reliable than simple ordering
     """
     mapping = {}
 
     orig_shapes = list(original_slide.shapes)
     new_shapes = list(new_slide.shapes)
 
-    # 为每个原始形状找到匹配的新形状
+    # Find matching new shape for each original shape
     used_new_indices = set()
 
     for orig_shape in orig_shapes:
@@ -1607,7 +1607,7 @@ def _build_shape_mapping_by_position(original_slide, new_slide) -> Dict[int, Bas
 
             new_geo = _get_shape_geometry(new_shape)
 
-            # 计算位置和大小的差异
+            # Calculate position and size difference
             distance = (
                     abs(orig_geo.left - new_geo.left) +
                     abs(orig_geo.top - new_geo.top) +
@@ -1615,17 +1615,17 @@ def _build_shape_mapping_by_position(original_slide, new_slide) -> Dict[int, Bas
                     abs(orig_geo.height - new_geo.height)
             )
 
-            # 如果完全匹配（或非常接近）
+            # If perfectly matched (or very close)
             if distance < best_distance:
                 best_distance = distance
                 best_match = new_shape
                 best_idx = idx
 
-        if best_match is not None and best_distance < Emu(Inches(0.1)):  # 容差0.1英寸
+        if best_match is not None and best_distance < Emu(Inches(0.1)):  # Tolerance 0.1 inch
             mapping[orig_shape.shape_id] = best_match
             used_new_indices.add(best_idx)
 
-            # 递归处理组合形状
+            # Recursively process group shapes
             if orig_shape.shape_type == MSO_SHAPE_TYPE.GROUP:
                 try:
                     if best_match.shape_type == MSO_SHAPE_TYPE.GROUP:
@@ -1633,7 +1633,7 @@ def _build_shape_mapping_by_position(original_slide, new_slide) -> Dict[int, Bas
                 except:
                     pass
 
-    # 对于未匹配的，尝试按顺序匹配
+    # For unmatched ones, try matching by order
     unmatched_orig = [s for s in orig_shapes if s.shape_id not in mapping]
     unmatched_new = [s for i, s in enumerate(new_shapes) if i not in used_new_indices]
 
@@ -1645,7 +1645,7 @@ def _build_shape_mapping_by_position(original_slide, new_slide) -> Dict[int, Bas
 
 
 def _map_group_by_position(orig_group, new_group, mapping: Dict[int, BaseShape]):
-    """递归映射组合形状（基于位置）"""
+    """Recursively map group shapes (based on position)"""
     try:
         orig_sub = list(orig_group.shapes)
         new_sub = list(new_group.shapes)
@@ -1682,19 +1682,19 @@ def _map_group_by_position(orig_group, new_group, mapping: Dict[int, BaseShape])
                         _map_group_by_position(orig_shape, best_match, mapping)
 
     except Exception as e:
-        logging.debug(f"映射组合形状失败: {e}")
+        logging.debug(f"Failed to map group shapes: {e}")
 
 
 def _apply_blocks_with_mapping(slide, blocks: List[TextBlock],
                                shape_mapping: Dict[int, BaseShape],
                                target_lang: str,
                                slide_width: int, slide_height: int):
-    """使用映射应用翻译"""
+    """Apply translation using mapping"""
 
-    # 按原始shape_id分组
+    # Group by original shape_id
     shape_blocks = _group_by_shape(blocks)
 
-    # 获取几何信息
+    # Get geometry information
     all_geometries = _get_all_shape_geometries(slide)
 
     for orig_shape_id, sblocks in shape_blocks.items():

@@ -1,12 +1,12 @@
 # translate/md.py
 """
-Markdown文件翻译处理器
-分块策略：
-1. 保护代码块、行内代码、公式、HTML标签结构
-2. 按语义块切分（标题、列表、引用、表格、段落）
-3. 保持块的完整性
-4. 超长块按句子边界切分
-5. 链接/图片只保留，不翻译
+Markdown file translation processor
+Chunking strategy:
+1. Protect code blocks, inline code, formulas, HTML tag structures
+2. Split by semantic blocks (headings, lists, quotes, tables, paragraphs)
+3. Maintain block integrity
+4. Split oversized blocks at sentence boundaries
+5. Preserve links/images without translation
 """
 
 import re
@@ -18,13 +18,13 @@ from dataclasses import dataclass
 from . import to_translate
 from . import common
 
-# 分块配置
+# Chunking configuration
 MAX_CHUNK_SIZE = 2000
 
 
 @dataclass
 class ProtectedBlock:
-    """受保护的块（不翻译）"""
+    """Protected block (not translated)"""
     placeholder: str
     content: str
     block_type: str  # code_block, inline_code, formula, html_tag, link, image
@@ -32,14 +32,14 @@ class ProtectedBlock:
 
 def start(trans: Dict) -> bool:
     """
-    Markdown文件翻译入口
-    :param trans: 翻译配置字典
-    :return: 是否成功
+    Markdown file translation entry point
+    :param trans: Translation configuration dictionary
+    :return: Whether successful
     """
     translate_id = trans['id']
     start_time = datetime.datetime.now()
 
-    # 读取文件
+    # Read file
     try:
         with open(trans['file_path'], 'r', encoding='utf-8') as f:
             content = f.read()
@@ -48,52 +48,52 @@ def start(trans: Dict) -> bool:
             with open(trans['file_path'], 'r', encoding='gbk') as f:
                 content = f.read()
         except Exception as e:
-            logging.error(f"[任务{translate_id}] 读取文件失败: {e}")
-            to_translate.error(translate_id, f"读取文件失败: {str(e)}")
+            logging.error(f"[Task {translate_id}] Failed to read file: {e}")
+            to_translate.error(translate_id, f"Failed to read file: {str(e)}")
             return False
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 读取文件失败: {e}")
-        to_translate.error(translate_id, f"读取文件失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to read file: {e}")
+        to_translate.error(translate_id, f"Failed to read file: {str(e)}")
         return False
 
     if not content or not content.strip():
-        logging.info(f"[任务{translate_id}] 文件内容为空")
+        logging.info(f"[Task {translate_id}] File content is empty")
         with open(trans['target_file'], 'w', encoding='utf-8') as f:
             f.write("")
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0s")
         return True
 
-    # 预处理：保护特殊语法
+    # Preprocess: protect special syntax
     processed_content, protected_blocks = _protect_special_syntax(content)
 
-    # 智能分块
+    # Smart chunking
     texts = _smart_chunk_markdown(processed_content)
 
-    # 统计需要翻译的块数
+    # Count blocks that need translation
     to_translate_count = sum(1 for t in texts if not t.get('skip', False))
 
     if to_translate_count == 0:
-        logging.info(f"[任务{translate_id}] 没有需要翻译的内容")
+        logging.info(f"[Task {translate_id}] No content to translate")
         with open(trans['target_file'], 'w', encoding='utf-8') as f:
             f.write(content)
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0s")
         return True
 
     logging.info(
-        f"[任务{translate_id}] 分割为 {len(texts)} 个块，其中 {to_translate_count} 个需要翻译")
+        f"[Task {translate_id}] Split into {len(texts)} blocks, {to_translate_count} need translation")
 
-    # 执行翻译
+    # Execute translation
     event = Event()
     success = to_translate.translate_batch(trans, texts, event)
     if not success:
         return False
 
-    # 重建文档并写入结果
+    # Rebuild document and write results
     try:
         text_count = _write_result(trans, texts, protected_blocks)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 写入文件失败: {e}")
-        to_translate.error(translate_id, f"写入文件失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to write file: {e}")
+        to_translate.error(translate_id, f"Failed to write file: {str(e)}")
         return False
 
     end_time = datetime.datetime.now()
@@ -104,8 +104,8 @@ def start(trans: Dict) -> bool:
 
 def _protect_special_syntax(content: str) -> Tuple[str, List[ProtectedBlock]]:
     """
-    预处理：用占位符替换不需要翻译的特殊语法
-    :return: (处理后的内容, 受保护块列表)
+    Preprocessing: replace special syntax that doesn't need translation with placeholders
+    :return: (processed content, list of protected blocks)
     """
     protected_blocks = []
     placeholder_counter = [0]
@@ -123,49 +123,49 @@ def _protect_special_syntax(content: str) -> Tuple[str, List[ProtectedBlock]]:
         ))
         return placeholder
 
-    # 1. 保护代码块 ```...``` （必须先处理，避免内部内容被其他规则匹配）
+    # 1. Protect code blocks ```...``` (must process first to avoid internal content matching other rules)
     content = re.sub(
         r'```[\s\S]*?```',
         lambda m: protect(m, 'code_block'),
         content
     )
 
-    # 2. 保护行内代码 `...`
+    # 2. Protect inline code `...`
     content = re.sub(
         r'`[^`\n]+`',
         lambda m: protect(m, 'inline_code'),
         content
     )
 
-    # 3. 保护LaTeX公式块 $$...$$
+    # 3. Protect LaTeX formula blocks $$...$$
     content = re.sub(
         r'\$\$[\s\S]*?\$\$',
         lambda m: protect(m, 'formula_block'),
         content
     )
 
-    # 4. 保护行内公式 $...$
+    # 4. Protect inline formulas $...$
     content = re.sub(
         r'\$[^\$\n]+\$',
         lambda m: protect(m, 'formula_inline'),
         content
     )
 
-    # 5. 保护图片 ![alt](url) 或 ![alt](url "title")
+    # 5. Protect images ![alt](url) or ![alt](url "title")
     content = re.sub(
         r'!\[[^\]]*\]\([^)]+\)',
         lambda m: protect(m, 'image'),
         content
     )
 
-    # 6. 保护链接URL部分，但保留显示文本
-    # [显示文本](url) -> [显示文本](⟦LINK_URL_X⟧)
+    # 6. Protect link URL part, but keep display text
+    # [display text](url) -> [display text](⟦LINK_URL_X⟧)
     def protect_link(match):
         full_match = match.group(0)
-        text = match.group(1)  # 显示文本
-        url = match.group(2)  # URL部分
+        text = match.group(1)  # Display text
+        url = match.group(2)  # URL part
 
-        # 只保护URL部分
+        # Only protect URL part
         url_placeholder = make_placeholder('link_url')
         protected_blocks.append(ProtectedBlock(
             placeholder=url_placeholder,
@@ -180,15 +180,15 @@ def _protect_special_syntax(content: str) -> Tuple[str, List[ProtectedBlock]]:
         content
     )
 
-    # 7. 保护HTML标签（保留标签结构，内部文本会被翻译）
-    # 只保护自闭合标签和纯标签（无内容）
+    # 7. Protect HTML tags (keep tag structure, internal text will be translated)
+    # Only protect self-closing tags and pure tags (no content)
     content = re.sub(
         r'<[^>]+/>',
         lambda m: protect(m, 'html_self_closing'),
         content
     )
 
-    # 保护HTML注释
+    # Protect HTML comments
     content = re.sub(
         r'<!--[\s\S]*?-->',
         lambda m: protect(m, 'html_comment'),
@@ -200,36 +200,36 @@ def _protect_special_syntax(content: str) -> Tuple[str, List[ProtectedBlock]]:
 
 def _smart_chunk_markdown(content: str) -> List[Dict]:
     """
-    智能分块Markdown内容
-    按语义块切分：标题、列表、引用、表格、普通段落
+    Smart chunking of Markdown content
+    Split by semantic blocks: headings, lists, quotes, tables, paragraphs
     """
     texts = []
 
-    # 统一换行符
+    # Normalize line breaks
     content = content.replace('\r\n', '\n').replace('\r', '\n')
 
-    # 按行处理
+    # Process line by line
     lines = content.split('\n')
 
     i = 0
     while i < len(lines):
         line = lines[i]
 
-        # 空行 - 作为分隔符
+        # Empty line - use as separator
         if not line.strip():
             texts.append(_make_text_item('', skip=True, block_type='separator'))
             i += 1
             continue
 
-        # 分隔线 (---, ***, ___)
+        # Horizontal rule (---, ***, ___)
         if re.match(r'^[\-\*_]{3,}\s*$', line.strip()):
             texts.append(_make_text_item(line, skip=True, block_type='hr'))
             i += 1
             continue
 
-        # 标题 (# ## ### 等)
+        # Heading (# ## ### etc.)
         if re.match(r'^#{1,6}\s+', line):
-            # 检查标题内容是否需要翻译
+            # Check if heading content needs translation
             header_match = re.match(r'^(#{1,6}\s+)(.*)$', line)
             if header_match:
                 prefix = header_match.group(1)
@@ -246,13 +246,13 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
             i += 1
             continue
 
-        # 表格 (以|开头)
+        # Table (starts with |)
         if line.strip().startswith('|'):
             table_lines, end_i = _collect_table(lines, i)
             table_text = '\n'.join(table_lines)
             if _should_translate(table_text):
                 if len(table_text) > MAX_CHUNK_SIZE:
-                    # 表格太大，按行切分
+                    # Table too large, split by rows
                     sub_chunks = _split_table(table_lines)
                     for j, chunk in enumerate(sub_chunks):
                         texts.append(_make_text_item(
@@ -269,7 +269,7 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
             i = end_i
             continue
 
-        # 引用块 (以>开头)
+        # Quote block (starts with >)
         if line.strip().startswith('>'):
             quote_lines, end_i = _collect_quote(lines, i)
             quote_text = '\n'.join(quote_lines)
@@ -291,7 +291,7 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
             i = end_i
             continue
 
-        # 无序列表 (以- * +开头)
+        # Unordered list (starts with - * +)
         if re.match(r'^[\s]*[-\*\+]\s+', line):
             list_lines, end_i = _collect_list(lines, i, 'unordered')
             list_text = '\n'.join(list_lines)
@@ -313,7 +313,7 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
             i = end_i
             continue
 
-        # 有序列表 (以数字.开头)
+        # Ordered list (starts with number.)
         if re.match(r'^[\s]*\d+\.\s+', line):
             list_lines, end_i = _collect_list(lines, i, 'ordered')
             list_text = '\n'.join(list_lines)
@@ -335,7 +335,7 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
             i = end_i
             continue
 
-        # 普通段落（连续的非空行）
+        # Regular paragraph (consecutive non-empty lines)
         para_lines, end_i = _collect_paragraph(lines, i)
         para_text = '\n'.join(para_lines)
         if _should_translate(para_text):
@@ -359,7 +359,7 @@ def _smart_chunk_markdown(content: str) -> List[Dict]:
 
 
 def _collect_table(lines: List[str], start: int) -> Tuple[List[str], int]:
-    """收集表格行"""
+    """Collect table rows"""
     table_lines = []
     i = start
     while i < len(lines):
@@ -368,10 +368,10 @@ def _collect_table(lines: List[str], start: int) -> Tuple[List[str], int]:
             table_lines.append(line)
             i += 1
         elif not line.strip() and len(table_lines) > 0:
-            # 表格后的空行
+            # Empty line after table
             break
         elif len(table_lines) > 0:
-            # 非表格行
+            # Non-table row
             break
         else:
             break
@@ -379,7 +379,7 @@ def _collect_table(lines: List[str], start: int) -> Tuple[List[str], int]:
 
 
 def _collect_quote(lines: List[str], start: int) -> Tuple[List[str], int]:
-    """收集引用块"""
+    """Collect quote block"""
     quote_lines = []
     i = start
     while i < len(lines):
@@ -389,7 +389,7 @@ def _collect_quote(lines: List[str], start: int) -> Tuple[List[str], int]:
             quote_lines.append(line)
             i += 1
         elif not line.strip() and quote_lines:
-            # 检查下一行是否还是引用
+            # Check if next line is still a quote
             if i + 1 < len(lines) and lines[i + 1].strip().startswith('>'):
                 quote_lines.append(line)
                 i += 1
@@ -401,7 +401,7 @@ def _collect_quote(lines: List[str], start: int) -> Tuple[List[str], int]:
 
 
 def _collect_list(lines: List[str], start: int, list_type: str) -> Tuple[List[str], int]:
-    """收集列表"""
+    """Collect list"""
     list_lines = []
     i = start
 
@@ -413,27 +413,27 @@ def _collect_list(lines: List[str], start: int, list_type: str) -> Tuple[List[st
     while i < len(lines):
         line = lines[i]
 
-        # 列表项
+        # List item
         if re.match(pattern, line):
             list_lines.append(line)
             i += 1
             continue
 
-        # 列表项的续行（以空格开头的缩进内容）
+        # Continuation line of list item (indented content starting with spaces)
         if line.startswith('  ') or line.startswith('\t'):
             list_lines.append(line)
             i += 1
             continue
 
-        # 嵌套列表
+        # Nested list
         if re.match(r'^[\s]+[-\*\+]\s+', line) or re.match(r'^[\s]+\d+\.\s+', line):
             list_lines.append(line)
             i += 1
             continue
 
-        # 空行可能是列表内的分隔
+        # Empty line might be a separator within list
         if not line.strip() and list_lines:
-            # 检查下一行是否还是列表
+            # Check if next line is still a list
             if i + 1 < len(lines) and (
                     re.match(pattern, lines[i + 1]) or lines[i + 1].startswith('  ')):
                 list_lines.append(line)
@@ -448,19 +448,19 @@ def _collect_list(lines: List[str], start: int, list_type: str) -> Tuple[List[st
 
 
 def _collect_paragraph(lines: List[str], start: int) -> Tuple[List[str], int]:
-    """收集普通段落"""
+    """Collect regular paragraph"""
     para_lines = []
     i = start
     while i < len(lines):
         line = lines[i]
 
-        # 空行结束段落
+        # Empty line ends paragraph
         if not line.strip():
             break
 
-        # 遇到其他块级元素
+        # Encounter other block-level elements
         if _is_block_starter(line):
-            if not para_lines:  # 第一行就是块元素
+            if not para_lines:  # First line is a block element
                 para_lines.append(line)
                 i += 1
             break
@@ -472,24 +472,24 @@ def _collect_paragraph(lines: List[str], start: int) -> Tuple[List[str], int]:
 
 
 def _is_block_starter(line: str) -> bool:
-    """判断是否是块级元素开始"""
+    """Determine if this is the start of a block-level element"""
     line_stripped = line.strip()
 
-    # 标题
+    # Heading
     if re.match(r'^#{1,6}\s+', line_stripped):
         return True
-    # 列表
+    # List
     if re.match(r'^[-\*\+]\s+', line_stripped):
         return True
     if re.match(r'^\d+\.\s+', line_stripped):
         return True
-    # 引用
+    # Quote
     if line_stripped.startswith('>'):
         return True
-    # 表格
+    # Table
     if line_stripped.startswith('|'):
         return True
-    # 分隔线
+    # Horizontal rule
     if re.match(r'^[\-\*_]{3,}\s*$', line_stripped):
         return True
 
@@ -497,11 +497,11 @@ def _is_block_starter(line: str) -> bool:
 
 
 def _should_translate(text: str) -> bool:
-    """判断文本是否需要翻译"""
+    """Determine if text needs translation"""
     if not text or not text.strip():
         return False
 
-    # 移除占位符后检查
+    # Check after removing placeholders
     clean_text = re.sub(r'⟦[A-Z_]+_\d+⟧', '', text)
     clean_text = clean_text.strip()
 
@@ -515,7 +515,7 @@ def _should_translate(text: str) -> bool:
 
 
 def _split_table(table_lines: List[str]) -> List[str]:
-    """切分大表格（保持表头）"""
+    """Split large table (keep header)"""
     if len(table_lines) <= 2:
         return ['\n'.join(table_lines)]
 
@@ -551,7 +551,7 @@ def _split_table(table_lines: List[str]) -> List[str]:
 
 
 def _split_quote(quote_lines: List[str]) -> List[str]:
-    """切分大引用块"""
+    """Split large quote block"""
     chunks = []
     current_chunk = []
     current_size = 0
@@ -574,10 +574,10 @@ def _split_quote(quote_lines: List[str]) -> List[str]:
 
 def _split_list(list_lines: List[str]) -> List[str]:
     """
-    切分大列表
-    尽量按完整的列表项切分
+    Split large list
+    Try to split by complete list items
     """
-    # 识别列表项的开始位置
+    # Identify start positions of list items
     item_starts = []
     for i, line in enumerate(list_lines):
         if re.match(r'^[\s]*[-\*\+]\s+', line) or re.match(r'^[\s]*\d+\.\s+', line):
@@ -586,13 +586,13 @@ def _split_list(list_lines: List[str]) -> List[str]:
     if not item_starts:
         return ['\n'.join(list_lines)]
 
-    # 按列表项分组
+    # Group by list items
     items = []
     for i, start in enumerate(item_starts):
         end = item_starts[i + 1] if i + 1 < len(item_starts) else len(list_lines)
         items.append(list_lines[start:end])
 
-    # 合并列表项直到接近MAX_CHUNK_SIZE
+    # Merge list items until approaching MAX_CHUNK_SIZE
     chunks = []
     current_chunk = []
     current_size = 0
@@ -617,13 +617,13 @@ def _split_list(list_lines: List[str]) -> List[str]:
 
 
 def _split_by_sentences_md(text: str) -> List[str]:
-    """按句子边界切分Markdown段落"""
-    # 句子结束标记
+    """Split Markdown paragraph at sentence boundaries"""
+    # Sentence ending markers
     sentence_endings = r'([.!?。！？][\s]*)'
 
     parts = re.split(sentence_endings, text)
 
-    # 重新组合
+    # Recombine
     sentences = []
     i = 0
     while i < len(parts):
@@ -636,7 +636,7 @@ def _split_by_sentences_md(text: str) -> List[str]:
         if sentence.strip():
             sentences.append(sentence)
 
-    # 合并句子
+    # Merge sentences
     chunks = []
     current_chunk = ""
 
@@ -667,7 +667,7 @@ def _split_by_sentences_md(text: str) -> List[str]:
 def _make_text_item(text: str, skip: bool = False, block_type: str = 'paragraph',
                     is_sub: bool = False, sub_index: int = 0, sub_total: int = 1,
                     prefix: str = '', content_text: str = '') -> Dict:
-    """创建文本块对象"""
+    """Create text block object"""
     return {
         'text': text,
         'original': text,
@@ -678,15 +678,15 @@ def _make_text_item(text: str, skip: bool = False, block_type: str = 'paragraph'
         'is_sub': is_sub,
         'sub_index': sub_index,
         'sub_total': sub_total,
-        'prefix': prefix,  # 用于标题的#前缀
-        'content_text': content_text  # 用于标题的实际内容
+        'prefix': prefix,  # # prefix for headings
+        'content_text': content_text  # Actual content for headings
     }
 
 
 def _write_result(trans: Dict, texts: List[Dict], protected_blocks: List[ProtectedBlock]) -> int:
     """
-    写入翻译结果
-    :return: 翻译字数统计
+    Write translation results
+    :return: Translation word count statistics
     """
     trans_type = trans.get('type', '')
     only_translation = 'only' in trans_type
@@ -695,7 +695,7 @@ def _write_result(trans: Dict, texts: List[Dict], protected_blocks: List[Protect
 
     result_parts = []
 
-    # 用于合并子块
+    # For merging sub-blocks
     sub_original = ""
     sub_translated = ""
     sub_block_type = ""
@@ -705,7 +705,7 @@ def _write_result(trans: Dict, texts: List[Dict], protected_blocks: List[Protect
         text_count += item.get('count', 0)
         block_type = item.get('block_type', 'paragraph')
 
-        # 分隔符
+        # Separator
         if block_type == 'separator':
             if in_sub_sequence:
                 _flush_sub_block(result_parts, sub_original, sub_translated,
@@ -743,15 +743,15 @@ def _write_result(trans: Dict, texts: List[Dict], protected_blocks: List[Protect
                 result_parts.append(original)
                 result_parts.append(translated)
 
-    # 处理残留的子块
+    # Handle remaining sub-blocks
     if in_sub_sequence:
         _flush_sub_block(result_parts, sub_original, sub_translated,
                          only_translation, keep_both)
 
-    # 合并结果
+    # Merge results
     content = '\n'.join(result_parts)
 
-    # 还原受保护的块
+    # Restore protected blocks
     for block in protected_blocks:
         content = content.replace(block.placeholder, block.content)
 
@@ -763,7 +763,7 @@ def _write_result(trans: Dict, texts: List[Dict], protected_blocks: List[Protect
 
 def _flush_sub_block(result_parts: List[str], original: str, translated: str,
                      only_translation: bool, keep_both: bool):
-    """输出子块合并结果"""
+    """Output merged sub-block results"""
     if not original and not translated:
         return
 

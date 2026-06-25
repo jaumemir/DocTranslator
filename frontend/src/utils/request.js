@@ -6,12 +6,12 @@ import Qs from 'qs'
 // import router from '@/router'
 // import i18n from '@/lang/index' // i18n 国际化
 
-// create an axios instance
+// Create an axios instance
 const service = axios.create({
   baseURL: '/api', //  import.meta.env.VITE_API_URL   url = base url + request url
-  withCredentials: true, // send cookies when cross-domain requests
+  withCredentials: true, // Send cookies when cross-domain requests
   crossDomain: true,
-  timeout: 30000, // request timeout
+  timeout: 30000, // Request timeout
   transformRequest: [function(data) {
     if (data instanceof FormData) {
       return data
@@ -36,7 +36,7 @@ service.interceptors.request.use(
     const userStore = useUserStore()
     config.headers['token'] = userStore.token;
     config.headers['credentials']='include'
-    config.headers['withCredentials']=true  // 携带凭据（如 Cookies）
+    config.headers['withCredentials']=true  // Carry credentials (like Cookies)
       // config.headers['language'] = localStorage.getItem('language')||'zh';
       return config
   },

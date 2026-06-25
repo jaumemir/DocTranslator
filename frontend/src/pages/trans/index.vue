@@ -37,7 +37,7 @@
           </div>
         </el-upload>
       </div>
-      <!-- 翻译列表表格展示 -->
+      <!-- Translation list table display -->
       <div class="list_box">
         <div class="title_box">
           <div class="t">

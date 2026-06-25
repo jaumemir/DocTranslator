@@ -3,58 +3,58 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
-# 加载环境变量（优先加载项目根目录的.env文件）
+# Load environment variables (prioritize .env file in project root)
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 class Config:
-    # JWT配置
+    # JWT configuration
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'fallback-secret-key')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=20)
-    # JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)  # 刷新令牌7天
+    # JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)  # Refresh token expires in 7 days
     JWT_TOKEN_LOCATION = ['headers']
     JWT_HEADER_NAME = 'token'
     JWT_HEADER_TYPE = ''
-    # 通用基础配置
+    # General base configuration
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # 邮件配置（所有环境通用）
+    # Mail configuration (common to all environments)
     MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.qq.com')
     MAIL_PORT = int(os.getenv('MAIL_PORT', 465))
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
-    MAIL_DEBUG = True  # 开启SMTP调试
-    # 业务配置
-    CODE_EXPIRATION = 1800  # 30分钟（单位：秒）
-    # 文件上传配置
-    # 允许上传的文件类型
+    MAIL_DEBUG = True  # Enable SMTP debugging
+    # Business configuration
+    CODE_EXPIRATION = 1800  # 30 minutes (in seconds)
+    # File upload configuration
+    # Allowed file types for upload
     UPLOAD_BASE_DIR='storage'
     UPLOAD_ROOT = os.path.join(os.path.dirname(__file__), 'uploads')
-    DATE_FORMAT = "%Y-%m-%d"  # 日期格式
+    DATE_FORMAT = "%Y-%m-%d"  # Date format
     ALLOWED_EXTENSIONS = {'docx', 'xlsx', 'pptx', 'pdf', 'txt', 'md', 'csv', 'xls', 'doc', 'html', 'htm'}
-    # UPLOAD_FOLDER = '/uploads'  # 建议使用绝对路径
+    # UPLOAD_FOLDER = '/uploads'  # Recommended to use absolute path
     MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', 50)) * 1024 * 1024  # 50MB
-    MAX_USER_STORAGE = int(os.getenv('MAX_USER_STORAGE', 100 ))* 1024 * 1024  # 默认100MB
-    # 翻译结果存储配置
-    STORAGE_FOLDER = '/app/storage'  # 翻译结果存储路径
-    STATIC_FOLDER = '/public/static'  # 设置静态文件路径
+    MAX_USER_STORAGE = int(os.getenv('MAX_USER_STORAGE', 100 ))* 1024 * 1024  # Default 100MB
+    # Translation result storage configuration
+    STORAGE_FOLDER = '/app/storage'  # Translation result storage path
+    STATIC_FOLDER = '/public/static'  # Static file path
 
-    # 系统版本配置
+    # System version configuration
     SYSTEM_VERSION = 'business'  # business/community
     SITE_NAME = '智能翻译平台'
 
-    # API配置
+    # API configuration
     API_URL = 'https://api.example.com'
     TRANSLATE_MODELS = ['gpt-3.5', 'gpt-4']
 
-    # 时区
+    # Timezone
     TIMEZONE = 'Asia/Shanghai'#'UTC' #'Asia/Shanghai'
     @property
     def allowed_domains(self):
-        """获取格式化的域名列表"""
+        """Get formatted domain list"""
         domains = os.getenv('ALLOWED_DOMAINS', '')
         return [d.strip() for d in domains.split(',') if d.strip()]
 
@@ -62,27 +62,27 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    # SQLite配置（开发环境）
+    # SQLite configuration (development environment)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DEV_DATABASE_URL',
-        f'sqlite:///instance/dev.db'  # 显式绝对路径
+        f'sqlite:///instance/dev.db'  # Explicit absolute path
     )
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///yourdatabase.db'
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,
-        'echo': False  # 输出SQL日志
+        'echo': False  # Output SQL logs
     }
 
 
 class TestingConfig(Config):
     TESTING = True
-    # 内存型SQLite（测试环境）
+    # In-memory SQLite (testing environment)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_ENABLED = False  # 禁用CSRF保护
+    WTF_CSRF_ENABLED = False  # Disable CSRF protection
 
 
 class ProductionConfig(Config):
-    # MySQL/PostgreSQL配置（生产环境）
+    # MySQL/PostgreSQL configuration (production environment)
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'PROD_DATABASE_URL',
         'mysql://user:password@localhost/prod_db?charset=utf8mb4'
@@ -96,7 +96,7 @@ class ProductionConfig(Config):
     }
 
 
-# 配置映射字典
+# Configuration mapping dictionary
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
@@ -106,7 +106,7 @@ config = {
 
 
 def get_config(config_name=None):
-    """安全获取配置对象的工厂方法"""
+    """Factory method to safely retrieve configuration object"""
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
     return config.get(config_name, config['default'])

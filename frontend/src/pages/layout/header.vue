@@ -13,7 +13,7 @@
           alt=""
         />
       </div>
-      <!-- 导航菜单 -->
+      <!-- Navigation menu -->
       <div class="btn-box">
         <template v-if="userStore.token">
           <div class="flex-center">
@@ -77,7 +77,7 @@
       </div>
     </div>
 
-    <!-- 退出弹窗 -->
+    <!-- Logout dialog -->
     <el-dialog
       v-model="logoutVisible"
       modal-class="custom_dialog"
@@ -103,7 +103,7 @@
       </div>
     </el-dialog>
 
-    <!-- 翻译设置组件 -->
+    <!-- Translation settings component -->
     <translation-settings ref="translationSettings" />
   </div>
 </template>
@@ -127,7 +127,7 @@ const router = useRouter()
 const logoutVisible = ref(false)
 const langMultipleLimit = ref(5)
 
-// 获取用户信息
+// Get user info
 const getUserInfo = async () => {
   try {
     const res = await authInfo()
@@ -135,11 +135,11 @@ const getUserInfo = async () => {
       userStore.updateUserInfo(res.data)
     }
   } catch (error) {
-    console.error('获取用户信息失败:', error)
+    console.error('Failed to get user info:', error)
   }
 }
 
-//用户操作
+// User actions
 function user_action(command) {
   if (command == 'pwd') {
     router.push('/password')
@@ -153,38 +153,38 @@ function user_action(command) {
   }
 }
 
-//打开翻译设置弹窗
+// Open translation settings dialog
 function funOpenSet() {
   translationSettings.value.open()
   // formSetShow.value = true
 }
 
-//打开语料库
+// Open corpus
 function funOpenCorpus() {
   router.push('/corpus')
 }
 
-//回到首页
+// Go to home
 function funOpenHome() {
   router.push('/')
 }
 
-//演示版入口
+// Demo entry point
 function windowOpen(url) {
   window.open(url)
 }
 
-// 退出登录
+// Confirm logout
 function confirmLogout() {
   userStore.logout()
   logoutVisible.value = false
 }
 
-// 获取默认翻译设置
+// Get default translation settings
 const getTranslateSettingInfo = async () => {
   const res = await getTranslateSetting()
   if (res.code === 200) {
-    // 更新系统设置store
+    // Update system settings store
     settingsStore.updateSystemSettings(res.data)
   }
 }
@@ -455,20 +455,20 @@ onMounted(() => {
 .language-selection {
   display: flex;
   align-items: center;
-  gap: 10px; /* 调整元素之间的间距 */
+  gap: 10px; /* Adjust gap between elements */
   width: 100%;
 }
 .lang-select {
-  width: 100%; /* 默认宽度为100% */
-  transition: width 0.3s ease; /* 添加过渡效果 */
+  width: 100%; /* Default width is 100% */
+  transition: width 0.3s ease; /* Add transition effect */
 }
 .language-selection:has(.conversion-symbol) .lang-select {
-  width: 100%; /* 当有转换符号时，设置宽度为45% */
+  width: 100%; /* Set width to 45% when conversion symbol is present */
 }
 .conversion-symbol {
   font-size: 20px;
-  color: #409eff; /* 使用 Element Plus 的主色调，可以根据需要调整 */
-  flex-shrink: 0; /* 防止符号被压缩 */
+  color: #409eff; /* Use Element Plus primary color, adjust as needed */
+  flex-shrink: 0; /* Prevent symbol from being compressed */
 }
 @media screen and (max-width: 767px) {
   .pc_show {

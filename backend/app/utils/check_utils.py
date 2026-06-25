@@ -8,41 +8,41 @@ import logging
 class AIChecker:
     @staticmethod
     def check_openai_connection(api_url: str, api_key: str, model: str, timeout: int = 30):
-        """OpenAI连通性测试"""
+        """OpenAI connectivity test"""
         try:
             openai.api_key = api_key
             base_url = api_url
 
-            # 确保URL以/v1/结尾
+            # Ensure URL ends with /v1/
             if not base_url.endswith("/v1/"):
                 if base_url.endswith("/v1"):
-                    # 如果以 /v1 结尾，添加 /
+                    # If ends with /v1, add /
                     base_url = base_url + "/"
                 elif base_url.endswith("/"):
-                    # 如果以 / 结尾，添加 v1/
+                    # If ends with /, add v1/
                     base_url = base_url + "v1/"
                 else:
-                    # 如果不以 / 结尾，添加 /v1/
+                    # If does not end with /, add /v1/
                     base_url = base_url + "/v1/"
             openai.base_url = base_url
 
-            # 发送一个简单的聊天请求
+            # Send a simple chat request
             response = openai.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": "hi"}],
                 timeout=timeout
             )
-            # 返回连接成功和响应内容
-            print(f"OpenAI连接成功: {response}")
+            # Return connection success and response content
+            print(f"OpenAI connection successful: {response}")
             return True, response.choices[0].message.content
         except Exception as e:
-            logging.error(f"OpenAI连接测试失败: {str(e)}")
+            logging.error(f"OpenAI connection test failed: {str(e)}")
             return False, str(e)
 
 
     @staticmethod
     def check_pdf_scanned(file_stream: BytesIO):
-        """PDF扫描件检测"""
+        """PDF scanned document detection"""
         try:
             file_stream.seek(0)
             doc = fitz.open(stream=file_stream.read(), filetype="pdf")
@@ -50,11 +50,11 @@ class AIChecker:
 
             for page_num in range(pages_to_check):
                 page = doc[page_num]
-                if page.get_text().strip():  # 发现可编辑文本
+                if page.get_text().strip():  # Found editable text
                     return False
-                if page.get_images():  # 发现图像
+                if page.get_images():  # Found images
                     return True
             return False
         except Exception as e:
-            logging.error(f"PDF检测失败: {str(e)}")
+            logging.error(f"PDF detection failed: {str(e)}")
             raise

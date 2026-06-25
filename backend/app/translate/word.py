@@ -1,11 +1,11 @@
 # translate/word.py
 """
-分块策略：
-- 正文按段落为单位
-- 表格按单元格为单位
-- 页眉页脚单独处理
-- 保留图片、图表等非文本元素
-- 保持对齐方式、缩进、行间距等段落格式
+Chunking strategy:
+- Body text is processed by paragraph
+- Tables are processed by cell
+- Headers and footers are processed separately
+- Non-text elements like images and charts are preserved
+- Paragraph formatting including alignment, indentation, and line spacing is maintained
 """
 import datetime
 import logging
@@ -23,13 +23,13 @@ from docx.table import Table, _Cell
 from . import to_translate
 from . import common
 
-# 分块配置
+# Chunking configuration
 MAX_CHUNK_SIZE = 2000
 
 
 @dataclass
 class RunStyle:
-    """Run样式数据"""
+    """Run style data"""
     font_name: Optional[str] = None
     font_name_east_asia: Optional[str] = None
     font_size: Optional[Pt] = None
@@ -42,7 +42,7 @@ class RunStyle:
 
 @dataclass
 class ParagraphFormat:
-    """段落格式数据"""
+    """Paragraph format data"""
     alignment: Optional[int] = None
     left_indent: Optional[int] = None
     right_indent: Optional[int] = None
@@ -55,11 +55,11 @@ class ParagraphFormat:
 
 @dataclass
 class TextBlock:
-    """文本块"""
+    """Text block"""
     uid: str
     block_type: str  # paragraph, table_cell, header, footer
 
-    # 位置
+    # Position
     paragraph_index: int = -1
     table_index: int = -1
     row_index: int = -1
@@ -67,20 +67,20 @@ class TextBlock:
     header_footer_type: str = ""
     section_index: int = -1
 
-    # 内容
+    # Content
     original_text: str = ""
     translated_text: str = ""
 
-    # 样式
+    # Style
     run_style: Optional[RunStyle] = None
     para_format: Optional[ParagraphFormat] = None
 
-    # 状态
+    # Status
     complete: bool = False
     skip: bool = False
     count: int = 0
 
-    # 子块信息
+    # Sub-block information
     is_sub: bool = False
     sub_index: int = 0
     sub_total: int = 1
@@ -88,7 +88,7 @@ class TextBlock:
 
 
 def start(trans: Dict[str, Any]) -> bool:
-    """Word文档翻译入口"""
+    """Word document translation entry point"""
     translate_id = trans['id']
     start_time = datetime.datetime.now()
 
@@ -97,32 +97,32 @@ def start(trans: Dict[str, Any]) -> bool:
     inherit_format = 'inherit' in trans_type
 
     logging.info(
-        f"[任务{translate_id}] 翻译模式: only={only_translation}, inherit={inherit_format}")
+        f"[Task {translate_id}] Translation mode: only={only_translation}, inherit={inherit_format}")
 
     try:
         document = Document(trans['file_path'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 无法打开文档: {e}")
-        to_translate.error(translate_id, f"无法打开文档: {str(e)}")
+        logging.error(f"[Task {translate_id}] Unable to open document: {e}")
+        to_translate.error(translate_id, f"Unable to open document: {str(e)}")
         return False
 
     try:
         text_blocks = _extract_all_text_blocks(document)
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 提取文本失败: {e}")
-        to_translate.error(translate_id, f"提取文本失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Text extraction failed: {e}")
+        to_translate.error(translate_id, f"Text extraction failed: {str(e)}")
         return False
 
     blocks_to_translate = [b for b in text_blocks if not b.skip]
 
     if not blocks_to_translate:
-        logging.info(f"[任务{translate_id}] 文档中没有需要翻译的文本")
+        logging.info(f"[Task {translate_id}] No text to translate in document")
         document.save(trans['target_file'])
-        to_translate.complete(trans, 0, "0秒")
+        to_translate.complete(trans, 0, "0s")
         return True
 
     logging.info(
-        f"[任务{translate_id}] 共 {len(text_blocks)} 个块，{len(blocks_to_translate)} 个需要翻译")
+        f"[Task {translate_id}] Total {len(text_blocks)} blocks, {len(blocks_to_translate)} need translation")
 
     texts = _blocks_to_texts(blocks_to_translate)
 
@@ -135,11 +135,11 @@ def start(trans: Dict[str, Any]) -> bool:
 
     try:
         text_count = _apply_translation(document, text_blocks, only_translation,
-                                        inherit_format, trans.get('lang', '英语'))
+                                        inherit_format, trans.get('lang', 'English'))
         document.save(trans['target_file'])
     except Exception as e:
-        logging.error(f"[任务{translate_id}] 保存文档失败: {e}")
-        to_translate.error(translate_id, f"保存文档失败: {str(e)}")
+        logging.error(f"[Task {translate_id}] Failed to save document: {e}")
+        to_translate.error(translate_id, f"Failed to save document: {str(e)}")
         return False
 
     end_time = datetime.datetime.now()
@@ -148,10 +148,10 @@ def start(trans: Dict[str, Any]) -> bool:
     return True
 
 
-# ==================== 文本提取 ====================
+# ==================== Text Extraction ====================
 
 def _extract_all_text_blocks(document: Document) -> List[TextBlock]:
-    """提取文档中所有文本块"""
+    """Extract all text blocks from document"""
     blocks = []
     uid_counter = [0]
 
@@ -175,7 +175,7 @@ def _extract_all_text_blocks(document: Document) -> List[TextBlock]:
 
 
 def _extract_paragraph_blocks(paragraph: Paragraph, para_idx: int, next_uid) -> List[TextBlock]:
-    """提取段落文本块"""
+    """Extract paragraph text blocks"""
     blocks = []
 
     text = _get_paragraph_text(paragraph)
@@ -183,7 +183,7 @@ def _extract_paragraph_blocks(paragraph: Paragraph, para_idx: int, next_uid) -> 
     if not text or not text.strip():
         return blocks
 
-    # 提取段落格式
+    # Extract paragraph format
     para_format = _extract_paragraph_format(paragraph)
 
     if not _should_translate(text):
@@ -232,7 +232,7 @@ def _extract_paragraph_blocks(paragraph: Paragraph, para_idx: int, next_uid) -> 
 
 
 def _extract_table_blocks(table: Table, table_idx: int, next_uid) -> List[TextBlock]:
-    """提取表格文本块"""
+    """Extract table text blocks"""
     blocks = []
     processed_cells = set()
 
@@ -248,7 +248,7 @@ def _extract_table_blocks(table: Table, table_idx: int, next_uid) -> List[TextBl
             if not text or not text.strip():
                 continue
 
-            # 提取单元格第一段落的格式
+            # Extract format from first paragraph of cell
             para_format = None
             if cell.paragraphs:
                 para_format = _extract_paragraph_format(cell.paragraphs[0])
@@ -305,7 +305,7 @@ def _extract_table_blocks(table: Table, table_idx: int, next_uid) -> List[TextBl
 
 
 def _extract_header_footer_blocks(section, section_idx: int, next_uid) -> List[TextBlock]:
-    """提取页眉页脚文本块"""
+    """Extract header and footer text blocks"""
     blocks = []
 
     hf_types = [
@@ -342,42 +342,42 @@ def _extract_header_footer_blocks(section, section_idx: int, next_uid) -> List[T
                     )
                     blocks.append(block)
         except Exception as e:
-            logging.warning(f"提取页眉页脚失败: {e}")
+            logging.warning(f"Failed to extract header/footer: {e}")
 
     return blocks
 
 
 def _extract_paragraph_format(paragraph: Paragraph) -> ParagraphFormat:
-    """提取段落格式"""
+    """Extract paragraph format"""
     fmt = ParagraphFormat()
 
     try:
         pf = paragraph.paragraph_format
 
-        # 对齐方式
+        # Alignment
         fmt.alignment = paragraph.alignment
 
-        # 缩进
+        # Indentation
         fmt.left_indent = pf.left_indent
         fmt.right_indent = pf.right_indent
         fmt.first_line_indent = pf.first_line_indent
 
-        # 段前段后间距
+        # Space before/after
         fmt.space_before = pf.space_before
         fmt.space_after = pf.space_after
 
-        # 行间距
+        # Line spacing
         fmt.line_spacing = pf.line_spacing
         fmt.line_spacing_rule = pf.line_spacing_rule
 
     except Exception as e:
-        logging.warning(f"提取段落格式失败: {e}")
+        logging.warning(f"Failed to extract paragraph format: {e}")
 
     return fmt
 
 
 def _get_paragraph_text(paragraph: Paragraph) -> str:
-    """获取段落文本"""
+    """Get paragraph text"""
     texts = []
     for run in paragraph.runs:
         if _run_has_image(run):
@@ -388,7 +388,7 @@ def _get_paragraph_text(paragraph: Paragraph) -> str:
 
 
 def _get_cell_text(cell: _Cell) -> str:
-    """获取单元格文本"""
+    """Get cell text"""
     texts = []
     for paragraph in cell.paragraphs:
         para_text = _get_paragraph_text(paragraph)
@@ -398,7 +398,7 @@ def _get_cell_text(cell: _Cell) -> str:
 
 
 def _run_has_image(run: Run) -> bool:
-    """检查run是否包含图片"""
+    """Check if run contains an image"""
     try:
         drawings = run._element.findall('.//' + qn('w:drawing'))
         if drawings:
@@ -412,7 +412,7 @@ def _run_has_image(run: Run) -> bool:
 
 
 def _extract_first_run_style(paragraph: Paragraph) -> Optional[RunStyle]:
-    """提取段落第一个有效run的样式"""
+    """Extract style from first valid run in paragraph"""
     for run in paragraph.runs:
         if run.text and run.text.strip():
             return _extract_run_style(run)
@@ -420,7 +420,7 @@ def _extract_first_run_style(paragraph: Paragraph) -> Optional[RunStyle]:
 
 
 def _extract_cell_first_run_style(cell: _Cell) -> Optional[RunStyle]:
-    """提取单元格第一个有效run的样式"""
+    """Extract style from first valid run in cell"""
     for paragraph in cell.paragraphs:
         style = _extract_first_run_style(paragraph)
         if style:
@@ -429,7 +429,7 @@ def _extract_cell_first_run_style(cell: _Cell) -> Optional[RunStyle]:
 
 
 def _extract_run_style(run: Run) -> RunStyle:
-    """提取run的样式"""
+    """Extract run style"""
     style = RunStyle()
 
     try:
@@ -457,13 +457,13 @@ def _extract_run_style(run: Run) -> RunStyle:
             pass
 
     except Exception as e:
-        logging.warning(f"提取run样式失败: {e}")
+        logging.warning(f"Failed to extract run style: {e}")
 
     return style
 
 
 def _should_translate(text: str) -> bool:
-    """判断文本是否需要翻译"""
+    """Determine if text should be translated"""
     if not text or not text.strip():
         return False
 
@@ -485,7 +485,7 @@ def _should_translate(text: str) -> bool:
 
 
 def _split_by_sentences(text: str, max_size: int) -> List[str]:
-    """按句子边界切分长文本"""
+    """Split long text by sentence boundaries"""
     sentence_endings = r'([.!?。！？；;]\s*)'
 
     parts = re.split(sentence_endings, text)
@@ -527,10 +527,10 @@ def _split_by_sentences(text: str, max_size: int) -> List[str]:
     return chunks if chunks else [text]
 
 
-# ==================== 翻译接口 ====================
+# ==================== Translation Interface ====================
 
 def _blocks_to_texts(blocks: List[TextBlock]) -> List[Dict]:
-    """将TextBlock列表转换为翻译接口格式"""
+    """Convert TextBlock list to translation interface format"""
     return [{
         'text': b.original_text,
         'original': b.original_text,
@@ -541,7 +541,7 @@ def _blocks_to_texts(blocks: List[TextBlock]) -> List[Dict]:
 
 
 def _sync_results(blocks: List[TextBlock], texts: List[Dict]):
-    """同步翻译结果到TextBlock"""
+    """Sync translation results to TextBlock"""
     block_map = {b.uid: b for b in blocks}
 
     for text_item in texts:
@@ -553,12 +553,12 @@ def _sync_results(blocks: List[TextBlock], texts: List[Dict]):
             block.count = text_item.get('count', 0)
 
 
-# ==================== 应用翻译 ====================
+# ==================== Apply Translation ====================
 
 def _apply_translation(document: Document, all_blocks: List[TextBlock],
                        only_translation: bool, inherit_format: bool,
                        target_lang: str) -> int:
-    """应用翻译结果到文档"""
+    """Apply translation results to document"""
     text_count = 0
 
     para_blocks = _organize_paragraph_blocks(all_blocks)
@@ -596,7 +596,7 @@ def _apply_translation(document: Document, all_blocks: List[TextBlock],
 
 
 def _organize_paragraph_blocks(blocks: List[TextBlock]) -> Dict[int, List[TextBlock]]:
-    """按段落索引组织块"""
+    """Organize blocks by paragraph index"""
     result = {}
     for b in blocks:
         if b.block_type == "paragraph":
@@ -611,7 +611,7 @@ def _organize_paragraph_blocks(blocks: List[TextBlock]) -> Dict[int, List[TextBl
 
 
 def _organize_table_blocks(blocks: List[TextBlock]) -> Dict[tuple, List[TextBlock]]:
-    """按表格位置组织块"""
+    """Organize blocks by table position"""
     result = {}
     for b in blocks:
         if b.block_type == "table_cell":
@@ -627,7 +627,7 @@ def _organize_table_blocks(blocks: List[TextBlock]) -> Dict[tuple, List[TextBloc
 
 
 def _organize_header_footer_blocks(blocks: List[TextBlock]) -> Dict[tuple, List[TextBlock]]:
-    """按页眉页脚组织块"""
+    """Organize blocks by header/footer"""
     result = {}
     for b in blocks:
         if b.block_type == "header_footer":
@@ -642,10 +642,10 @@ def _organize_header_footer_blocks(blocks: List[TextBlock]) -> Dict[tuple, List[
 def _apply_to_paragraph(paragraph: Paragraph, blocks: List[TextBlock],
                         only_translation: bool, inherit_format: bool,
                         target_lang: str) -> int:
-    """应用翻译到段落"""
+    """Apply translation to paragraph"""
     text_count = sum(b.count for b in blocks)
 
-    # 合并子块
+    # Merge sub-blocks
     if any(b.is_sub for b in blocks):
         original = ''.join(b.original_text for b in blocks)
         translated = ''.join(b.translated_text or b.original_text for b in blocks)
@@ -672,7 +672,7 @@ def _apply_to_paragraph(paragraph: Paragraph, blocks: List[TextBlock],
 def _apply_to_cell(cell: _Cell, blocks: List[TextBlock],
                    only_translation: bool, inherit_format: bool,
                    target_lang: str) -> int:
-    """应用翻译到单元格"""
+    """Apply translation to cell"""
     text_count = sum(b.count for b in blocks)
 
     if any(b.is_sub for b in blocks):
@@ -702,7 +702,7 @@ def _apply_to_header_footer(section, section_idx: int,
                             hf_blocks: Dict[tuple, List[TextBlock]],
                             only_translation: bool, inherit_format: bool,
                             target_lang: str):
-    """应用翻译到页眉页脚"""
+    """Apply translation to header/footer"""
     hf_map = {
         'header': section.header,
         'footer': section.footer,
@@ -730,7 +730,7 @@ def _apply_to_header_footer(section, section_idx: int,
                                                          blocks[0].run_style, blocks[0].para_format,
                                                          inherit_format, target_lang)
         except Exception as e:
-            logging.warning(f"处理页眉页脚失败: {e}")
+            logging.warning(f"Failed to process header/footer: {e}")
 
 
 def _replace_paragraph_text(paragraph: Paragraph, new_text: str,
@@ -738,21 +738,21 @@ def _replace_paragraph_text(paragraph: Paragraph, new_text: str,
                             para_format: Optional[ParagraphFormat],
                             inherit_format: bool, target_lang: str,
                             original_len: int):
-    """替换段落文本（仅译文模式）"""
+    """Replace paragraph text (translation-only mode)"""
 
-    # 保存图片元素
+    # Save image elements
     image_elements = []
     for run in paragraph.runs:
         if _run_has_image(run):
             image_elements.append(deepcopy(run._element))
 
     if inherit_format and paragraph.runs:
-        # 继承格式：只替换文本内容
+        # Inherit format: only replace text content
         for run in paragraph.runs:
             if not _run_has_image(run):
                 run.text = ""
 
-        # 在第一个非图片run中设置译文
+        # Set translation in first non-image run
         first_text_run = None
         for run in paragraph.runs:
             if not _run_has_image(run):
@@ -763,22 +763,22 @@ def _replace_paragraph_text(paragraph: Paragraph, new_text: str,
             first_text_run.text = new_text
             _adjust_font_size_for_run(first_text_run, run_style, len(new_text), original_len)
         else:
-            # 没有文本run，创建新的
+            # No text run, create new one
             new_run = paragraph.add_run(new_text)
             _apply_run_style(new_run, run_style, target_lang, len(new_text), original_len)
     else:
-        # 重排格式：清空后重建
+        # Reformat: clear and rebuild
         paragraph.clear()
 
-        # 添加译文
+        # Add translation
         new_run = paragraph.add_run(new_text)
         _apply_run_style(new_run, run_style, target_lang, len(new_text), original_len)
 
-        # 恢复图片
+        # Restore images
         for img_elem in image_elements:
             paragraph._p.append(img_elem)
 
-    # 恢复段落格式
+    # Restore paragraph format
     _apply_paragraph_format(paragraph, para_format)
 
 
@@ -786,9 +786,9 @@ def _append_translation_to_paragraph(paragraph: Paragraph, translated: str,
                                      run_style: Optional[RunStyle],
                                      para_format: Optional[ParagraphFormat],
                                      inherit_format: bool, target_lang: str):
-    """在段落末尾添加译文（原文+译文模式）"""
+    """Append translation to end of paragraph (original+translation mode)"""
 
-    # 找到最后一个非图片run
+    # Find last non-image run
     last_text_run = None
     for run in reversed(paragraph.runs):
         if not _run_has_image(run):
@@ -799,16 +799,16 @@ def _append_translation_to_paragraph(paragraph: Paragraph, translated: str,
         if paragraph.runs:
             last_text_run = paragraph.runs[-1]
         else:
-            # 空段落，直接添加
+            # Empty paragraph, add directly
             new_run = paragraph.add_run(translated)
             _apply_run_style(new_run, run_style, target_lang, len(translated), 0)
             _apply_paragraph_format(paragraph, para_format)
             return
 
-    # 添加换行
+    # Add line break
     last_text_run.add_break()
 
-    # 添加译文run
+    # Add translation run
     new_run = paragraph.add_run(translated)
 
     if inherit_format and run_style:
@@ -816,7 +816,7 @@ def _append_translation_to_paragraph(paragraph: Paragraph, translated: str,
     else:
         _apply_run_style(new_run, run_style, target_lang, len(translated), 0)
 
-    # 确保段落格式保持
+    # Ensure paragraph format is maintained
     _apply_paragraph_format(paragraph, para_format)
 
 
@@ -825,35 +825,35 @@ def _replace_cell_text(cell: _Cell, new_text: str,
                        para_format: Optional[ParagraphFormat],
                        inherit_format: bool, target_lang: str,
                        original_len: int):
-    """替换单元格文本（仅译文模式）"""
+    """Replace cell text (translation-only mode)"""
 
-    # 保存图片
+    # Save images
     image_elements = []
     for paragraph in cell.paragraphs:
         for run in paragraph.runs:
             if _run_has_image(run):
                 image_elements.append(deepcopy(run._element))
 
-    # 清空单元格内容但保留第一个段落
+    # Clear cell content but keep first paragraph
     while len(cell.paragraphs) > 1:
         p = cell.paragraphs[-1]._element
         p.getparent().remove(p)
 
-    # 清空第一个段落的内容
+    # Clear content of first paragraph
     first_para = cell.paragraphs[0]
     for run in first_para.runs:
         run.clear()
 
-    # 处理多行文本
+    # Process multi-line text
     lines = new_text.split('\n')
 
     for i, line in enumerate(lines):
         if i == 0:
             para = first_para
-            # 清空现有runs
+            # Clear existing runs
             for run in para.runs:
                 run.text = ""
-            # 添加新文本
+            # Add new text
             if para.runs:
                 para.runs[0].text = line
                 _adjust_font_size_for_run(para.runs[0], run_style, len(line), original_len)
@@ -865,10 +865,10 @@ def _replace_cell_text(cell: _Cell, new_text: str,
             new_run = para.add_run(line)
             _apply_run_style(new_run, run_style, target_lang, len(line), 0)
 
-        # 应用段落格式
+        # Apply paragraph format
         _apply_paragraph_format(para, para_format)
 
-    # 恢复图片到最后一个段落
+    # Restore images to last paragraph
     if image_elements and cell.paragraphs:
         for img_elem in image_elements:
             cell.paragraphs[-1]._p.append(img_elem)
@@ -878,7 +878,7 @@ def _append_translation_to_cell(cell: _Cell, translated: str,
                                 run_style: Optional[RunStyle],
                                 para_format: Optional[ParagraphFormat],
                                 inherit_format: bool, target_lang: str):
-    """在单元格末尾添加译文（原文+译文模式）"""
+    """Append translation to end of cell (original+translation mode)"""
 
     if not cell.paragraphs:
         para = cell.add_paragraph()
@@ -889,31 +889,31 @@ def _append_translation_to_cell(cell: _Cell, translated: str,
 
     last_para = cell.paragraphs[-1]
 
-    # 添加换行
+    # Add line break
     if last_para.runs:
         last_para.runs[-1].add_break()
 
-    # 添加译文
+    # Add translation
     new_run = last_para.add_run(translated)
     _apply_run_style(new_run, run_style, target_lang, len(translated), 0)
 
-    # 确保格式保持
+    # Ensure format is maintained
     _apply_paragraph_format(last_para, para_format)
 
 
 def _apply_paragraph_format(paragraph: Paragraph, fmt: Optional[ParagraphFormat]):
-    """应用段落格式"""
+    """Apply paragraph format"""
     if not fmt:
         return
 
     try:
-        # 对齐方式
+        # Alignment
         if fmt.alignment is not None:
             paragraph.alignment = fmt.alignment
 
         pf = paragraph.paragraph_format
 
-        # 缩进
+        # Indentation
         if fmt.left_indent is not None:
             pf.left_indent = fmt.left_indent
         if fmt.right_indent is not None:
@@ -921,25 +921,25 @@ def _apply_paragraph_format(paragraph: Paragraph, fmt: Optional[ParagraphFormat]
         if fmt.first_line_indent is not None:
             pf.first_line_indent = fmt.first_line_indent
 
-        # 段前段后间距
+        # Space before/after
         if fmt.space_before is not None:
             pf.space_before = fmt.space_before
         if fmt.space_after is not None:
             pf.space_after = fmt.space_after
 
-        # 行间距
+        # Line spacing
         if fmt.line_spacing is not None:
             pf.line_spacing = fmt.line_spacing
         if fmt.line_spacing_rule is not None:
             pf.line_spacing_rule = fmt.line_spacing_rule
 
     except Exception as e:
-        logging.warning(f"应用段落格式失败: {e}")
+        logging.warning(f"Failed to apply paragraph format: {e}")
 
 
 def _apply_run_style(run: Run, style: Optional[RunStyle],
                      target_lang: str, new_len: int, original_len: int):
-    """应用样式到run"""
+    """Apply style to run"""
     if not style:
         _set_default_font(run, target_lang)
         return
@@ -947,11 +947,11 @@ def _apply_run_style(run: Run, style: Optional[RunStyle],
     try:
         font = run.font
 
-        # 字体名称
+        # Font name
         if style.font_name:
             font.name = style.font_name
 
-        # 东亚字体
+        # East Asian font
         if target_lang in ['中文', '日语', '韩语']:
             try:
                 run._element.get_or_add_rPr()
@@ -963,11 +963,11 @@ def _apply_run_style(run: Run, style: Optional[RunStyle],
             except:
                 pass
 
-        # 字体大小
+        # Font size
         if style.font_size:
             font.size = _calculate_adjusted_size(style.font_size, new_len, original_len)
 
-        # 粗体、斜体、下划线、删除线
+        # Bold, italic, underline, strikethrough
         if style.font_bold is not None:
             font.bold = style.font_bold
         if style.font_italic is not None:
@@ -977,28 +977,28 @@ def _apply_run_style(run: Run, style: Optional[RunStyle],
         if style.font_strike is not None:
             font.strike = style.font_strike
 
-        # 颜色
+        # Color
         if style.font_color_rgb:
             font.color.rgb = style.font_color_rgb
 
     except Exception as e:
-        logging.warning(f"应用样式失败: {e}")
+        logging.warning(f"Failed to apply style: {e}")
 
 
 def _adjust_font_size_for_run(run: Run, style: Optional[RunStyle],
                               new_len: int, original_len: int):
-    """调整run的字体大小"""
+    """Adjust run font size"""
     if not style or not style.font_size:
         return
 
     try:
         run.font.size = _calculate_adjusted_size(style.font_size, new_len, original_len)
     except Exception as e:
-        logging.warning(f"调整字体大小失败: {e}")
+        logging.warning(f"Failed to adjust font size: {e}")
 
 
 def _set_default_font(run: Run, target_lang: str):
-    """设置默认字体"""
+    """Set default font"""
     try:
         if target_lang in ['中文', '日语', '韩语']:
             run.font.name = '微软雅黑'
@@ -1012,7 +1012,7 @@ def _set_default_font(run: Run, target_lang: str):
 
 
 def _calculate_adjusted_size(original_size: Pt, new_len: int, original_len: int) -> Pt:
-    """计算调整后的字体大小"""
+    """Calculate adjusted font size"""
     if not original_size:
         return Pt(11)
 

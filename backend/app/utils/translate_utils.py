@@ -10,7 +10,7 @@ from datetime import datetime
 class TranslateUtils:
     @staticmethod
     def execute_python_script(script_path: str, args: List[str], timeout: int = 120):
-        """执行Python脚本并处理超时[^1]"""
+        """Execute Python script and handle timeout"""
         try:
             result = subprocess.run(
                 ['python3', script_path] + args,
@@ -26,7 +26,7 @@ class TranslateUtils:
 
     @staticmethod
     def generate_zip(files: List[tuple]) -> BytesIO:
-        """生成内存ZIP文件流[^2]"""
+        """Generate in-memory ZIP file stream"""
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for file_path, arcname in files:
@@ -36,7 +36,7 @@ class TranslateUtils:
 
     @staticmethod
     def get_preset_settings() -> dict:
-        """获取预设配置[^5]"""
+        """Get preset configuration"""
         return {
             'models': ['gpt-3.5-turbo', 'gpt-4'],
             'default_model': 'gpt-3.5-turbo',

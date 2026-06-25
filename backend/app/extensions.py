@@ -8,28 +8,28 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from app.utils.jwt_utils import configure_jwt_callbacks
 
-# 初始化扩展实例
+# Initialize extension instances
 
 mail = Mail()
 limiter = Limiter(key_func=get_remote_address)
-# 创建扩展实例（尚未初始化）
+# Create extension instances (not yet initialized)
 api = Api()
 
 db = SQLAlchemy()
 jwt = JWTManager()
 migrate = Migrate()
 def init_extensions(app):
-    """初始化所有扩展"""
+    """Initialize all extensions"""
     db.init_app(app)
     api.init_app(app)
     jwt.init_app(app)
-    # 拦截jwt
+    # Configure JWT callbacks
     configure_jwt_callbacks(jwt)
     mail.init_app(app)
     migrate.init_app(app, db)
-    # 延迟初始化API（避免循环导入）
+    # Delayed API initialization (avoid circular imports)
     from app.routes import register_routes
-    # 注册路由
+    # Register routes
     register_routes(api)
     api.init_app(app)
 

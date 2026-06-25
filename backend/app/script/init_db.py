@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 from urllib.parse import urlparse
 
-# 配置跨平台兼容的日志系统
+# Configure cross-platform compatible logging system
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -24,69 +24,69 @@ logger = logging.getLogger(__name__)
 def safe_init_mysql(app: Flask, sql_file: str = 'init.sql') -> bool:
 
     if not app or not isinstance(app, Flask):
-        logger.error("无效的Flask应用实例")
+        logger.error("Invalid Flask application instance")
         return False
 
     with app.app_context():
         try:
-            # 跨平台路径处理
+            # Cross-platform path handling
             sql_path = get_platform_path(sql_file)
             if not sql_path.exists():
-                logger.warning(f"SQL文件 {sql_path} 不存在，跳过初始化")
+                logger.warning(f"SQL file {sql_path} does not exist, skipping initialization")
                 return False
 
-            # 获取数据库配置（兼容环境变量）
+            # Get database configuration (compatible with environment variables)
             db_url = app.config.get('SQLALCHEMY_DATABASE_URI', os.getenv('PROD_DATABASE_URL'))
             if not db_url:
-                logger.error("数据库配置未找到")
+                logger.error("Database configuration not found")
                 return False
 
-            # 解析连接信息（增强兼容性）
+            # Parse connection info (enhanced compatibility)
             conn_info = parse_db_url(db_url)
             if not conn_info:
-                logger.error("无效的数据库连接字符串")
+                logger.error("Invalid database connection string")
                 return False
 
-            # 检查是否已初始化（带重试机制）
+            # Check if already initialized (with retry mechanism)
             if check_database_initialized(conn_info):
-                logger.info("数据库已初始化，跳过执行")
+                logger.info("Database already initialized, skipping execution")
                 return False
 
-            logger.info("开始安全初始化MySQL数据库...")
+            logger.info("Starting safe MySQL database initialization...")
             return execute_with_retry(conn_info, sql_path)
 
         except Exception as e:
-            logger.error(f"数据库初始化异常: {str(e)}", exc_info=True)
+            logger.error(f"Database initialization exception: {str(e)}", exc_info=True)
             return False
 
 
 def get_platform_path(file_path: str) -> Path:
-    """处理跨平台文件路径问题"""
-    # 统一转换为绝对路径
+    """Handle cross-platform file path issues"""
+    # Convert to absolute path uniformly
     path = Path(file_path).absolute()
 
-    # 在Linux/macOS下检查路径大小写敏感性
+    # Check case sensitivity on Linux/macOS
     if platform.system() in ('Linux', 'Darwin'):
         try:
-            # 尝试找到实际存在的路径（解决大小写问题）
+            # Try to find actual existing path (solve case issues)
             if path.exists():
                 return path
-            # 尝试查找忽略大小写的匹配路径
+            # Try to find case-insensitive matching path
             parent = path.parent
             for f in parent.iterdir():
                 if f.name.lower() == path.name.lower():
                     return f
         except Exception as e:
-            logger.warning(f"路径检查异常: {str(e)}")
+            logger.warning(f"Path check exception: {str(e)}")
 
     return path
 
 
 def parse_db_url(db_url: str) -> Optional[dict]:
-    """增强的数据库URL解析"""
+    """Enhanced database URL parsing"""
     try:
         result = urlparse(db_url)
-        # 处理Windows下的特殊字符
+        # Handle special characters on Windows
         password = result.password.replace('%', '%%') if result.password else None
 
         return {
@@ -94,39 +94,39 @@ def parse_db_url(db_url: str) -> Optional[dict]:
             'port': result.port or 3306,
             'user': result.username,
             'password': password,
-            'db': result.path[1:].split('?')[0],  # 去掉路径前的/和查询参数
+            'db': result.path[1:].split('?')[0],  # Remove leading / and query params
             'charset': 'utf8mb4',
             'cursorclass': pymysql.cursors.DictCursor,
             'connect_timeout': 10,
             'read_timeout': 30
         }
     except Exception as e:
-        logger.error(f"解析数据库URL失败: {str(e)}")
+        logger.error(f"Failed to parse database URL: {str(e)}")
         return None
 
 
 def check_database_initialized(conn_info: dict, retries: int = 3) -> bool:
-    """带重试机制的数据库初始化检查"""
+    """Database initialization check with retry mechanism"""
     for attempt in range(retries):
         try:
             connection = None
             connection = pymysql.connect(**conn_info)
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT COUNT(*) as count 
-                    FROM information_schema.tables 
+                    SELECT COUNT(*) as count
+                    FROM information_schema.tables
                     WHERE table_schema = %s AND table_name = 'alembic_version'
                 """, (conn_info['db'],))
                 result = cursor.fetchone()
                 return result['count'] > 0
         except pymysql.OperationalError as e:
             if attempt == retries - 1:
-                logger.warning(f"数据库连接失败（尝试{retries}次）: {str(e)}")
+                logger.warning(f"Database connection failed ({retries} attempts): {str(e)}")
                 return False
-            logger.warning(f"数据库连接异常，重试中... ({attempt + 1}/{retries})")
-            time.sleep(2 ** attempt)  # 指数退避
+            logger.warning(f"Database connection exception, retrying... ({attempt + 1}/{retries})")
+            time.sleep(2 ** attempt)  # Exponential backoff
         except Exception as e:
-            logger.warning(f"数据库检查异常: {str(e)}")
+            logger.warning(f"Database check exception: {str(e)}")
             return False
         finally:
             if connection:
@@ -135,62 +135,62 @@ def check_database_initialized(conn_info: dict, retries: int = 3) -> bool:
 
 
 def execute_with_retry(conn_info: dict, sql_path: Path, retries: int = 3) -> bool:
-    """带重试机制的数据库初始化"""
+    """Database initialization with retry mechanism"""
     for attempt in range(retries):
         try:
             return execute_safe_init(conn_info, sql_path)
         except pymysql.OperationalError as e:
             if attempt == retries - 1:
-                logger.error(f"数据库操作最终失败（尝试{retries}次）: {str(e)}")
+                logger.error(f"Database operation failed after {retries} attempts: {str(e)}")
                 return False
-            logger.warning(f"数据库操作异常，重试中... ({attempt + 1}/{retries})")
+            logger.warning(f"Database operation exception, retrying... ({attempt + 1}/{retries})")
             time.sleep(2 ** attempt)
     return False
 
 
 def execute_safe_init(conn_info: dict, sql_path: Path) -> bool:
-    """增强的安全初始化执行"""
+    """Enhanced safe initialization execution"""
     connection = None
     try:
-        # 创建连接（设置更长的超时时间）
+        # Create connection (set longer timeout)
         conn_info['connect_timeout'] = 20
         connection = pymysql.connect(**conn_info)
 
         with connection.cursor() as cursor:
-            # 创建数据库（兼容各种字符集）
+            # Create database (compatible with various charsets)
             cursor.execute(f"""
-                CREATE DATABASE IF NOT EXISTS `{conn_info['db']}` 
+                CREATE DATABASE IF NOT EXISTS `{conn_info['db']}`
                 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
             """)
             cursor.execute(f"USE `{conn_info['db']}`")
 
-            # 读取SQL文件（处理不同平台的换行符）
-            with open(sql_path, 'r', encoding='utf-8-sig') as f:  # 处理BOM
-                content = f.read().replace('\r\n', '\n')  # 统一换行符
+            # Read SQL file (handle different platform line endings)
+            with open(sql_path, 'r', encoding='utf-8-sig') as f:  # Handle BOM
+                content = f.read().replace('\r\n', '\n')  # Normalize line endings
 
-            # 执行SQL语句
+            # Execute SQL statements
             for statement in parse_sql_content(content):
                 execute_safe_sql(cursor, statement)
 
         connection.commit()
-        logger.info("数据库初始化成功完成")
+        logger.info("Database initialization completed successfully")
         return True
     except Exception as e:
-        logger.error(f"数据库初始化失败: {str(e)}", exc_info=True)
+        logger.error(f"Database initialization failed: {str(e)}", exc_info=True)
         if connection:
             connection.rollback()
-        raise  # 重新抛出异常供重试机制处理
+        raise  # Re-raise exception for retry mechanism
     finally:
         if connection:
             connection.close()
 
 
 def parse_sql_content(content: str) -> list:
-    """改进的SQL内容解析"""
-    # 先移除MySQL条件注释 /*!数字 ... */
+    """Improved SQL content parsing"""
+    # First remove MySQL conditional comments /*!digit ... */
     content = re.sub(r'/\*!\d+\s+.*?\*/', '', content, flags=re.DOTALL)
 
-    # 移除普通块注释 /* ... */
+    # Remove normal block comments /* ... */
     content = re.sub(r'/\*[^!].*?\*/', '', content, flags=re.DOTALL)
 
     lines = []
@@ -199,12 +199,12 @@ def parse_sql_content(content: str) -> list:
         if not line or line.startswith('--'):
             continue
 
-        # 过滤事务控制语句
+        # Filter transaction control statements
         upper = line.upper().rstrip(';').strip()
         if upper in ('START TRANSACTION', 'COMMIT', 'ROLLBACK', 'BEGIN'):
             continue
 
-        # 处理行内 -- 注释（但保留SET等语句中--后面的非注释部分）
+        # Handle inline -- comments (but preserve non-comment parts after -- in SET statements)
         comment_pos = line.find('--')
         if comment_pos > 0:
             line = line[:comment_pos].strip()
@@ -212,7 +212,7 @@ def parse_sql_content(content: str) -> list:
         if line:
             lines.append(line)
 
-    # 合并语句（处理跨行语句）
+    # Merge statements (handle multi-line statements)
     statements = []
     current = ""
     for line in lines:
@@ -220,7 +220,7 @@ def parse_sql_content(content: str) -> list:
         if ';' in line:
             stmt, _, remaining = current.partition(';')
             stmt_stripped = stmt.strip()
-            # 再次过滤事务控制语句（合并后可能跨行）
+            # Filter transaction control statements again (may be multi-line after merge)
             if stmt_stripped.upper() not in ('START TRANSACTION', 'COMMIT', 'ROLLBACK', 'BEGIN'):
                 statements.append(stmt_stripped)
             current = remaining.strip()
@@ -232,29 +232,29 @@ def parse_sql_content(content: str) -> list:
 
 
 def execute_safe_sql(cursor, sql: str):
-    """增强的安全SQL执行"""
+    """Enhanced safe SQL execution"""
     try:
-        if sql.strip():  # 忽略空语句
+        if sql.strip():  # Ignore empty statements
             cursor.execute(sql)
     except pymysql.Error as e:
         error_code = e.args[0]
         ignorable_errors = {
-            1050: "表已存在",
-            1060: "列已存在",
-            1061: "键已存在",
-            1062: "重复条目",
-            1068: "主键已存在",
-            1064: "语法警告",
-            1054: "未知列",
-            1146: "表不存在",
-            2006: "MySQL服务器已断开",
-            2013: "查询期间丢失连接"
+            1050: "Table already exists",
+            1060: "Column already exists",
+            1061: "Key already exists",
+            1062: "Duplicate entry",
+            1068: "Primary key already exists",
+            1064: "Syntax warning",
+            1054: "Unknown column",
+            1146: "Table does not exist",
+            2006: "MySQL server has gone away",
+            2013: "Lost connection during query"
         }
 
         if error_code in ignorable_errors:
-            logger.warning(f"安全跳过SQL执行（{error_code}-{ignorable_errors[error_code]}）")
+            logger.warning(f"Safely skipping SQL execution ({error_code}-{ignorable_errors[error_code]})")
         else:
-            logger.error(f"SQL执行错误（{error_code}）: {str(e)}")
+            logger.error(f"SQL execution error ({error_code}): {str(e)}")
             raise
 
 

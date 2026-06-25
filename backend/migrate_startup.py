@@ -21,25 +21,25 @@ def run_startup():
         has_translate = 'translate' in existing_tables
 
         if not has_alembic and not has_translate:
-            logger.info("全新数据库，执行 init.sql 建表...")
+            logger.info("New database, executing init.sql to create tables...")
             from app.script.init_db import safe_init_mysql
             safe_init_mysql(app, 'app/init.sql')
 
-            logger.info("标记迁移版本到最新...")
+            logger.info("Stamping migration version to latest...")
             stamp()
 
         elif not has_alembic and has_translate:
-            logger.info("数据库已有表但无迁移记录，标记初始版本...")
+            logger.info("Database has tables but no migration record, stamping initial version...")
             stamp(revision='001_initial')
 
-            logger.info("执行增量迁移...")
+            logger.info("Executing incremental migration...")
             upgrade()
 
         else:
-            logger.info("执行增量迁移...")
+            logger.info("Executing incremental migration...")
             upgrade()
 
-    logger.info("数据库迁移完成")
+    logger.info("Database migration completed")
     return app
 
 

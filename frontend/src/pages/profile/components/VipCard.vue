@@ -47,7 +47,7 @@ const visitSite = () => {
 }
 </script>
 <style scoped>
-/* VIP卡片响应式设计 */
+/* VIP card responsive design */
 .vip-card {
   position: relative;
   margin-bottom: 20px;
@@ -64,7 +64,7 @@ const visitSite = () => {
   border-radius: 10px;
   z-index: 2;
 }
-/* 移动端优先的边角设计 */
+/* Mobile-first corner design */
 .vip-card__corner {
   position: absolute;
   width: 40px;
@@ -92,7 +92,7 @@ const visitSite = () => {
   right: 0;
   clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 }
-/* 响应式徽章 */
+/* Responsive badge */
 .vip-card__badge {
   display: inline-flex;
   align-items: center;
@@ -108,7 +108,7 @@ const visitSite = () => {
   margin-right: 6px;
   font-size: 14px;
 }
-/* 响应式文字大小 */
+/* Responsive text size */
 .vip-card__title {
   margin: 0 0 8px;
   font-size: 18px;
@@ -121,7 +121,7 @@ const visitSite = () => {
   font-size: 13px;
   line-height: 1.4;
 }
-/* 响应式福利列表 */
+/* Responsive benefits list */
 .vip-card__benefits {
   display: grid;
   gap: 10px;
@@ -138,7 +138,7 @@ const visitSite = () => {
   font-size: 16px;
   font-weight: bolder;
 }
-/* 平板和桌面端适配 */
+/* Tablet and desktop adaptation */
 @media (min-width: 768px) {
   .vip-card {
     margin-bottom: 30px;

@@ -9,30 +9,30 @@ from app.utils.response import APIResponse
 
 class AdminLoginResource(Resource):
     def post(self):
-        """管理员登录[^1]"""
+        """Admin login"""
         data = request.json
         required_fields = ['email', 'password']
         if not all(field in data for field in required_fields):
-            return APIResponse.error('缺少必要参数', 400)
+            return APIResponse.error('Missing required parameters', 400)
 
         try:
-            # 查询管理员用户
+            # Query admin user
             admin = User.query.filter_by(
                 email=data['email'],
                 deleted_flag='N'
             ).first()
 
-            # 验证用户是否存在
+            # Verify user exists
             if not admin:
-                current_app.logger.warning(f"用户不存在：{data['email']}")
-                return APIResponse.unauthorized('账号或密码错误')
+                current_app.logger.warning(f"User does not exist: {data['email']}")
+                return APIResponse.unauthorized('Incorrect account or password')
 
-            # 直接比较明文密码
+            # Direct plain text password comparison
             if admin.password != data['password']:
-                current_app.logger.warning(f"密码错误：{data['email']}")
-                return APIResponse.error('账号或密码错误')
+                current_app.logger.warning(f"Password error: {data['email']}")
+                return APIResponse.error('Incorrect account or password')
 
-            # 生成JWT令牌
+            # Generate JWT token
             access_token = create_access_token(identity=str(admin.id))
             return APIResponse.success({
                 'token': access_token,
@@ -41,48 +41,48 @@ class AdminLoginResource(Resource):
             })
 
         except Exception as e:
-            current_app.logger.error(f"登录失败：{str(e)}")
-            return APIResponse.error('服务器内部错误', 500)
+            current_app.logger.error(f"Login failed: {str(e)}")
+            return APIResponse.error('Internal server error', 500)
 
 
 class AdminChangePasswordResource(Resource):
     @jwt_required()
     def post(self):
-        """管理员修改邮箱和密码"""
+        """Admin change email and password"""
         try:
-            # 获取当前管理员 ID
+            # Get current admin ID
             admin_id = get_jwt_identity()
-            # 解析请求体
+            # Parse request body
             data = request.get_json()
             required_fields = ['old_password']
             if not all(field in data for field in required_fields):
-                return APIResponse.error('缺少必要参数', 400)
+                return APIResponse.error('Missing required parameters', 400)
 
-            # 查询管理员用户
+            # Query admin user
             admin = User.query.get(admin_id)
             if not admin:
-                return APIResponse.error('管理员不存在', 404)
+                return APIResponse.error('Admin does not exist', 404)
 
-            # 验证旧密码
+            # Verify old password
             if admin.password != data['old_password']:
-                return APIResponse.error(message='旧密码错误')
+                return APIResponse.error(message='Incorrect old password')
 
-            # 更新邮箱（如果 user 不为空）
+            # Update email (if user is not empty)
             if 'user' in data and data['user']:
                 admin.email = data['user']
 
-            # 更新密码（如果 new_password 和 confirm_password 不为空且一致）
+            # Update password (if new_password and confirm_password are not empty and match)
             if 'new_password' in data and 'confirm_password' in data:
                 if data['new_password'] and data['confirm_password']:
                     if data['new_password'] != data['confirm_password']:
-                        return APIResponse.error('新密码和确认密码不一致', 400)
-                    admin.password = data['new_password']  # 明文存储
+                        return APIResponse.error('New password and confirmation password do not match', 400)
+                    admin.password = data['new_password']  # Plain text storage
 
-            # 保存到数据库
+            # Save to database
             db.session.commit()
 
-            return APIResponse.success(message='修改成功')
+            return APIResponse.success(message='Modified successfully')
 
         except Exception as e:
-            current_app.logger.error(f"修改失败：{str(e)}")
-            return APIResponse.error('服务器内部错误', 500)
+            current_app.logger.error(f"Modification failed: {str(e)}")
+            return APIResponse.error('Internal server error', 500)

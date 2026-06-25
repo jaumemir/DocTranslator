@@ -18,20 +18,20 @@ from datetime import datetime
 class MyComparisonListResource(Resource):
     @jwt_required()
     def get(self):
-        """获取我的术语表列表"""
-        # 直接查询所有数据（不解析查询参数）
+        """Get my terminology list"""
+        # Query all data directly (no query parameter parsing)
         query = Comparison.query.filter_by(customer_id=get_jwt_identity())
         comparisons = [self._format_comparison(comparison) for comparison in query.all()]
 
-        # 返回结果
+        # Return result
         return APIResponse.success({
             'data': comparisons,
             'total': len(comparisons)
         })
 
     def _format_comparison(self, comparison):
-        """格式化术语表数据"""
-        # 解析 content 字段
+        """Format terminology data"""
+        # Parse content field
         content_list = []
         if comparison.content:
             for item in comparison.content.split('; '):
@@ -42,7 +42,7 @@ class MyComparisonListResource(Resource):
                         'target': target.strip()
                     })
 
-        # 返回格式化后的数据
+        # Return formatted data
         return {
             'id': comparison.id,
             'title': comparison.title,
@@ -53,24 +53,24 @@ class MyComparisonListResource(Resource):
             'content': content_list,  # 返回解析后的数组
             'customer_id': comparison.customer_id,
             'created_at': comparison.created_at.strftime(
-                '%Y-%m-%d %H:%M') if comparison.created_at else None,  # 格式化时间
+                '%Y-%m-%d %H:%M') if comparison.created_at else None,  # Format time
             'updated_at': comparison.updated_at.strftime(
-                '%Y-%m-%d %H:%M') if comparison.updated_at else None,  # 格式化时间
+                '%Y-%m-%d %H:%M') if comparison.updated_at else None,  # Format time
             'deleted_flag': comparison.deleted_flag
         }
 
 
-# 获取共享术语表列表
+# Get shared terminology list
 class SharedComparisonListResource(Resource):
     @jwt_required()
     def get(self):
-        """获取共享术语表列表"""
-        # 从查询字符串中解析参数
+        """Get shared terminology list"""
+        # Parse parameters from query string
         parser = reqparse.RequestParser()
-        parser.add_argument('order', type=str, default='latest', location='args')  # 只保留排序参数
+        parser.add_argument('order', type=str, default='latest', location='args')  # Only keep sort parameter
         args = parser.parse_args()
 
-        # 查询共享的术语表，并关联 Customer 表获取用户 email
+        # Query shared terminologies and join Customer table to get user email
         query = db.session.query(
             Comparison,
             func.count(ComparisonFav.id).label('fav_count'),
@@ -86,7 +86,7 @@ class SharedComparisonListResource(Resource):
             Comparison.id
         )
 
-        # 根据 order 参数排序
+        # Sort based on order parameter
         if args['order'] == 'latest':
             query = query.order_by(Comparison.created_at.desc())
         elif args['order'] == 'added':
@@ -94,7 +94,7 @@ class SharedComparisonListResource(Resource):
         elif args['order'] == 'fav':
             query = query.order_by(func.count(ComparisonFav.id).desc())
 
-        # 直接获取所有结果
+        # Get all results directly
         results = query.all()
 
         comparisons = [{
@@ -110,7 +110,7 @@ class SharedComparisonListResource(Resource):
             'fav_count': fav_count
         } for comparison, fav_count, customer_email in results]
 
-        # 返回结果
+        # Return result
         return APIResponse.success({
             'data': comparisons,
             'total': len(comparisons)
@@ -118,11 +118,11 @@ class SharedComparisonListResource(Resource):
 
 
 
-# 编辑术语列表
+# Edit terminology list
 class EditComparisonResource(Resource):
     @jwt_required()
     def post(self, id):
-        """编辑术语表"""
+        """Edit terminology"""
         comparison = Comparison.query.filter_by(
             id=id,
             customer_id=get_jwt_identity()
@@ -143,36 +143,36 @@ class EditComparisonResource(Resource):
             except ValueError:
                 return APIResponse.error("无效的 added_count 格式", 400)
 
-        # 更新 content
+        # Update content
         content_list = []
         for key, value in data.items():
             if key.startswith('content[') and '][origin]' in key:
-                # 提取索引
+                # Extract index
                 index = key.split('[')[1].split(']')[0]
                 origin = value
                 target = data.get(f'content[{index}][target]', '')
                 content_list.append(f"{origin}: {target}")
 
-        # 将 content_list 转换为字符串
+        # Convert content_list to string
         content_str = '; '.join(content_list)
         comparison.content = content_str
 
-        # 获取应用配置中的时区
+        # Get timezone from application configuration
         timezone_str = current_app.config['TIMEZONE']
         timezone = pytz.timezone(timezone_str)
 
-        # 更新 updated_at 字段
+        # Update updated_at field
         comparison.updated_at = datetime.now(timezone)
 
         db.session.commit()
         return APIResponse.success(message='术语表更新成功')
 
 
-# 更新术语表共享状态
+# Update terminology share status
 class ShareComparisonResource(Resource):
     @jwt_required()
     def post(self, id):
-        """修改共享状态[^4]"""
+        """Update share status"""
         comparison = Comparison.query.filter_by(
             id=id,
             customer_id=get_jwt_identity()
@@ -187,11 +187,11 @@ class ShareComparisonResource(Resource):
         return APIResponse.success(message='共享状态已更新')
 
 
-# 复制到我的术语库
+# Copy to my terminology library
 class CopyComparisonResource(Resource):
     @jwt_required()
     def post(self, id):
-        """复制到我的术语库[^5]"""
+        """Copy to my terminology library"""
         comparison = Comparison.query.filter_by(
             id=id,
             share_flag='Y'
@@ -212,11 +212,11 @@ class CopyComparisonResource(Resource):
         })
 
 
-# 收藏/取消收藏
+# Favorite/unfavorite
 class FavoriteComparisonResource(Resource):
     @jwt_required()
     def post(self, id):
-        """收藏/取消收藏[^6]"""
+        """Favorite/unfavorite"""
         comparison = Comparison.query.filter_by(id=id).first_or_404()
         customer_id = get_jwt_identity()
 
@@ -240,47 +240,47 @@ class FavoriteComparisonResource(Resource):
         return APIResponse.success(message=message)
 
 
-# 创建新术语表
+# Create new terminology
 class CreateComparisonResource(Resource):
     @jwt_required()
     def post(self):
-        """创建新术语表[^1]"""
+        """Create new terminology"""
         data = request.form
         required_fields = ['title', 'share_flag', 'origin_lang', 'target_lang']
         if not all(field in data for field in required_fields):
             return APIResponse.error('缺少必要参数', 400)
 
-        # 解析 content 参数
+        # Parse content parameter
         content_list = []
         for key, value in data.items():
             if key.startswith('content[') and '][origin]' in key:
-                # 提取索引
+                # Extract index
                 index = key.split('[')[1].split(']')[0]
                 origin = value
                 target = data.get(f'content[{index}][target]', '')
                 content_list.append(f"{origin}: {target}")
 
-        # 将 content_list 转换为字符串
+        # Convert content_list to string
         content_str = '; '.join(content_list)
 
-        # 获取应用配置中的时区
+        # Get timezone from application configuration
         timezone_str = current_app.config['TIMEZONE']
         timezone = pytz.timezone(timezone_str)
 
 
-        # 获取当前时间
+        # Get current time
         current_time = datetime.now(timezone)
 
-        # 创建术语表
+        # Create terminology
         comparison = Comparison(
             title=data['title'],
             origin_lang=data['origin_lang'],
             target_lang=data['target_lang'],
-            content=content_str,  # 插入转换后的 content 字符串
+            content=content_str,  # Insert converted content string
             customer_id=get_jwt_identity(),
             share_flag=data.get('share_flag', 'N'),
-            created_at=current_time,  # 显式赋值
-            updated_at=current_time  # 显式赋值
+            created_at=current_time,  # Explicit assignment
+            updated_at=current_time  # Explicit assignment
         )
         db.session.add(comparison)
         db.session.commit()
@@ -289,11 +289,11 @@ class CreateComparisonResource(Resource):
         })
 
 
-# 删除术语表
+# Delete terminology
 class DeleteComparisonResource(Resource):
     @jwt_required()
     def delete(self, id):
-        """删除术语表[^2]"""
+        """Delete terminology"""
         comparison = Comparison.query.filter_by(
             id=id,
             customer_id=get_jwt_identity()
@@ -304,15 +304,15 @@ class DeleteComparisonResource(Resource):
         return APIResponse.success(message='删除成功')
 
 
-# 下载模板文件
+# Download template file
 class DownloadTemplateResource(Resource):
     def get(self):
-        """下载模板文件[^3]"""
+        """Download template file"""
         from flask import send_file
         from io import BytesIO
         import pandas as pd
 
-        # 创建模板文件
+        # Create template file
         df = pd.DataFrame(columns=['源术语', '目标术语'])
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -327,78 +327,78 @@ class DownloadTemplateResource(Resource):
         )
 
 
-# 导入术语表
+# Import terminology
 class ImportComparisonResource(Resource):
     @jwt_required()
     def post(self):
         """
-        导入 Excel 文件
+        Import Excel file
         """
-        # 检查是否上传了文件
+        # Check if file was uploaded
         if 'file' not in request.files:
             return APIResponse.error('未选择文件', 400)
         file = request.files['file']
 
         try:
-            # 读取 Excel 文件
+            # Read Excel file
             import pandas as pd
             df = pd.read_excel(file)
 
-            # 检查文件是否包含所需的列
+            # Check if file contains required columns
             if not {'源术语', '目标术语'}.issubset(df.columns):
                 return APIResponse.error('文件格式不符合模板要求', 406)
-            # 解析 Excel 文件内容
+            # Parse Excel file content
             content = ';'.join(
-                [f"{row['源术语']}: {row['目标术语']}" for _, row in df.iterrows()])  # 按 ': ' 分隔
-            # 创建术语表
+                [f"{row['源术语']}: {row['目标术语']}" for _, row in df.iterrows()])  # Separated by ': '
+            # Create terminology
             comparison = Comparison(
                 title='导入的术语表',
                 origin_lang='未知',
                 target_lang='未知',
-                content=content,  # 使用改进后的格式
+                content=content,  # Use improved format
                 customer_id=get_jwt_identity(),
                 share_flag='N'
             )
             db.session.add(comparison)
             db.session.commit()
 
-            # 返回成功响应
+            # Return success response
             return APIResponse.success({
                 'id': comparison.id
             })
         except Exception as e:
-            # 捕获并返回错误信息
+            # Catch and return error information
             return APIResponse.error(f"文件导入失败：{str(e)}", 500)
 
 
-# 导出单个术语表
+# Export single terminology
 class ExportComparisonResource(Resource):
     @jwt_required()
     def get(self, id):
         """
-        导出单个术语表
+        Export single terminology
         """
-        # 获取当前用户 ID
+        # Get current user ID
         current_user_id = get_jwt_identity()
 
-        # 查询术语表
+        # Query terminology
         comparison = Comparison.query.get_or_404(id)
         print(comparison.customer_id, current_user_id)
-        # 检查术语表是否共享或属于当前用户
+        # Check if terminology is shared or belongs to current user
         if comparison.share_flag == 'Y' or comparison.customer_id != int(current_user_id):
             return {'message': '术语表未共享或无权限访问', 'code': 403}, 403
 
-        # 解析术语内容
-        terms = [term.split(': ') for term in comparison.content.split(';')]  # 按 ': ' 分割
+        # Parse terminology content
+        terms = [term.split(': ') for term in comparison.content.split(';')]  # Split by ': '
         df = pd.DataFrame(terms, columns=['源术语', '目标术语'])
 
-        # 创建 Excel 文件
+        # Create Excel file
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False)
         output.seek(0)
 
-        # 返回文件下载响应
+        # Return file download response
         return send_file(
             output,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -409,39 +409,39 @@ class ExportComparisonResource(Resource):
 
 
 
-# 批量导出所有术语表
+# Batch export all terminologies
 class ExportAllComparisonsResource(Resource):
     @jwt_required()
     def get(self):
         """
-        批量导出所有术语表
+        Batch export all terminologies
         """
-        # 获取当前用户 ID
+        # Get current user ID
         current_user_id = get_jwt_identity()
 
-        # 查询当前用户的所有术语表
+        # Query all terminologies for current user
         comparisons = Comparison.query.filter_by(customer_id=current_user_id).all()
 
-        # 创建 ZIP 文件
+        # Create ZIP file
         memory_file = BytesIO()
         with zipfile.ZipFile(memory_file, 'w') as zf:
             for comparison in comparisons:
-                # 解析术语内容
-                terms = [term.split(': ') for term in comparison.content.split(';')]  # 按 ': ' 分割
+                # Parse terminology content
+                terms = [term.split(': ') for term in comparison.content.split(';')]  # Split by ': '
                 df = pd.DataFrame(terms, columns=['源术语', '目标术语'])
 
-                # 创建 Excel 文件
+                # Create Excel file
                 output = BytesIO()
                 with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                     df.to_excel(writer, index=False)
                 output.seek(0)
 
-                # 将 Excel 文件添加到 ZIP 中
+                # Add Excel file to ZIP
                 zf.writestr(f"{comparison.title}.xlsx", output.getvalue())
 
         memory_file.seek(0)
 
-        # 返回 ZIP 文件下载响应
+        # Return ZIP file download response
         return send_file(
             memory_file,
             mimetype='application/zip',

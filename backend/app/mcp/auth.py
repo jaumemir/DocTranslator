@@ -28,7 +28,7 @@ def _get_flask_app():
 def _verify_token_sync(token: str, scope: str) -> Optional[dict]:
     app = _get_flask_app()
     if app is None:
-        logger.error("MCP鉴权异常: Flask app 不可用")
+        logger.error("MCP authentication exception: Flask app not available")
         return None
 
     with app.app_context():
@@ -45,7 +45,7 @@ def _verify_token_sync(token: str, scope: str) -> Optional[dict]:
             ).first()
 
             if not mcp_key:
-                logger.warning(f"MCP鉴权失败: token无效 scope={scope}")
+                logger.warning(f"MCP authentication failed: invalid token scope={scope}")
                 return None
 
             mcp_key.last_used_at = datetime.utcnow()
@@ -67,7 +67,7 @@ def _verify_token_sync(token: str, scope: str) -> Optional[dict]:
                 }
             }
         except Exception as e:
-            logger.error(f"MCP鉴权异常: {e}")
+            logger.error(f"MCP authentication exception: {e}")
             return None
 
 
@@ -94,7 +94,7 @@ class McpApiKeyAuthProvider(AuthProvider):
                 claims=result['claims'],
             )
         except Exception as e:
-            logger.error(f"MCP鉴权异常(async): {e}")
+            logger.error(f"MCP authentication exception(async): {e}")
             return None
 
 
@@ -124,5 +124,5 @@ def verify_api_key(raw_key: str, scope: str = 'user') -> Optional[dict]:
             'config': mcp_key.get_config(),
         }
     except Exception as e:
-        logger.error(f"MCP鉴权异常: {e}")
+        logger.error(f"MCP authentication exception: {e}")
         return None

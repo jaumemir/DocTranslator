@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 注册时发送邮箱验证码
+// Send email verification code during registration
 export function registerSendEmail(email) {
     return request({
         url: `/api/register/send`,
@@ -25,7 +25,7 @@ export function login(params) {
     });
 }
 
-// 忘记密码发送邮箱验证码
+// Send email verification code for forgot password
 export function forgetSendEmail(email) {
     return request({
         url: `/api/find/send`,

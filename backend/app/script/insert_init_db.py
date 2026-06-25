@@ -75,36 +75,36 @@ INITIAL_PROMPTS = [
 ]
 
 
-# 插入初始化prompt表数据（避免重复）
+# Insert initial prompt table data (avoid duplicates)
 def insert_initial_data(app):
     with app.app_context():
         for prompt_data in INITIAL_PROMPTS:
-            # 检查是否已存在相同数据
+            # Check if identical data already exists
             if not Prompt.query.filter_by(
                     title=prompt_data["title"],
                     content=prompt_data["content"],
                     customer_id=prompt_data["customer_id"]
             ).first():
-                # 创建新数据
+                # Create new data
                 prompt = Prompt(
                     title=prompt_data["title"],
                     content=prompt_data["content"],
                     customer_id=prompt_data["customer_id"],
-                    share_flag=prompt_data["share_flag"],  # 默认共享状态
-                    created_at=date.today()  # 自动设置当前时间
+                    share_flag=prompt_data["share_flag"],  # Default sharing status
+                    created_at=date.today()  # Auto set current time
                 )
                 db.session.add(prompt)
-        # 设置prompt_fav表id为自动递增，执行 ALTER TABLE 语句
+        # Set prompt_fav table id to auto increment, execute ALTER TABLE statement
         # db.session.execute(text("ALTER TABLE prompt_fav MODIFY COLUMN id BIGINT AUTO_INCREMENT;"))
-        # 提交事务
+        # Commit transaction
         db.session.commit()
-        print("✅ 初始化数据完成！")
+        print("✅ Initial data completed!")
 
 
 
 
 def is_auto_increment(table_name, column_name):
-    """检查指定表的指定字段是否已经是自动递增"""
+    """Check if specified field in specified table is already auto increment"""
     inspector = inspect(db.engine)
     columns = inspector.get_columns(table_name)
     column = next((col for col in columns if col["name"] == column_name), None)
@@ -114,11 +114,11 @@ def is_auto_increment(table_name, column_name):
 
 def set_auto_increment(app):
     with app.app_context():
-        # 获取数据库方言
+        # Get database dialect
         dialect = db.engine.dialect.name
-        # 检查 id 字段是否已经是自动递增
+        # Check if id field is already auto increment
         if is_auto_increment("prompt_fav", "id"):
-            print("✅ 'id' 字段已经自动递增（无需修改）")
+            print("✅ 'id' field is already auto increment (no modification needed)")
             return
 
         if dialect == "mysql":
@@ -126,15 +126,15 @@ def set_auto_increment(app):
             try:
                 db.session.execute(text(sql))
                 db.session.commit()
-                print("✅ 'id' 字段已设置为自动递增（MySQL）")
+                print("✅ 'id' field set to auto increment (MySQL)")
             except Exception as e:
                 db.session.rollback()
-                print(f"❌ 设置自动递增失败: {e}")
+                print(f"❌ Failed to set auto increment: {e}")
         elif dialect == "sqlite":
-            # SQLite 通过重建表的方式设置 id 字段为自动递增
+            # SQLite sets id field to auto increment by rebuilding table
             try:
                 with db.engine.begin() as connection:
-                    # 1. 创建新表
+                    # 1. Create new table
                     connection.execute(text("""
                         CREATE TABLE prompt_fav_new (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,24 +144,24 @@ def set_auto_increment(app):
                             updated_at DATETIME
                         );
                     """))
-                    # 2. 复制数据
+                    # 2. Copy data
                     connection.execute(text("""
                         INSERT INTO prompt_fav_new (prompt_id, customer_id, created_at, updated_at)
                         SELECT prompt_id, customer_id, created_at, updated_at FROM prompt_fav;
                     """))
-                    # 3. 删除旧表
+                    # 3. Delete old table
                     connection.execute(text("DROP TABLE prompt_fav;"))
-                    # 4. 重命名新表
+                    # 4. Rename new table
                     connection.execute(text("ALTER TABLE prompt_fav_new RENAME TO prompt_fav;"))
-                print("✅ 'id' 字段已设置为自动递增（SQLite）")
+                print("✅ 'id' field set to auto increment (SQLite)")
             except Exception as e:
-                print(f"❌ 设置自动递增失败: {e}")
+                print(f"❌ Failed to set auto increment: {e}")
         else:
             raise NotImplementedError(f"Unsupported database dialect: {dialect}")
 
-# 初始化设置表
+# Initialize settings table
 def insert_initial_settings(app):
-    """初始化系统配置表数据"""
+    """Initialize system configuration table data"""
     INITIAL_SETTINGS = [
         {"id": 1, "alias": "notice_setting", "value": '["1"]', "serialized": 1,
          "created_at": "2024-06-25 01:39:39", "group": None},
@@ -200,17 +200,17 @@ def insert_initial_settings(app):
         try:
             inserted_count = 0
             for setting in INITIAL_SETTINGS:
-                # 复合检查：同时验证id和alias是否存在
+                # Composite check: verify both id and alias existence
                 exists = db.session.execute(
                     text("SELECT 1 FROM setting WHERE id = :id OR alias = :alias"),
                     {"id": setting["id"], "alias": setting["alias"]}
                 ).scalar()
 
                 if not exists:
-                    # 构建动态SQL（处理可能为NULL的updated_at和group）
+                    # Build dynamic SQL (handle potentially NULL updated_at and group)
                     sql = """
                     INSERT INTO setting (
-                        id, alias, value, serialized, created_at, 
+                        id, alias, value, serialized, created_at,
                         updated_at, deleted_flag, `group`
                     ) VALUES (
                         :id, :alias, :value, :serialized, :created_at,
@@ -231,12 +231,12 @@ def insert_initial_settings(app):
 
             if inserted_count > 0:
                 db.session.commit()
-                print(f"✅ 成功插入 {inserted_count}/{len(INITIAL_SETTINGS)} 条配置")
+                print(f"✅ Successfully inserted {inserted_count}/{len(INITIAL_SETTINGS)} configurations")
             else:
-                print("⏩ 所有系统配置数据已存在，无需插入")
+                print("⏩ All system configuration data already exists, no insertion needed")
 
         except Exception as e:
             db.session.rollback()
-            print(f"❌ 初始化失败: {str(e)}")
+            print(f"❌ Initialization failed: {str(e)}")
             raise
 

@@ -1,30 +1,30 @@
 #!/bin/bash
 
-# 设置脚本在遇到错误时立即退出
+# Exit immediately if a command exits with a non-zero status
 set -e
 
 echo "=========================================="
-echo "🔄 开始一键更新 DocTranslator"
+echo "🔄 Starting one-click update of DocTranslator"
 echo "=========================================="
 
-# 1. 拉取最新代码
-echo "📥 正在从 GitHub 拉取最新代码..."
-# 如果你有本地修改，这可能会失败。你需要先处理你的修改（如 git stash）。
+# 1. Pull latest code
+echo "📥 Pulling latest code from GitHub..."
+# If you have local modifications, this may fail. You need to handle your changes first (e.g., git stash).
 git pull origin main
 
-# 2. 停止并删除旧容器（为了用新镜像启动）
-echo "🧹 清理旧容器..."
+# 2. Stop and remove old containers (to start with new image)
+echo "🧹 Cleaning up old containers..."
 docker stop backend-container 2>/dev/null || true
 docker rm backend-container 2>/dev/null || true
 docker stop nginx-container 2>/dev/null || true
 docker rm nginx-container 2>/dev/null || true
 
-# 3. 用新代码重新构建后端镜像
-echo "🔨 重新构建后端 Docker 镜像..."
+# 3. Rebuild backend image with new code
+echo "🔨 Rebuilding backend Docker image..."
 docker build -t doctranslator ./backend
 
-# 4. 启动后端容器
-echo "🌐 启动后端容器..."
+# 4. Start backend container
+echo "🌐 Starting backend container..."
 docker run -d \
   --name backend-container \
   --network my-network \
@@ -33,8 +33,8 @@ docker run -d \
   -v ./backend-storage:/app/storage \
   doctranslator
 
-# 5. 启动 Nginx 容器
-echo "🌍 启动 Nginx 容器..."
+# 5. Start Nginx container
+echo "🌍 Starting Nginx container..."
 docker run -d \
   --name nginx-container \
   -p 1475:80 \
@@ -47,9 +47,9 @@ docker run -d \
 
 echo ""
 echo "=========================================="
-echo "✅ 更新并重新部署完成！"
+echo "✅ Update and redeployment complete!"
 echo "=========================================="
-echo "前端地址: http://localhost:1475"
-echo "管理端地址: http://localhost:8081"
-echo "后端 API: http://localhost:5000"
+echo "Frontend URL: http://localhost:1475"
+echo "Admin URL: http://localhost:8081"
+echo "Backend API: http://localhost:5000"
 echo "=========================================="

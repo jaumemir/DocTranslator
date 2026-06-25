@@ -18,7 +18,7 @@ from app.utils.validators import (
 
 class SendRegisterCodeResource(Resource):
     def post(self):
-        """发送注册验证码接口"""
+        """Send registration verification code"""
         email = request.form.get('email')
         if Customer.query.filter_by(email=email).first():
             return APIResponse.error('邮箱已存在', 400)
@@ -42,14 +42,14 @@ class SendRegisterCodeResource(Resource):
 
 class UserRegisterResource(Resource):
     def post(self):
-        """用户注册接口"""
+        """User registration API"""
         data = request.form
 
         required_fields = ['email', 'password', 'code']
         if not all(field in data for field in required_fields):
             return APIResponse.error('缺少必要参数', 400)
 
-        # 验证码有效性验证
+        # Verification code validity check
         is_valid, msg = validate_verification_code(
             data['email'], data['code'], 1
         )
@@ -66,7 +66,7 @@ class UserRegisterResource(Resource):
         db.session.add(customer)
         db.session.commit()
 
-        # 确保identity是字符串
+        # Ensure identity is a string
         # access_token = create_access_token(identity=str(customer.id))
         return APIResponse.success(message='注册成功！', data={
             # 'token': access_token,
@@ -76,13 +76,13 @@ class UserRegisterResource(Resource):
 
 class UserLoginResource(Resource):
     def post(self):
-        """用户登录接口"""
+        """User login API"""
         data = request.form
         customer = Customer.query.filter_by(email=data['email']).first()
 
         if not customer or not verify_password(customer.password, data['password']):
             return APIResponse.error('账号或密码错误')
-        # 确保identity是字符串
+        # Ensure identity is a string
         access_token = create_access_token(identity=str(customer.id))
         return APIResponse.success({
             'token': access_token,
@@ -94,7 +94,7 @@ class UserLoginResource(Resource):
 
 class SendResetCodeResource(Resource):
     def post(self):
-        """发送密码重置验证码接口"""
+        """Send password reset verification code"""
         email = request.form.get('email')
         if not Customer.query.filter_by(email=email).first():
             return APIResponse.not_found('用户不存在')
@@ -118,15 +118,15 @@ class SendResetCodeResource(Resource):
 
 class ResetPasswordResource(Resource):
     def post(self):
-        """重置密码接口"""
+        """Reset password API"""
         data = request.form
 
-        # 密码一致性验证
+        # Password consistency verification
         is_valid, msg = validate_password_confirmation(data)
         if not is_valid:
             return APIResponse.error(msg, 400)
 
-        # 验证码有效性验证
+        # Verification code validity check
         is_valid, msg = validate_verification_code(
             data['email'], data['code'], 2
         )

@@ -3,7 +3,7 @@ from app import db
 
 
 class Translate(db.Model):
-    """ 文件翻译任务表 """
+    """File translation task table"""
     __tablename__ = 'translate'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     translate_no = db.Column(db.String(32))

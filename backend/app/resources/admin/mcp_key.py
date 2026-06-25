@@ -49,22 +49,22 @@ class AdminMcpKeyCreateResource(Resource):
         customer_id = data.get('customer_id')
 
         if scope not in ('user', 'admin'):
-            return APIResponse.error('scope 必须为 user 或 admin', 400)
+            return APIResponse.error('scope must be user or admin', 400)
 
         target_customer_id = admin_id
         if scope == 'user':
             if not customer_id:
-                return APIResponse.error('创建用户端密钥时必须指定 customer_id', 400)
+                return APIResponse.error('customer_id must be specified when creating user key', 400)
             customer = Customer.query.get(int(customer_id))
             if not customer:
-                return APIResponse.error('用户不存在', 400)
+                return APIResponse.error('Customer does not exist', 400)
             target_customer_id = int(customer_id)
         else:
             current_count = McpApiKey.query.filter_by(
                 customer_id=admin_id, scope='admin', deleted_flag='N'
             ).count()
             if current_count >= 3:
-                return APIResponse.error('管理员最多创建 3 个管理端密钥', 400)
+                return APIResponse.error('Admin can create maximum 3 admin keys', 400)
 
         default_config = dict(McpApiKey.DEFAULT_CONFIG)
         default_config.update(config)
@@ -73,7 +73,7 @@ class AdminMcpKeyCreateResource(Resource):
             required_fields = ['api_url', 'api_key', 'model']
             for field in required_fields:
                 if not default_config.get(field):
-                    return APIResponse.error(f'config 中 {field} 为必填项', 400)
+                    return APIResponse.error(f'{field} is required in config', 400)
 
         raw_key, key_hash, key_prefix = McpApiKey.generate_key()
 
@@ -102,7 +102,7 @@ class AdminMcpKeyDetailResource(Resource):
             key_prefix=id, deleted_flag='N'
         ).first()
         if not mcp_key:
-            return APIResponse.error('密钥不存在', 404)
+            return APIResponse.error('Key does not exist', 404)
         result = mcp_key.to_dict(include_config=True)
         customer = Customer.query.get(mcp_key.customer_id)
         result['customer_email'] = customer.email if customer else ''
@@ -115,7 +115,7 @@ class AdminMcpKeyDetailResource(Resource):
             key_prefix=id, deleted_flag='N'
         ).first()
         if not mcp_key:
-            return APIResponse.error('密钥不存在', 404)
+            return APIResponse.error('Key does not exist', 404)
 
         if 'name' in data:
             mcp_key.name = data['name']
@@ -138,10 +138,10 @@ class AdminMcpKeyDetailResource(Resource):
             key_prefix=id, deleted_flag='N'
         ).first()
         if not mcp_key:
-            return APIResponse.error('密钥不存在', 404)
+            return APIResponse.error('Key does not exist', 404)
         mcp_key.deleted_flag = 'Y'
         db.session.commit()
-        return APIResponse.success(message='密钥已删除')
+        return APIResponse.success(message='Key has been deleted')
 
 
 class AdminMcpKeyRegenerateResource(Resource):
@@ -151,7 +151,7 @@ class AdminMcpKeyRegenerateResource(Resource):
             key_prefix=id, deleted_flag='N'
         ).first()
         if not mcp_key:
-            return APIResponse.error('密钥不存在', 404)
+            return APIResponse.error('Key does not exist', 404)
 
         raw_key, new_hash, new_prefix = McpApiKey.generate_key()
         mcp_key.key_hash = new_hash

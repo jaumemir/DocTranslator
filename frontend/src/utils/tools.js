@@ -1,8 +1,8 @@
 export function formatTime(isoTimeString) {
-  // 创建一个Date对象
+  // Create a Date object
   const date = new Date(isoTimeString);
 
-  // 获取年、月、日、小时、分钟和秒
+  // Get year, month, day, hour, minute, and second
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
@@ -10,26 +10,26 @@ export function formatTime(isoTimeString) {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   const seconds = date.getSeconds().toString().padStart(2, '0');
 
-  // 返回格式化后的时间字符串
+  // Return formatted time string
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
-// 格式化日期
+// Format date
 /**
- * 将ISO时间字符串转换为YYYY-MM-DD HH:MM:SS格式
- * @param {string} isoString - ISO格式的时间字符串
- * @returns {string} 格式化后的时间字符串 (YYYY-MM-DD HH:MM:SS)
+ * Convert ISO time string to YYYY-MM-DD HH:MM:SS format
+ * @param {string} isoString - ISO format time string
+ * @returns {string} Formatted time string (YYYY-MM-DD HH:MM:SS)
  */
 export function formatDate(isoString) {
-  // 1. 创建Date对象
-  
+  // 1. Create Date object
+
   const date = new Date(isoString);
 
-  // 2. 验证输入是否为有效日期
+  // 2. Validate if input is a valid date
   if (isNaN(date.getTime())) {
     throw new Error('Invalid ISO date string');
   }
 
-  // 3. 获取各个时间部分
+  // 3. Get time components
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -37,7 +37,7 @@ export function formatDate(isoString) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  // 4. 拼接成目标格式
+  // 4. Concatenate to target format
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 

@@ -76,7 +76,7 @@ const submitForm = async () => {
     })
     ElMessage.success('保存成功!')
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('Form validation failed:', error)
   }
 }
 </script>

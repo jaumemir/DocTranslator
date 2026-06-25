@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 检查是否可用
+// Check if available
 export function checkOpenAI(params) {
     return request({
         url: `/api/check/openai`,
@@ -9,7 +9,7 @@ export function checkOpenAI(params) {
     });
 }
 
-// 检查是否可用
+// Check if available
 export function checkDocx(params) {
     return request({
         url: `/api/check/doc2x`,
@@ -18,7 +18,7 @@ export function checkDocx(params) {
     });
 }
 
-// 检查pdf是否是扫描件
+// Check if PDF is scanned
 export function checkPdf(file_path) {
     return request({
         url: `/api/check/pdf`,
@@ -43,7 +43,7 @@ export function transalteFile(params) {
         data: params
     });
 }
-// 进度查询
+// Query progress
 export function transalteProcess(params) {
     return request({
         url: `/api/process`,
@@ -53,7 +53,7 @@ export function transalteProcess(params) {
 }
 
 /**
- * 翻译
+ * Translation
  */
 export function translates(params) {
     return request({
@@ -73,7 +73,7 @@ export function delTranslate(id) {
 }
 
 /**
- * 删除所有翻译文件记录
+ * Delete all translation file records
  */
 export function delAllTranslate() {
     return request({
@@ -83,7 +83,7 @@ export function delAllTranslate() {
 }
 
 /**
- * 下载所有翻译文件记录
+ * Download all translation file records
  */
 export function downAllTranslate() {
     return request({
@@ -94,7 +94,7 @@ export function downAllTranslate() {
 
 
 /**
- * 获取文件统计
+ * Get file statistics
  */
 export function getFinishCount() {
     return request({
@@ -103,7 +103,7 @@ export function getFinishCount() {
     });
 }
 
-// doc2x 启动pdf翻译
+// doc2x start PDF translation
 export function doc2xStartService(data) {
     return request({
         url: '/api/doc2x/start',
@@ -112,7 +112,7 @@ export function doc2xStartService(data) {
     });
 }
 
-// doc2x查询任务状态
+// doc2x query task status
 export function doc2xQueryStatusService(data) {
     return request({
         url: '/api/doc2x/status',

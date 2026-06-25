@@ -100,19 +100,19 @@ def translate_file(config: dict, customer_id: int, app,
             file_content, file_url, file_name, app
         )
     except Exception as e:
-        return {'error': f'文件处理失败: {str(e)}'}
+        return {'error': f'File processing failed: {str(e)}'}
 
     if not _check_file_extension(resolved_name):
-        return {'error': f'不支持的文件格式，仅支持: {", ".join(sorted(ALLOWED_EXTENSIONS))}'}
+        return {'error': f'Unsupported file format, only supports: {", ".join(sorted(ALLOWED_EXTENSIONS))}'}
 
     try:
         customer = Customer.query.get(customer_id)
         if not customer:
-            return {'error': '用户不存在'}
+            return {'error': 'Customer does not exist'}
         if customer.status == 'disabled':
-            return {'error': '用户已被禁用'}
+            return {'error': 'Customer has been disabled'}
         if customer.storage + file_size > customer.total_storage:
-            return {'error': '用户存储空间不足'}
+            return {'error': 'Insufficient customer storage space'}
 
         file_uuid = str(uuid.uuid4())
 
@@ -161,13 +161,13 @@ def translate_file(config: dict, customer_id: int, app,
             'file_name': resolved_name,
             'target_lang': lang,
             'status': 'process',
-            'message': '翻译任务已启动'
+            'message': 'Translation task has been started'
         }
 
     except Exception as e:
         db.session.rollback()
-        logger.error(f"MCP翻译任务启动失败: {e}", exc_info=True)
-        return {'error': f'翻译任务启动失败: {str(e)}'}
+        logger.error(f"MCP translation task startup failed: {e}", exc_info=True)
+        return {'error': f'Translation task startup failed: {str(e)}'}
 
 
 def query_translate_status(customer_id: int, task_id: int = None,
@@ -181,26 +181,26 @@ def query_translate_status(customer_id: int, task_id: int = None,
     elif uuid:
         query = query.filter_by(uuid=uuid)
     else:
-        return {'error': '请提供 task_id 或 uuid'}
+        return {'error': 'Please provide task_id or uuid'}
 
     record = query.first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
 
-    status_map = {'none': '未开始', 'process': '进行中', 'done': '已完成', 'failed': '失败'}
+    status_map = {'none': 'Not started', 'process': 'In progress', 'done': 'Completed', 'failed': 'Failed'}
     spend_time = '--'
     if record.start_at and record.end_at:
         total_seconds = (record.end_at - record.start_at).total_seconds()
         minutes = int(total_seconds // 60)
         seconds = int(total_seconds % 60)
-        spend_time = f"{minutes}分{seconds}秒"
+        spend_time = f"{minutes}min{seconds}s"
 
     return {
         'task_id': record.id,
         'uuid': record.uuid,
         'file_name': record.origin_filename,
         'status': record.status,
-        'status_name': status_map.get(record.status, '未知'),
+        'status_name': status_map.get(record.status, 'Unknown'),
         'progress': float(record.process),
         'target_lang': record.lang,
         'spend_time': spend_time,
@@ -222,7 +222,7 @@ def list_translates(customer_id: int, page: int = 1, limit: int = 20,
     query = query.order_by(Translate.created_at.desc())
     pagination = query.paginate(page=page, per_page=limit, error_out=False)
 
-    status_map = {'none': '未开始', 'process': '进行中', 'done': '已完成', 'failed': '失败'}
+    status_map = {'none': 'Not started', 'process': 'In progress', 'done': 'Completed', 'failed': 'Failed'}
     data = []
     for t in pagination.items:
         data.append({
@@ -230,7 +230,7 @@ def list_translates(customer_id: int, page: int = 1, limit: int = 20,
             'uuid': t.uuid,
             'file_name': t.origin_filename,
             'status': t.status,
-            'status_name': status_map.get(t.status, '未知'),
+            'status_name': status_map.get(t.status, 'Unknown'),
             'progress': float(t.process),
             'target_lang': t.lang,
         })
@@ -249,11 +249,11 @@ def download_translate(customer_id: int, task_id: int) -> dict:
         id=task_id, customer_id=customer_id, deleted_flag='N'
     ).first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
     if record.status != 'done':
-        return {'error': f'翻译尚未完成，当前状态: {record.status}'}
+        return {'error': f'Translation not completed, current status: {record.status}'}
     if not record.target_filepath or not os.path.exists(record.target_filepath):
-        return {'error': '翻译文件不存在'}
+        return {'error': 'Translation file does not exist'}
 
     import base64 as b64
     with open(record.target_filepath, 'rb') as f:
@@ -276,14 +276,14 @@ def delete_translate(customer_id: int, task_id: int) -> dict:
         id=task_id, customer_id=customer_id
     ).first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
 
     record.deleted_flag = 'Y'
     customer = Customer.query.get(customer_id)
     if customer:
         customer.storage = max(0, customer.storage - record.size)
     db.session.commit()
-    return {'message': '删除成功'}
+    return {'message': 'Deleted successfully'}
 
 
 def restart_translate(customer_id: int, task_id: int) -> dict:
@@ -295,9 +295,9 @@ def restart_translate(customer_id: int, task_id: int) -> dict:
         id=task_id, customer_id=customer_id, deleted_flag='N'
     ).first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
     if record.status not in ('failed', 'none'):
-        return {'error': f'当前状态为 {record.status}，仅失败或未开始的任务可重启'}
+        return {'error': f'Current status is {record.status}, only failed or not started tasks can be restarted'}
 
     record.status = 'none'
     record.failed_reason = None
@@ -308,7 +308,7 @@ def restart_translate(customer_id: int, task_id: int) -> dict:
     return {
         'task_id': record.id,
         'status': 'process',
-        'message': '翻译任务已重新启动',
+        'message': 'Translation task has been restarted',
     }
 
 
@@ -357,7 +357,7 @@ def get_account_info(customer_id: int) -> dict:
 
     customer = Customer.query.get(customer_id)
     if not customer:
-        return {'error': '用户不存在'}
+        return {'error': 'Customer does not exist'}
 
     storage_mb = round(customer.storage / (1024 * 1024), 2)
     total_mb = round(customer.total_storage / (1024 * 1024), 2)
@@ -376,7 +376,7 @@ def get_supported_formats() -> dict:
     return {
         'formats': sorted(ALLOWED_EXTENSIONS),
         'max_file_size_mb': 30,
-        'description': '支持的文件格式列表'
+        'description': 'List of supported file formats'
     }
 
 
@@ -448,7 +448,7 @@ def update_customer(customer_id: int, level: str = '',
 
     customer = Customer.query.get(customer_id)
     if not customer:
-        return {'error': '用户不存在'}
+        return {'error': 'Customer does not exist'}
 
     if level and level in ('common', 'vip'):
         customer.level = level
@@ -465,7 +465,7 @@ def update_customer(customer_id: int, level: str = '',
         'level': customer.level,
         'status': customer.status,
         'total_storage_mb': round(customer.total_storage / (1024 * 1024), 2),
-        'message': '更新成功',
+        'message': 'Updated successfully',
     }
 
 
@@ -487,7 +487,7 @@ def admin_list_translates(page: int = 1, limit: int = 20,
     query = query.order_by(Translate.created_at.desc())
     pagination = query.paginate(page=page, per_page=limit, error_out=False)
 
-    status_map = {'none': '未开始', 'process': '进行中', 'done': '已完成', 'failed': '失败'}
+    status_map = {'none': 'Not started', 'process': 'In progress', 'done': 'Completed', 'failed': 'Failed'}
     data = []
     for t in pagination.items:
         data.append({
@@ -496,7 +496,7 @@ def admin_list_translates(page: int = 1, limit: int = 20,
             'customer_id': t.customer_id,
             'file_name': t.origin_filename,
             'status': t.status,
-            'status_name': status_map.get(t.status, '未知'),
+            'status_name': status_map.get(t.status, 'Unknown'),
             'progress': float(t.process),
             'target_lang': t.lang,
             'model': t.model,
@@ -517,7 +517,7 @@ def admin_restart_translate(task_id: int) -> dict:
 
     record = Translate.query.filter_by(id=task_id, deleted_flag='N').first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
 
     record.status = 'none'
     record.failed_reason = None
@@ -528,7 +528,7 @@ def admin_restart_translate(task_id: int) -> dict:
     return {
         'task_id': record.id,
         'status': 'process',
-        'message': '翻译任务已重新启动',
+        'message': 'Translation task has been restarted',
     }
 
 
@@ -539,7 +539,7 @@ def admin_delete_translate(task_id: int) -> dict:
 
     record = Translate.query.filter_by(id=task_id).first()
     if not record:
-        return {'error': '翻译记录不存在'}
+        return {'error': 'Translation record does not exist'}
 
     record.deleted_flag = 'Y'
     if record.customer_id:
@@ -547,7 +547,7 @@ def admin_delete_translate(task_id: int) -> dict:
         if customer:
             customer.storage = max(0, customer.storage - record.size)
     db.session.commit()
-    return {'message': '删除成功'}
+    return {'message': 'Deleted successfully'}
 
 
 def get_system_settings() -> dict:

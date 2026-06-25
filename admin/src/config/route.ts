@@ -1,20 +1,20 @@
-/** 路由配置 */
+/** Route configuration */
 interface RouteSettings {
   /**
-   * 是否开启动态路由功能？
-   * 1. 开启后需要后端配合，在查询用户详情接口返回当前用户可以用来判断并加载动态路由的字段（该项目用的是角色 roles 字段）
-   * 2. 假如项目不需要根据不同的用户来显示不同的页面，则应该将 dynamic: false
+   * Enable dynamic routing functionality?
+   * 1. When enabled, backend cooperation is required to return fields that can be used to determine and load dynamic routes in the user details query API (this project uses the roles field)
+   * 2. If the project doesn't need to display different pages for different users, set dynamic: false
    */
   dynamic: boolean
-  /** 当动态路由功能关闭时：
-   * 1. 应该将所有路由都写到常驻路由里面（表明所有登录的用户能访问的页面都是一样的）
-   * 2. 系统自动给当前登录用户赋值一个没有任何作用的默认角色
+  /** When dynamic routing is disabled:
+   * 1. All routes should be written in constant routes (indicating all logged-in users can access the same pages)
+   * 2. The system automatically assigns a default role with no effect to the current logged-in user
    */
   defaultRoles: Array<string>
   /**
-   * 是否开启三级及其以上路由缓存功能？
-   * 1. 开启后会进行路由降级（把三级及其以上的路由转化为二级路由）
-   * 2. 由于都会转成二级路由，所以二级及其以上路由有内嵌子路由将会失效
+   * Enable third-level and above route caching?
+   * 1. When enabled, route downgrading will occur (converting third-level and above routes to second-level routes)
+   * 2. Since all will be converted to second-level routes, second-level and above routes with nested sub-routes will become invalid
    */
   thirdLevelRouteCache: boolean
 }

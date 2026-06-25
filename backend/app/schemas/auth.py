@@ -19,31 +19,31 @@ class SendCodeSchema(Schema):
 
 class RegisterSchema(Schema):
     email = fields.Email(required=True, error_messages={
-        "required": "邮箱不能为空",
-        "invalid": "邮箱格式不正确"
+        "required": "Email cannot be empty",
+        "invalid": "Invalid email format"
     })
     password = fields.String(
         required=True,
         validate=validate.Length(min=6),
         error_messages={
-            "required": "密码不能为空",
-            "too_short": "密码长度至少6位"
+            "required": "Password cannot be empty",
+            "too_short": "Password must be at least 6 characters"
         }
     )
-    code = fields.String(required=True, error_messages={"required": "验证码不能为空"})
+    code = fields.String(required=True, error_messages={"required": "Verification code cannot be empty"})
 class LoginSchema(Schema):
     email = fields.Email(required=True, error_messages={
-        "required": "邮箱不能为空",
-        "invalid": "邮箱格式不正确"
+        "required": "Email cannot be empty",
+        "invalid": "Invalid email format"
     })
     password = fields.String(required=True, error_messages={
-        "required": "密码不能为空"
+        "required": "Password cannot be empty"
     })
 
 class FindSendSchema(Schema):
     email = fields.Email(required=True, error_messages={
-        "required": "邮箱不能为空",
-        "invalid": "邮箱格式不正确"
+        "required": "Email cannot be empty",
+        "invalid": "Invalid email format"
     })
 
 class FindResetSchema(Schema):
@@ -55,4 +55,4 @@ class FindResetSchema(Schema):
     @validates_schema
     def validate_passwords(self, data, **kwargs):
         if data['password'] != data['password_confirmation']:
-            raise ValidationError("两次密码不一致", "password_confirmation")
+            raise ValidationError("Passwords do not match", "password_confirmation")

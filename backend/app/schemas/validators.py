@@ -16,9 +16,9 @@ VALIDATION_RULES = {
 }
 
 ERROR_MESSAGES = {
-    'email_required': '邮箱不能为空',
-    'password_required': '密码不能为空',
-    'password_min': '密码长度至少6位',
-    'code_required': '验证码不能为空',
-    'password_confirmed': '两次输入密码不一致'
+    'email_required': 'Email cannot be empty',
+    'password_required': 'Password cannot be empty',
+    'password_min': 'Password must be at least 6 characters',
+    'code_required': 'Verification code cannot be empty',
+    'password_confirmed': 'Passwords do not match'
 }

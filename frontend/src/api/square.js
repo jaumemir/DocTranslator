@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-//术语-广场列表
+// Terminology - Square list
 export function comparison_share(params) {
   return request({
       url: `/api/comparison/share`,
@@ -9,7 +9,7 @@ export function comparison_share(params) {
   });
 }
 
-//提示语-广场列表
+// Prompt - Square list
 export function prompt_share(params) {
   return request({
       url: `/api/prompt/share`,
@@ -18,7 +18,7 @@ export function prompt_share(params) {
   });
 }
 
-//添加到我的术语
+// Add to my terminology
 export function comparison_copy(id){
   return request({
       url: `/api/comparison/copy/${id}`,
@@ -26,7 +26,7 @@ export function comparison_copy(id){
   });
 }
 
-//添加到我的提示语
+// Add to my prompts
 export function prompt_copy(id){
   return request({
       url: `/api/prompt/copy/${id}`,
@@ -34,7 +34,7 @@ export function prompt_copy(id){
   });
 }
 
-//收藏术语
+// Favorite terminology
 export function comparison_fav(id){
   return request({
       url: `/api/comparison/fav/${id}`,
@@ -42,7 +42,7 @@ export function comparison_fav(id){
   });
 }
 
-//收藏提示语
+// Favorite prompt
 export function prompt_fav(id){
   return request({
       url: `/api/prompt/fav/${id}`,

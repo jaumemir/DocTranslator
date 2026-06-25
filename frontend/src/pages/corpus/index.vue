@@ -195,11 +195,11 @@ const promptEditRef = ref(null)
 const tab_active = ref('terms')
 
 
-// 切换tab
+// Switch tab
 function tabSelect(i) {
   tab_active.value = i
 }
-// 获取术语表数据
+// Get terminology data
 const getTermList = async () => {
   pageLoad.value = false
   try {
@@ -210,12 +210,12 @@ const getTermList = async () => {
       // store.setComparisonList(res.data.data)
     }
   } catch (error) {
-    console.error('获取术语表数据失败:', error)
+    console.error('Failed to get terminology data:', error)
   }
   pageLoad.value = false
 }
 
-// 获取提示语数据
+// Get prompt data
 const getPromptList = async () => {
   pageLoad.value = false
   try {
@@ -232,19 +232,19 @@ const getPromptList = async () => {
       }
     }
   } catch (error) {
-    console.error('获取提示语数据失败:', error)
+    console.error('Failed to get prompt data:', error)
   }
   pageLoad.value = false
 }
 
-//翻译语言
+// Translation languages
 const langs = ['中文', '英语', '日语', '俄语', '阿拉伯语', '西班牙语', '韩语', '德语']
 
-// 处理提示语弹窗保存逻辑
+// Handle prompt dialog save logic
 const handlePromptConfirm = (val) => {
   const formData = val
   btnLoad.value = true
-  //是否是编辑
+  // Check if editing
   if (formData.id) {
     prompt_edit(formData.id, formData)
       .then((data) => {
@@ -279,18 +279,18 @@ const handlePromptConfirm = (val) => {
   promptEditRef.value.close()
   btnLoad.value = false
 }
-//处理术语表单弹窗保存逻辑
+// Handle terminology form dialog save logic
 const handleTermConfirm = (val) => {
   const formData = val
   btnLoad.value = true
   if (formData.id) {
-    // 编辑操作
+    // Edit operation
     comparison_edit(formData.id, formData)
       .then((data) => {
         btnLoad.value = false
         if (data.code == 200) {
           ElMessage({ message: '保存成功', type: 'success' })
-          termEditRef.value.close() // 关闭子组件弹窗
+          termEditRef.value.close() // Close child component dialog
           getTermList()
         } else {
           ElMessage({ message: data.message, type: 'error' })
@@ -300,13 +300,13 @@ const handleTermConfirm = (val) => {
         ElMessage({ message: '接口异常', type: 'error' })
       })
   } else {
-    // 新建操作
+    // Create operation
     comparison(formData)
       .then((data) => {
         btnLoad.value = false
         if (data.code == 200) {
           ElMessage({ message: '保存成功', type: 'success' })
-          termEditRef.value.close() // 关闭子组件弹窗
+          termEditRef.value.close() // Close child component dialog
           getTermList()
         } else {
           ElMessage({ message: data.message, type: 'error' })
@@ -320,14 +320,14 @@ const handleTermConfirm = (val) => {
   btnLoad.value = false
 }
 
-//打开术语弹窗-编辑
+// Open terminology dialog - edit
 function openTerms(item) {
-  termEditRef.value.open() // 打开子组件弹窗
+  termEditRef.value.open() // Open child component dialog
   if (item) {
-    termEditRef.value.updateForm(JSON.parse(JSON.stringify(item))) // 更新数据给子组件
+    termEditRef.value.updateForm(JSON.parse(JSON.stringify(item))) // Update data to child component
   } else {
     termEditRef.value.updateForm({
-      title: '', // 标题
+      title: '', // Title
       share_flag: 'N',
       origin_lang: '',
       target_lang: '',
@@ -335,21 +335,21 @@ function openTerms(item) {
     })
   }
 }
-//打开提示语
+// Open prompt
 function openPrompt(item) {
   promptEditRef.value.open()
   if (item) {
     promptEditRef.value.updateForm(JSON.parse(JSON.stringify(item)))
   } else {
     promptEditRef.value.updateForm({
-      title: '', //标题
+      title: '', // Title
       share_flag: 'N',
       content: ''
     })
   }
 }
 
-//删除术语表
+// Delete terminology
 function delTerms(item) {
   ElMessageBox.confirm('确定要删除？', '提示', {
     confirmButtonText: '确定',
@@ -368,7 +368,7 @@ function delTerms(item) {
   })
 }
 
-//术语表 分享状态修改
+// Terminology share status modification
 function share_change(item) {
   pageLoad.value = true
   comparison_share(item.id, { share_flag: item.share_flag })
@@ -387,10 +387,10 @@ function share_change(item) {
     })
 }
 
-//导出单个术语表
+// Export single terminology
 async function export_terms(item) {
   try {
-    // 发起 fetch 请求
+    // Initiate fetch request
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/api/comparison/export/${item.id}`,
       {
@@ -400,31 +400,31 @@ async function export_terms(item) {
       }
     )
 
-    // 检查响应状态
+    // Check response status
     if (!response.ok) {
       throw new Error('文件下载失败')
     }
 
-    // 获取文件内容
+    // Get file content
     const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
 
-    // 创建 `<a>` 标签并触发下载
+    // Create <a> tag and trigger download
     const a = document.createElement('a')
     a.href = url
-    a.download = `${item.title}.xlsx` // 设置下载文件名
+    a.download = `${item.title}.xlsx` // Set download filename
     document.body.appendChild(a)
     a.click()
-    // 清理资源
+    // Clean up resources
     document.body.removeChild(a)
-    window.URL.revokeObjectURL(url) // 释放 URL 对象
+    window.URL.revokeObjectURL(url) // Release URL object
   } catch (error) {
-    console.error('下载失败:', error)
+    console.error('Download failed:', error)
     ElMessage.error('文件下载失败，请稍后重试')
   }
 }
 
-// 导出所有术语表
+// Export all terminology
 async function export_terms_all() {
   try {
     const response = await fetch(import.meta.env.VITE_API_URL + '/api/comparison/export/all', {
@@ -437,32 +437,32 @@ async function export_terms_all() {
       throw new Error('术语表导出失败')
     }
 
-    // 获取文件内容
+    // Get file content
     const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
 
-    // 创建 `<a>` 标签并触发下载
+    // Create <a> tag and trigger download
     const a = document.createElement('a')
     a.href = url
-    a.download = `all_terms_${new Date().toISOString().slice(0, 10)}.zip` // 设置下载文件名
+    a.download = `all_terms_${new Date().toISOString().slice(0, 10)}.zip` // Set download filename
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    window.URL.revokeObjectURL(url) // 释放 URL 对象
+    window.URL.revokeObjectURL(url) // Release URL object
   } catch (error) {
-    console.error('导出失败:', error)
+    console.error('Export failed:', error)
     ElMessage.error('术语表导出失败，请稍后重试')
   }
 }
 
-//术语表模板下载
+// Terminology template download
 function command_terms(type) {
   if (type == 'down') {
     window.open(import.meta.env.VITE_API_URL + '/api/comparison/template')
   }
 }
 
-//上传文件
+// Upload file success
 function upload_success(response) {
   if (response.code == 200) {
     ElMessage({ message: '导入成功', type: 'success' })
@@ -471,7 +471,7 @@ function upload_success(response) {
     ElMessage({ message: data.message, type: 'error' })
   }
 }
-//上传文件校验
+// Upload file validation
 function upload_before(file) {
   const fileType = file.name.substring(file.name.lastIndexOf('.') + 1)
   const isXlsx = fileType === 'xlsx'
@@ -482,7 +482,7 @@ function upload_before(file) {
   return isXlsx
 }
 
-//提示语 分享状态修改
+// Prompt share status modification
 function share_change_prompt(item) {
   pageLoad.value = true
   if (item.id) {
@@ -503,7 +503,7 @@ function share_change_prompt(item) {
   }
 }
 
-//删除提示语
+// Delete prompt
 function delPrompt(item) {
   ElMessageBox.confirm('确定要删除？', '提示', {
     confirmButtonText: '确定',
@@ -538,7 +538,7 @@ onMounted(() => {
   padding: 0 20px;
   padding-bottom: 20px;
 }
-//tab标签
+// Tab labels
 .tab_box {
   width: 100%;
   height: 68px;
@@ -567,7 +567,7 @@ onMounted(() => {
     }
   }
 }
-//中间内容区域
+// Main content area
 .content_box {
   background: #fff;
   padding: 28px;
@@ -631,7 +631,7 @@ onMounted(() => {
           background: #b8d3ff;
         }
       }
-      // 滚动条样式
+      // Scrollbar styles
       .text::-webkit-scrollbar {
         width: 4px;
       }
@@ -665,7 +665,7 @@ onMounted(() => {
 }
 
 ::v-deep {
-  //弹窗
+  // Dialog
   .term_dialog {
     padding-top: 20px;
     .el-dialog {

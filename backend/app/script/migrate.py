@@ -10,7 +10,7 @@ BACKUP_DB_PATH = r'\dev.db.backup'
 
 
 def backup_database():
-    """备份数据库文件"""
+    """Backup database file"""
     if not os.path.exists(DB_PATH):
         print(f"Error: Database file '{DB_PATH}' does not exist.")
         exit(1)
@@ -19,7 +19,7 @@ def backup_database():
 
 
 def add_column_if_not_exists(cursor, table_name, column_name, column_type, default_value=None):
-    """如果字段不存在，则添加字段"""
+    """Add column if it doesn't exist"""
     cursor.execute(f"PRAGMA table_info({table_name});")
     columns = [column[1] for column in cursor.fetchall()]
     if column_name not in columns:
@@ -33,7 +33,7 @@ def add_column_if_not_exists(cursor, table_name, column_name, column_type, defau
 
 
 def update_translate_size(cursor):
-    """更新 Translate 表的 size 字段"""
+    """Update size field in Translate table"""
     cursor.execute("SELECT id, origin_filepath FROM translate;")
     translates = cursor.fetchall()
     for translate_id, origin_filepath in translates:
@@ -44,7 +44,7 @@ def update_translate_size(cursor):
             ''', (file_size, translate_id))
             print(f"Updated size for translate ID {translate_id}: {file_size} bytes")
         else:
-            # 显式设置 size 为 0
+            # Explicitly set size to 0
             cursor.execute('''
                 UPDATE translate SET size = 0 WHERE id = ?;
             ''', (translate_id,))
@@ -53,7 +53,7 @@ def update_translate_size(cursor):
 
 
 def update_customer_total_storage(cursor):
-    """更新 Customer 表的 total_storage 字段"""
+    """Update total_storage field in Customer table"""
     cursor.execute('''
         UPDATE customer SET total_storage = 104857600;
     ''')
@@ -61,25 +61,25 @@ def update_customer_total_storage(cursor):
 
 
 def main():
-    # 备份数据库
+    # Backup database
     backup_database()
 
-    # 连接数据库
+    # Connect to database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # 添加字段（如果不存在）
+    # Add columns (if not exist)
     add_column_if_not_exists(cursor, 'translate', 'size', 'BIGINT', default_value=0)
     add_column_if_not_exists(cursor, 'customer', 'total_storage', 'BIGINT', default_value=104857600)
 
-    # 更新数据
+    # Update data
     update_translate_size(cursor)
     update_customer_total_storage(cursor)
 
-    # 提交更改并关闭连接
+    # Commit changes and close connection
     conn.commit()
     conn.close()
-    print("数据库迁移成功!")
+    print("Database migration successful!")
 
 
 if __name__ == "__main__":

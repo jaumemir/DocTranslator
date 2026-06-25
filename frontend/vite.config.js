@@ -6,12 +6,12 @@ const resolve = (dir) => path.resolve(process.cwd(), dir)
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: './', // 确保这里没有设置为 '/'
+    base: './', // Ensure this is not set to '/'
     plugins: [vue(),createSvgIconsPlugin({
-      // 指定需要缓存的图标文件夹
+      // Specify the icon folders to be cached
       iconDirs: [resolve('src/icons/svg')],
       // iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
-      // 指定symbolId格式
+      // Specify the symbolId format
       symbolId: 'icon-[dir]-[name]'
     })],
     server: {

@@ -6,7 +6,7 @@ from app.models import SendCode
 
 
 def validate_verification_code(email: str, code: str, code_type: int):
-    """验证验证码有效性"""
+    """Validate verification code validity"""
     expire_time = datetime.utcnow() - timedelta(minutes=10)
     send_code = SendCode.query.filter(
         SendCode.send_to == email,
@@ -21,14 +21,14 @@ def validate_verification_code(email: str, code: str, code_type: int):
 
 
 def validate_password_confirmation(data: dict):
-    """验证密码一致性"""
+    """Validate password consistency"""
     if data['password'] != data.get('password_confirmation'):
         return False, '两次密码不一致'
     return True, None
 
 
 def validate_password_complexity(password: str):
-    """密码复杂度验证"""
+    """Password complexity validation"""
     if len(password) < 6:
         return False, "密码至少需要6位"
     if not any(c.isalpha() for c in password) or not any(c.isdigit() for c in password):
@@ -37,9 +37,9 @@ def validate_password_complexity(password: str):
 
 
 def validate_pagination_params(req):
-    """验证并获取分页参数
+    """Validate and get pagination parameters
 
-    返回:
+    Returns:
         tuple: (page, limit)
     """
     try:
@@ -57,12 +57,12 @@ def validate_pagination_params(req):
 
 
 def validate_date_range(start_date, end_date):
-    """验证日期范围参数
-    参数:
-        start_date (str): 起始日期
-        end_date (str): 结束日期
-    返回:
-        tuple: (start_date, end_date) 转换后的datetime对象
+    """Validate date range parameters
+    Args:
+        start_date (str): Start date
+        end_date (str): End date
+    Returns:
+        tuple: (start_date, end_date) converted datetime objects
     """
     try:
         start = datetime.fromisoformat(start_date) if start_date else None
@@ -77,11 +77,11 @@ def validate_date_range(start_date, end_date):
 
 
 def validate_id_list(ids):
-    """验证ID列表参数
-    参数:
-        ids (list): ID列表
-    返回:
-        list: 验证后的ID列表
+    """Validate ID list parameters
+    Args:
+        ids (list): ID list
+    Returns:
+        list: Validated ID list
     """
     if not ids or not isinstance(ids, list):
         raise APIResponse.error('参数错误', 400)

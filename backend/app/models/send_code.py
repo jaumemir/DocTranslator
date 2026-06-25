@@ -3,7 +3,7 @@ from app import db
 
 
 class SendCode(db.Model):
-    """ 验证码发送记录表 """
+    """ Verification code send record table """
     __tablename__ = 'send_code'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer)

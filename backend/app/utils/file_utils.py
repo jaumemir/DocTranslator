@@ -12,8 +12,8 @@ class FileManager:
     @staticmethod
     def get_upload_dir():
         """
-        获取上传文件存储目录[^1]
-        :return: 上传文件存储目录的绝对路径
+        Get upload file storage directory
+        :return: Absolute path of upload file storage directory
         """
         base_dir = Path(current_app.config['UPLOAD_BASE_DIR'])
         date_str = datetime.now().strftime('%Y-%m-%d')
@@ -24,9 +24,9 @@ class FileManager:
     @staticmethod
     def generate_filename(filename):
         """
-        生成唯一的文件名[^3]
-        :param filename: 原始文件名
-        :return: 唯一的文件名
+        Generate unique filename
+        :param filename: Original filename
+        :return: Unique filename
         """
         name, ext = os.path.splitext(filename)
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -35,9 +35,9 @@ class FileManager:
     @staticmethod
     def get_relative_path(full_path):
         """
-        获取相对于存储根目录的相对路径[^4]
-        :param full_path: 文件的绝对路径
-        :return: 相对路径
+        Get relative path to storage root directory
+        :param full_path: Absolute path of file
+        :return: Relative path
         """
         base_dir = Path(current_app.config['UPLOAD_BASE_DIR'])
         return str(Path(full_path).relative_to(base_dir)).replace('\\', '/')
@@ -45,9 +45,9 @@ class FileManager:
     @staticmethod
     def exists(file_path):
         """
-        检查文件是否存在[^5]
-        :param file_path: 文件的相对路径或绝对路径
-        :return: 文件是否存在 (True/False)
+        Check if file exists
+        :param file_path: Relative or absolute path of file
+        :return: Whether file exists (True/False)
         """
         if not file_path:
             return False
@@ -57,9 +57,9 @@ class FileManager:
     @staticmethod
     def calculate_md5(file_path):
         """
-        计算文件的 MD5 值[^6]
-        :param file_path: 文件的绝对路径
-        :return: 文件的 MD5 值
+        Calculate MD5 value of file
+        :param file_path: Absolute path of file
+        :return: MD5 value of file
         """
         hash_md5 = hashlib.md5()
         with open(file_path, "rb") as f:
@@ -70,9 +70,9 @@ class FileManager:
     @staticmethod
     def allowed_file(filename):
         """
-        验证文件类型是否允许[^7]
-        :param filename: 文件名
-        :return: 文件类型是否允许 (True/False)
+        Validate whether file type is allowed
+        :param filename: Filename
+        :return: Whether file type is allowed (True/False)
         """
         ALLOWED_EXTENSIONS = {'docx', 'xlsx', 'pptx', 'pdf', 'txt', 'md', 'csv', 'xls', 'doc', 'html', 'htm'}
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -80,9 +80,9 @@ class FileManager:
     @staticmethod
     def validate_file_size(file_stream):
         """
-        验证文件大小是否超过限制[^8]
-        :param file_stream: 文件流
-        :return: 文件大小是否合法 (True/False)
+        Validate whether file size exceeds limit
+        :param file_stream: File stream
+        :return: Whether file size is valid (True/False)
         """
         MAX_FILE_SIZE = current_app.config['MAX_FILE_SIZE']#10 * 1024 * 1024  # 10MB
         file_stream.seek(0, os.SEEK_END)
@@ -93,9 +93,9 @@ class FileManager:
     @staticmethod
     def get_translate_absolute_path(filename):
         """
-        获取翻译结果的绝对路径（保持原文件名）[^2]
-        :param filename: 原始文件名
-        :return: 翻译结果的绝对路径
+        Get absolute path of translation result (keep original filename)
+        :param filename: Original filename
+        :return: Absolute path of translation result
         """
         base_dir = Path(current_app.config['UPLOAD_BASE_DIR'])
         date_str = datetime.now().strftime('%Y-%m-%d')
@@ -109,13 +109,13 @@ class FileManager:
 class FileManager11:
     @staticmethod
     def allowed_file(filename):
-        """验证文件类型是否允许[^1]"""
+        """Validate whether file type is allowed"""
         ALLOWED_EXTENSIONS = {'docx', 'xlsx', 'pptx', 'pdf', 'txt', 'md', 'csv', 'xls', 'doc', 'html', 'htm'}
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @staticmethod
     def validate_file_size(file_stream):
-        """验证文件大小是否超过限制[^2]"""
+        """Validate whether file size exceeds limit"""
         MAX_FILE_SIZE =current_app.config['MAX_FILE_SIZE'] #10 * 1024 * 1024  # 10MB
         file_stream.seek(0, os.SEEK_END)
         file_size = file_stream.tell()
@@ -124,7 +124,7 @@ class FileManager11:
 
     @staticmethod
     def get_upload_dir():
-        """获取基于配置的上传目录"""
+        """Get upload directory based on configuration"""
         upload_dir = os.path.join(
             current_app.config['UPLOAD_FOLDER'],
             datetime.now().strftime('%Y-%m-%d')
@@ -135,35 +135,35 @@ class FileManager11:
         return upload_dir
 
     def get_upload_dir1111(self):
-        """获取按日期分类的上传目录"""
-        # 获取项目根目录，并再上一级到所需目录
+        """Get upload directory classified by date"""
+        # Get project root directory and go up one level to required directory
         base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
         print(base_dir)
         upload_dir = os.path.join(base_dir, 'uploads', datetime.now().strftime('%Y-%m-%d'))
 
-        # 如果目录不存在则创建
+        # Create directory if it doesn't exist
         if not os.path.exists(upload_dir):
             os.makedirs(upload_dir)
         return upload_dir
 
     @staticmethod
     def generate_filename(filename):
-        """生成安全文件名（带随机后缀防冲突）"""
+        """Generate safe filename (with random suffix to prevent conflicts)"""
         safe_name = secure_filename(filename)
         name_part, ext_part = os.path.splitext(safe_name)
-        random_str = uuid.uuid4().hex[:6]  # 6位随机字符
+        random_str = uuid.uuid4().hex[:6]  # 6-digit random characters
         return f"{name_part}_{random_str}{ext_part}"
 
     @staticmethod
     def generate_filename111(filename):
-        """生成安全的文件名，如果文件已存在则附加随机字符串[^4]"""
+        """Generate safe filename, append random string if file already exists"""
         safe_filename = secure_filename(filename)
         name, ext = os.path.splitext(safe_filename)
         return f"{name}_{str(uuid.uuid4())[:5]}{ext}"
 
     @staticmethod
     def safe_remove(filepath):
-        """安全删除文件"""
+        """Safely delete file"""
         if os.path.exists(filepath):
             try:
                 os.remove(filepath)
@@ -175,17 +175,17 @@ class FileManager11:
 
     @staticmethod
     def exists(file_path: str) -> bool:
-        """验证文件是否存在并检查路径安全性[^1]
+        """Verify file exists and check path security
         Args:
-            file_path: 文件路径，支持相对路径和绝对路径
+            file_path: File path, supports relative and absolute paths
         Returns:
-            bool: 文件是否存在且路径合法
+            bool: Whether file exists and path is valid
         """
         try:
-            # 标准化路径，防止路径遍历攻击
+            # Normalize path, prevent path traversal attacks
             normalized_path = Path(file_path).resolve(strict=False)
 
-            # 验证路径是否在允许的目录下
+            # Verify path is within allowed directory
             upload_dir = Path(current_app.config['UPLOAD_FOLDER']).resolve()
             if not normalized_path.is_relative_to(upload_dir):
                 return False
@@ -193,12 +193,12 @@ class FileManager11:
             return normalized_path.exists() and normalized_path.is_file()
 
         except Exception as e:
-            current_app.logger.error(f"文件路径验证失败: {str(e)}")
+            current_app.logger.error(f"File path validation failed: {str(e)}")
             return False
 
     @staticmethod
     def get_storage_dir():
-        """获取按日期分类的存储目录[^2]"""
+        """Get storage directory classified by date"""
         base_dir = Path(current_app.config['STORAGE_FOLDER'])
         storage_dir = base_dir / datetime.now().strftime('%Y-%m-%d')
 
@@ -209,29 +209,29 @@ class FileManager11:
 
     @staticmethod
     def is_secure_path(file_path: str, base_dir: str) -> bool:
-        """验证文件路径是否安全[^3]
+        """Validate whether file path is secure
         Args:
-            file_path: 文件路径
-            base_dir: 基准目录
+            file_path: File path
+            base_dir: Base directory
         Returns:
-            bool: 路径是否安全
+            bool: Whether path is secure
         """
         try:
             normalized_path = Path(file_path).resolve(strict=False)
             base_dir_path = Path(base_dir).resolve()
             return normalized_path.is_relative_to(base_dir_path)
         except Exception as e:
-            current_app.logger.error(f"路径安全验证失败: {str(e)}")
+            current_app.logger.error(f"Path security validation failed: {str(e)}")
             return False
 
     @staticmethod
     def exists111xin(file_path: str, base_dir: str) -> bool:
-        """验证文件是否存在并检查路径安全性[^4]
+        """Verify file exists and check path security
         Args:
-            file_path: 文件路径
-            base_dir: 基准目录
+            file_path: File path
+            base_dir: Base directory
         Returns:
-            bool: 文件是否存在且路径合法
+            bool: Whether file exists and path is valid
         """
         if not FileManager.is_secure_path(file_path, base_dir):
             return False
@@ -241,7 +241,7 @@ class FileManager11:
 
     @staticmethod
     def calculate_md5(file_path):
-        """计算文件的MD5值"""
+        """Calculate MD5 value of file"""
         hash_md5 = hashlib.md5()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
@@ -250,13 +250,13 @@ class FileManager11:
 
 
 def get_upload_dir():
-    """获取按日期分类的上传目录"""
-    # 获取项目根目录，并再上一级到所需目录
+    """Get upload directory classified by date"""
+    # Get project root directory and go up one level to required directory
     base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     print(base_dir)
     upload_dir = os.path.join(base_dir, 'uploads', datetime.now().strftime('%Y-%m-%d'))
 
-    # 如果目录不存在则创建
+    # Create directory if it doesn't exist
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
     return upload_dir
