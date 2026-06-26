@@ -5,11 +5,11 @@ def generate_register_email(user: dict, code: str) -> str:
     """Generate registration verification code email HTML template"""
     return f"""
     <!DOCTYPE html>
-    <html lang="zh-CN">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DocTranslator - 注册验证码</title>
+        <title>DocTranslator - Registration Verification Code</title>
         <style>
             * {{
                 margin: 0;
@@ -165,34 +165,34 @@ def generate_register_email(user: dict, code: str) -> str:
         <div class="email-container">
             <div class="header">
                 <div class="brand-name">DocTranslator</div>
-                <div class="header-subtitle">AI智能文档翻译</div>
+                <div class="header-subtitle">AI Document Translation</div>
             </div>
 
             <div class="content">
-                <h2 class="welcome-text">欢迎使用DocTranslator！</h2>
+                <h2 class="welcome-text">Welcome to DocTranslator!</h2>
                 <p class="instruction-text">
-                    尊敬的用户,感谢您注册DocTranslator。请使用以下验证码完成邮箱验证：
+                    Dear user, thank you for registering with DocTranslator. Please use the following verification code to complete your email verification:
                 </p>
 
                 <div class="code-container">
-                    <div class="code-label">验证码</div>
+                    <div class="code-label">Verification Code</div>
                     <div class="verification-code">{code}</div>
                 </div>
 
                 <div class="security-notice">
-                    <p>⚠️ 安全提醒：验证码有效期为 15 分钟，请勿泄露给他人。如非本人操作，请忽略此邮件。</p>
+                    <p>⚠️ Security Notice: This verification code is valid for 15 minutes. Do not share it with others. If you did not request this, please ignore this email.</p>
                 </div>
 
                 <p style="text-align: center; color: #64748b; font-size: 14px;">
-                    如果您有任何问题，请联系我们
+                    If you have any questions, please contact us
                 </p>
             </div>
 
             <div class="footer">
                 <p class="footer-text">
-                    此邮件由系统自动发送，请勿回复。<br>
-                    © 2025 DocTranslator. 保留所有权利。<br>
-                    <a href="https://www.doctranslator.cn" class="footer-link">访问官网</a> 
+                    This email was sent automatically. Please do not reply.<br>
+                    © 2025 DocTranslator. All rights reserved.<br>
+                    <a href="https://www.doctranslator.cn" class="footer-link">Visit Website</a>
                 </p>
             </div>
         </div>
@@ -205,11 +205,11 @@ def generate_reset_password_email(user: dict, code: str) -> str:
     """Generate password reset verification code email HTML template"""
     return f"""
     <!DOCTYPE html>
-    <html lang="zh-CN">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>DocTranslator - 密码重置验证码</title>
+        <title>DocTranslator - Password Reset Verification Code</title>
         <style>
             * {{
                 margin: 0;
@@ -462,50 +462,50 @@ def generate_reset_password_email(user: dict, code: str) -> str:
         <div class="email-container">
             <div class="header">
                 <div class="brand-name">DocTranslator Pro</div>
-                <div class="header-subtitle">AI智能文档翻译</div>
+                <div class="header-subtitle">AI Document Translation</div>
             </div>
 
             <div class="content">
-                <h2 class="reset-text">密码重置请求</h2>
+                <h2 class="reset-text">Password Reset Request</h2>
                 <p class="instruction-text">
-                    尊敬的用户，我们收到了您的密码重置请求。请使用以下验证码来完成密码重置：
+                    Dear user, we have received your password reset request. Please use the following verification code to complete the password reset:
                 </p>
 
                 <div class="code-container">
-                    <div class="code-label">密码重置验证码</div>
+                    <div class="code-label">Password Reset Code</div>
                     <div class="verification-code">{code}</div>
                 </div>
 
-                <!-- 重置步骤说明 -->
+                <!-- Reset steps -->
                 <div class="steps-container">
                     <div class="step-item">
                         <div class="step-number">1</div>
-                        <div class="step-text">返回密码重置页面</div>
+                        <div class="step-text">Return to password reset page</div>
                     </div>
                     <div class="step-item">
                         <div class="step-number">2</div>
-                        <div class="step-text">输入此验证码</div>
+                        <div class="step-text">Enter this verification code</div>
                     </div>
                     <div class="step-item">
                         <div class="step-number">3</div>
-                        <div class="step-text">设置您的新密码</div>
+                        <div class="step-text">Set your new password</div>
                     </div>
                 </div>
 
                 <div class="security-notice">
-                    <p>⚠️ 安全提醒：验证码有效期为 15 分钟，请勿泄露给他人。如非本人操作，请立即联系客服。</p>
+                    <p>⚠️ Security Notice: This verification code is valid for 15 minutes. Do not share it with others. If you did not request this, please contact support immediately.</p>
                 </div>
 
                 <p style="text-align: center; color: #64748b; font-size: 14px;">
-                    如果您没有请求密码重置，请忽略此邮件
+                    If you did not request a password reset, please ignore this email
                 </p>
             </div>
 
             <div class="footer">
                 <p class="footer-text">
-                    此邮件由系统自动发送，请勿回复。<br>
-                    © 2025 DocTranslator 保留所有权利。<br>
-                    <a href="https://www.doctranslator.cn" class="footer-link">访问官网</a>
+                    This email was sent automatically. Please do not reply.<br>
+                    © 2025 DocTranslator. All rights reserved.<br>
+                    <a href="https://www.doctranslator.cn" class="footer-link">Visit Website</a>
 
                 </p>
             </div>
@@ -526,12 +526,12 @@ def generate_new_user_notification(user: dict) -> str:
       </style>
       <body>
         <div class="container">
-          <h2>系统通知：新用户注册</h2>
-          <p>以下用户刚刚完成了注册：</p>
+          <h2>System Notification: New User Registration</h2>
+          <p>The following user has just completed registration:</p>
           <ul>
-            <li>用户ID：{user.get('id', '')}</li>
-            <li>邮箱：{user.get('email', '')}</li>
-            <li>注册时间：{user.get('created_at', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}</li>
+            <li>User ID: {user.get('id', '')}</li>
+            <li>Email: {user.get('email', '')}</li>
+            <li>Registration Time: {user.get('created_at', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}</li>
           </ul>
         </div>
       </body>
@@ -548,10 +548,10 @@ def generate_password_reset_email(user: dict, code: str) -> str:
       </style>
       <body>
         <div class="container">
-          <h2>密码重置验证码</h2>
-          <p>您的密码重置验证码是：</p>
+          <h2>Password Reset Verification Code</h2>
+          <p>Your password reset verification code is:</p>
           <div class="code">{code}</div>
-          <p>验证码有效期30分钟</p>
+          <p>Verification code is valid for 30 minutes</p>
         </div>
       </body>
     </html>
@@ -566,9 +566,9 @@ def generate_password_change_email(user: dict) -> str:
       </style>
       <body>
         <div class="container">
-          <h2>密码修改通知</h2>
-          <p>您的账户 {user.get('email', '')} 密码修改成功</p>
-          <p>时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+          <h2>Password Change Notification</h2>
+          <p>Your account {user.get('email', '')} password has been changed successfully</p>
+          <p>Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
         </div>
       </body>
     </html>
