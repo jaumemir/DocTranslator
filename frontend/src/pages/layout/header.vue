@@ -4,7 +4,7 @@
       <div class="logo">
         <img src="@/assets/logo.png" class="logo_img" alt="DocTranslator" />
         <span>{{ settingsStore.siteTitle }}</span>
-        <a class="btn_return" href="https://www.ehemart.com/" v-if="false"><<返回官网</a>
+        <a class="btn_return" href="https://www.ehemart.com/" v-if="false"><< Back to Official Site</a>
         <img
           class="icon_vip phone_show"
           style="height: 16px; margin-left: 10px"
@@ -19,15 +19,15 @@
           <div class="flex-center">
             <div class="btn_set" @click="funOpenHome">
               <div class="icon_svg"><svg-icon icon-class="home" /></div>
-              <span class="pc_show">首页</span>
+              <span class="pc_show">Home</span>
             </div>
             <div class="btn_set" @click="funOpenCorpus">
               <div class="icon_svg"><svg-icon icon-class="corpus" /></div>
-              <span class="pc_show">语料库</span>
+              <span class="pc_show">Corpus</span>
             </div>
             <div class="btn_set" @click="funOpenSet">
               <div class="icon_svg"><svg-icon icon-class="setting" /></div>
-              <span class="pc_show">翻译设置</span>
+              <span class="pc_show">Translation Settings</span>
             </div>
             <div
               class="btn_set"
@@ -39,7 +39,7 @@
             <div class="btn_set" @click="$router.push('/profile')">
               <!-- <div class="icon_svg"><svg-icon icon-class="user" /></div> -->
               <el-icon class="icon_svg"><UserFilled /></el-icon>
-              <span class="pc_show">个人中心</span>
+              <span class="pc_show">Profile</span>
             </div>
             <!-- <img
               class="icon_vip pc_show"
@@ -62,7 +62,7 @@
 
               <template #dropdown>
                 <el-dropdown-menu>
-                  <!-- <el-dropdown-item command="profile">个人中心</el-dropdown-item> -->
+                  <!-- <el-dropdown-item command="profile">Profile</el-dropdown-item> -->
                   <el-dropdown-item command="pwd">修改密码</el-dropdown-item>
                   <el-dropdown-item command="exit">退出</el-dropdown-item>
                 </el-dropdown-menu>

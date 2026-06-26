@@ -1,9 +1,9 @@
 export interface GetTranslateRequestData {
-  /** 当前页码 */
+  /** Current page number */
   page: number
-  /** 查询条数 */
+  /** Query limit */
   limit: number
-  /** 关键字 */
+  /** Keyword */
   keyword?: string
 }
 

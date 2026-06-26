@@ -120,6 +120,17 @@ pnpm dev
 - **Admin Panel**: http://localhost:8081  
 - **Backend API**: http://localhost:5000  
 
+### 7. Default Admin Credentials
+
+On first startup, the system automatically initializes the database with the following admin account:
+
+```
+Email: admin
+Password: 123456
+```
+
+**⚠️ Security Note**: Please change the default password immediately after first login. For production environments, it is recommended to implement password hashing (the system currently stores passwords in plain text).
+
 ---
 
 ## 🐳 Docker Deployment

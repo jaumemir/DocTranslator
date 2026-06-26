@@ -3,12 +3,12 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useSettingsStore } from './settings';
 export const useTranslateStore = defineStore('translate-settings', () => {
-  // 当前翻译服务
+  // Current translation service
   const currentService = ref('ai') // ai/baidu/google
   const settingsStore = useSettingsStore();
   // console.log('settingsStore', settingsStore.system_settings);
 
-  // AI翻译设置
+  // AI translation settings
   const aiServer = ref({
     api_url: settingsStore.system_settings.api_url || '',
     api_key: '',
@@ -22,16 +22,16 @@ export const useTranslateStore = defineStore('translate-settings', () => {
     doc2x_secret_key: ''
   })
 
-  // 百度翻译设置
+  // Baidu translation settings
   const baidu = ref({
     app_id: '',
     app_key: '',
     from_lang: 'auto',
     to_lang: 'zh',
-    needIntervene: false // 是否使用术语库
+    needIntervene: false // Whether to use glossary
   })
 
-  // 谷歌翻译设置
+  // Google translation settings
   const google = ref({
     app_key: '',
     project_id: '',

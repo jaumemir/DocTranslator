@@ -1,7 +1,7 @@
 import { request } from "@/utils/service"
 import type * as Translate from "./types/translate"
 
-/** 列表 */
+/** List */
 export function getTranslateDataApi(params: Translate.GetTranslateRequestData) {
   return request<Translate.GetTranslateResponseData>({
     url: `translates`,
@@ -24,7 +24,7 @@ export function deleteMoreTranslateDataApi(data: object) {
     data
   })
 }
-// 批量下载
+// Batch download
 export function downloadMoreTranslateDataApi(data: object) {
   return request<Translate.TranslateNoResponseData>({
     url: `/translates/download/batch`,

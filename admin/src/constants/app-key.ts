@@ -1,19 +1,19 @@
-/** 设备类型 */
+/** Device type */
 export enum DeviceEnum {
   Mobile,
   Desktop
 }
 
-/** 布局模式 */
+/** Layout mode */
 export enum LayoutModeEnum {
   Left = "left",
   Top = "top",
   LeftTop = "left-top"
 }
 
-/** 侧边栏打开状态常量 */
+/** Sidebar opened state constant */
 export const SIDEBAR_OPENED = "opened"
-/** 侧边栏关闭状态常量 */
+/** Sidebar closed state constant */
 export const SIDEBAR_CLOSED = "closed"
 
 export type SidebarOpened = typeof SIDEBAR_OPENED

@@ -14,7 +14,7 @@ const constantRoute = [
         component: () => import('@/pages/trans/index.vue'),
         name: 'home',
         meta: {
-          title: '首页',
+          title: 'Home',
           noCache: true,
 
         }
@@ -24,7 +24,7 @@ const constantRoute = [
         component: () => import('@/pages/profile/index.vue'),
         name: 'profile',
         meta: {
-          title: '个人中心',
+          title: 'Profile',
           noCache: true,
           requiresAuth: true
         }
@@ -42,7 +42,7 @@ const constantRoute = [
         component: () => import('@/pages/corpus/index.vue'),
         name: 'corpus',
         meta: {
-          title: '语料库',
+          title: 'Corpus',
           noCache: true
         }
       },
@@ -51,7 +51,7 @@ const constantRoute = [
         component: () => import('@/pages/corpus/square.vue'),
         name: 'square',
         meta: {
-          title: '广场',
+          title: 'Public',
           noCache: true
         }
       }

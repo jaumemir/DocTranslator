@@ -10,7 +10,7 @@ const settingsStore = useSettingsStore()
 <template>
   <section class="app-main">
     <div class="app-scrollbar">
-      <!-- key 采用 route.path 和 route.fullPath 有着不同的效果，大多数时候 path 更通用 -->
+      <!-- Using route.path vs route.fullPath as key has different effects, path is more universal in most cases -->
       <router-view v-slot="{ Component, route }">
         <transition name="el-fade-in" mode="out-in">
           <keep-alive :include="tagsViewStore.cachedViews">
@@ -18,12 +18,12 @@ const settingsStore = useSettingsStore()
           </keep-alive>
         </transition>
       </router-view>
-      <!-- 页脚 -->
+      <!-- Footer -->
       <Footer v-if="settingsStore.showFooter" />
     </div>
-    <!-- 返回顶部 -->
+    <!-- Back to top -->
     <el-backtop />
-    <!-- 返回顶部（固定 Header 情况下） -->
+    <!-- Back to top (when Header is fixed) -->
     <el-backtop target=".app-scrollbar" />
   </section>
 </template>

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never" v-loading="loading" :element-loading-text="'加载中...'">
-      <span class="notice-tip">注意：会员用户使用系统默认接口</span>
+    <el-card shadow="never" v-loading="loading" :element-loading-text="'Loading...'">
+      <span class="notice-tip">Note: Member users use the system default API</span>
       <el-form class="settingForm" ref="settingForm" :model="setting" label-position="top" :rules="rules">
         <el-form-item label="Base Url" prop="api_url" required>
           <el-input v-model="setting.api_url" placeholder="https://api.ezworkapi.top/v1" />
@@ -9,23 +9,23 @@
         <el-form-item label="API Key" prop="api_key" required>
           <el-input v-model="setting.api_key" placeholder="sk-******" />
         </el-form-item>
-        <el-form-item label="模型列表" prop="models" required>
+        <el-form-item label="Model List" prop="models" required>
           <el-input
             type="textarea"
             resize="none"
             :rows="3"
             v-model="setting.models"
             @blur="changeModel"
-            placeholder="请至少输入1个模型，多个模型用英文逗号,隔开"
+            placeholder="Enter at least 1 model, separate multiple models with commas"
           />
         </el-form-item>
-        <el-form-item label="默认模型">
-          <el-select v-model="setting.default_model" placeholder="未选择默认模型将采用配置中的第1个" clearable>
+        <el-form-item label="Default Model">
+          <el-select v-model="setting.default_model" placeholder="If no default model is selected, the first one in the list will be used" clearable>
             <el-option v-for="model in models" :key="model" :label="model" :value="model" />
           </el-select>
         </el-form-item>
-        <el-form-item label="默认备用模型">
-          <el-select v-model="setting.default_backup" placeholder="未选择默认备用模型将采用配置中的第1个" clearable>
+        <el-form-item label="Default Backup Model">
+          <el-select v-model="setting.default_backup" placeholder="If no backup model is selected, the first one in the list will be used" clearable>
             <el-option
               v-for="model in models"
               :key="model"
@@ -36,15 +36,15 @@
           </el-select>
         </el-form-item>
         <el-form-item class="setting-btns">
-          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">保存</el-button>
-          <el-button type="primary" plain @click="openTestDialog">模型测试</el-button>
+          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">Save</el-button>
+          <el-button type="primary" plain @click="openTestDialog">Test Model</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <!-- 模型测试弹窗 -->
+    <!-- Model Test Dialog -->
     <el-dialog
-      title="模型测试"
+      title="Model Test"
       v-model="testDialogVisible"
       width="600px"
       :close-on-click-modal="false"
@@ -52,33 +52,33 @@
       top="1vh"
     >
       <el-form :model="testForm" label-position="top">
-        <el-form-item label="选择模型">
-          <el-select v-model="testForm.selectedModel" placeholder="请选择测试模型" style="width: 100%">
+        <el-form-item label="Select Model">
+          <el-select v-model="testForm.selectedModel" placeholder="Please select a test model" style="width: 100%">
             <el-option v-for="model in models" :key="model" :label="model" :value="model" />
           </el-select>
         </el-form-item>
-        <el-form-item label="测试消息">
-          <el-input v-model="testForm.message" type="textarea" :rows="3" placeholder="请输入测试消息" />
+        <el-form-item label="Test Message">
+          <el-input v-model="testForm.message" type="textarea" :rows="3" placeholder="Enter test message" />
         </el-form-item>
         <el-form-item>
           <template #label>
             <div class="result-label">
-              <span>测试结果</span>
+              <span>Test Result</span>
               <div class="metrics-container" v-if="metrics">
                 <span class="metric-item">
-                  <span class="metric-label">响应:</span>
+                  <span class="metric-label">Response:</span>
                   <span class="metric-value">{{ metrics.responseTime }}ms</span>
                 </span>
                 <span class="metric-item">
-                  <span class="metric-label">首字:</span>
+                  <span class="metric-label">First Token:</span>
                   <span class="metric-value">{{ metrics.firstTokenTime }}ms</span>
                 </span>
                 <span class="metric-item">
-                  <span class="metric-label">耗时:</span>
+                  <span class="metric-label">Duration:</span>
                   <span class="metric-value">{{ metrics.duration }}ms</span>
                 </span>
                 <span class="metric-item">
-                  <span class="metric-label">速度:</span>
+                  <span class="metric-label">Speed:</span>
                   <span class="metric-value">{{ metrics.tokensPerSecond }} tokens/s</span>
                 </span>
               </div>
@@ -89,8 +89,8 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="testDialogVisible = false">关闭</el-button>
-          <el-button type="primary" @click="testModel" :loading="testLoading">测试</el-button>
+          <el-button @click="testDialogVisible = false">Close</el-button>
+          <el-button type="primary" @click="testModel" :loading="testLoading">Test</el-button>
         </span>
       </template>
     </el-dialog>
@@ -103,7 +103,7 @@ import { ElMessage } from "element-plus"
 import { getApiSettingData, setApiSettingData } from "@/api/setting"
 
 defineOptions({
-  name: "接口配置"
+  name: "API Configuration"
 })
 
 const loading = ref(false)
@@ -119,9 +119,9 @@ const models = ref([])
 const settingForm = ref(null)
 
 const rules = {
-  api_url: [{ required: true, message: "请填写api接口地址", trigger: "blur" }],
-  api_key: [{ required: true, message: "请填写API Key", trigger: "blur" }],
-  models: [{ required: true, message: "请填写模型列表配置", trigger: "blur" }]
+  api_url: [{ required: true, message: "Please enter the API endpoint URL", trigger: "blur" }],
+  api_key: [{ required: true, message: "Please enter the API Key", trigger: "blur" }],
+  models: [{ required: true, message: "Please enter the model list configuration", trigger: "blur" }]
 }
 
 // 测试相关
@@ -174,7 +174,7 @@ function onSubmit(form) {
       })
         .then((data) => {
           if (data.code == 200) {
-            ElMessage.success("保存成功")
+            ElMessage.success("Saved successfully")
           } else {
             ElMessage.error(data.message)
           }
@@ -200,7 +200,7 @@ function openTestDialog() {
   testDialogVisible.value = true
   testResult.value = ""
   metrics.value = null
-  // 默认选中第一个模型
+  // Select first model by default
   if (models.value.length > 0 && !testForm.value.selectedModel) {
     testForm.value.selectedModel = models.value[0]
   }
@@ -208,11 +208,11 @@ function openTestDialog() {
 
 function testModel() {
   if (!testForm.value.selectedModel) {
-    ElMessage.warning("请选择测试模型")
+    ElMessage.warning("Please select a test model")
     return
   }
   if (!testForm.value.message.trim()) {
-    ElMessage.warning("请输入测试消息")
+    ElMessage.warning("Please enter a test message")
     return
   }
 
@@ -223,27 +223,27 @@ function testModel() {
   const model = testForm.value.selectedModel
   const message = testForm.value.message
 
-  // 构造OpenAI格式的请求
+  // Construct OpenAI format request
   const requestBody = {
     model: model,
     messages: [{ role: "user", content: message }],
     stream: true
   }
 
-  // 记录时间戳
+  // Record timestamps
   const timestamps = {
     start: performance.now(),
-    response: null,      // 接口响应时间（收到HTTP头）
-    firstToken: null,    // 首个token时间
-    end: null           // 完成时间
+    response: null,      // API response time (HTTP headers received)
+    firstToken: null,    // First token time
+    end: null           // Completion time
   }
 
-  // Token统计
+  // Token statistics
   let inputTokens = 0
   let outputTokens = 0
-  let reasoningTokens = 0 // 思考模型的推理tokens
-  
-  // 思考内容标记
+  let reasoningTokens = 0 // Reasoning tokens for thinking models
+
+  // Reasoning content markers
   let hasReasoning = false
   let reasoningContent = ""
   let finalContent = ""
@@ -259,16 +259,16 @@ function testModel() {
     body: JSON.stringify(requestBody)
   })
     .then((response) => {
-      // 记录接口响应时间（fetch Promise resolve时）
+      // Record API response time (when fetch Promise resolves)
       timestamps.response = performance.now()
-      
+
       if (!response.ok) {
-        // 如果响应不成功，读取响应体获取错误信息
+        // If response is unsuccessful, read response body for error message
         return response.text().then((errorText) => {
           testLoading.value = false
           let errorMessage = `HTTP ${response.status}`
           try {
-            // 尝试解析JSON错误响应
+            // Try to parse JSON error response
             const errorJson = JSON.parse(errorText)
             if (errorJson.error && errorJson.error.message) {
               errorMessage = errorJson.error.message
@@ -276,16 +276,16 @@ function testModel() {
               errorMessage = errorText
             }
           } catch (e) {
-            // 如果不是JSON格式，直接使用文本
+            // If not JSON format, use text directly
             errorMessage = errorText
           }
-          testResult.value = `测试失败: ${errorMessage}`
-          ElMessage.error(`测试失败: ${errorMessage}`)
+          testResult.value = `Test failed: ${errorMessage}`
+          ElMessage.error(`Test failed: ${errorMessage}`)
           throw new Error(errorMessage)
         })
       }
 
-      // 如果响应成功，开始处理流式数据
+      // If response is successful, start processing stream data
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ""
@@ -298,7 +298,7 @@ function testModel() {
               timestamps.end = performance.now()
               testLoading.value = false
               calculateMetrics()
-              ElMessage.success("测试完成")
+              ElMessage.success("Test completed")
               return
             }
 
@@ -313,49 +313,49 @@ function testModel() {
                   timestamps.end = performance.now()
                   testLoading.value = false
                   calculateMetrics()
-                  ElMessage.success("测试完成")
+                  ElMessage.success("Test completed")
                   return
                 }
 
                 try {
                   const parsed = JSON.parse(data)
-                  
-                  // 处理token统计
+
+                  // Handle token statistics
                   if (parsed.usage) {
                     if (parsed.usage.prompt_tokens) inputTokens = parsed.usage.prompt_tokens
                     if (parsed.usage.completion_tokens) outputTokens = parsed.usage.completion_tokens
-                    // 支持思考模型的推理tokens
+                    // Support reasoning tokens for thinking models
                     if (parsed.usage.reasoning_tokens) reasoningTokens = parsed.usage.reasoning_tokens
                   }
-                  
+
                   const delta = parsed.choices?.[0]?.delta
                   if (delta) {
-                    // 记录第一个token的时间（包括推理内容）
+                    // Record first token time (including reasoning content)
                     if (!timestamps.firstToken) {
                       timestamps.firstToken = performance.now()
                     }
-                    
-                    // 处理思考内容（reasoning_content）
+
+                    // Handle reasoning content (reasoning_content)
                     if (delta.reasoning_content) {
                       hasReasoning = true
                       reasoningContent += delta.reasoning_content
-                      // 如果有思考内容，先显示思考部分
-                      testResult.value = `[思考过程]\n${reasoningContent}`
+                      // If there is reasoning content, show thinking part first
+                      testResult.value = `[Reasoning Process]\n${reasoningContent}`
                     }
-                    
-                    // 处理最终回答内容（content）
+
+                    // Handle final answer content (content)
                     if (delta.content) {
                       finalContent += delta.content
-                      // 如果有思考内容，分开显示
+                      // If there is reasoning content, display separately
                       if (hasReasoning) {
-                        testResult.value = `[思考过程]\n${reasoningContent}\n\n[最终回答]\n${finalContent}`
+                        testResult.value = `[Reasoning Process]\n${reasoningContent}\n\n[Final Answer]\n${finalContent}`
                       } else {
                         testResult.value = finalContent
                       }
                     }
                   }
                 } catch (e) {
-                  console.error("解析数据错误:", e)
+                  console.error("Data parsing error:", e)
                 }
               }
             }
@@ -364,9 +364,9 @@ function testModel() {
           })
           .catch((error) => {
             testLoading.value = false
-            // 在读取流过程中发生错误
-            testResult.value = `流读取失败: ${error.message}`
-            ElMessage.error(`流读取失败: ${error.message}`)
+            // Error occurred while reading stream
+            testResult.value = `Stream reading failed: ${error.message}`
+            ElMessage.error(`Stream reading failed: ${error.message}`)
           })
       }
 
@@ -374,25 +374,25 @@ function testModel() {
     })
     .catch((error) => {
       testLoading.value = false
-      testResult.value = `测试失败: ${error.message}`
-      console.error("请求错误:", error)
-      ElMessage.error(`测试失败: ${error.message}`)
+      testResult.value = `Test failed: ${error.message}`
+      console.error("Request error:", error)
+      ElMessage.error(`Test failed: ${error.message}`)
     })
 
   function calculateMetrics() {
-    // 响应时间：从发送请求到收到HTTP响应头
+    // Response time: from request sent to HTTP response headers received
     const responseTime = timestamps.response ? Math.round(timestamps.response - timestamps.start) : 0
-    
-    // 首字时间：从发送请求到收到第一个内容token
+
+    // First token time: from request sent to first content token received
     const firstTokenTime = timestamps.firstToken ? Math.round(timestamps.firstToken - timestamps.start) : 0
-    
-    // 总耗时：从发送请求到完成
+
+    // Total duration: from request sent to completion
     const duration = timestamps.end ? Math.round(timestamps.end - timestamps.start) : 0
-    
-    // 总token数（包含输入、输出和推理）
+
+    // Total tokens (including input, output and reasoning)
     const totalTokens = inputTokens + outputTokens + reasoningTokens
-    
-    // tokens/s（每秒输出速度）
+
+    // tokens/s (output speed per second)
     const tokensPerSecond = duration > 0 ? Math.round((totalTokens / duration) * 1000) : 0
 
     metrics.value = {

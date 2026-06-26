@@ -6,39 +6,39 @@ import SwitchRoles from "./components/SwitchRoles.vue"
 <template>
   <div class="app-container">
     <SwitchRoles />
-    <!-- v-permission 示例 -->
+    <!-- v-permission example -->
     <div class="margin-top-30">
       <div>
         <el-tag v-permission="['admin']" type="success" size="large" effect="plain">
-          这里采用了 v-permission="['admin']" 所以只有 admin 可以看见这句话
+          This uses v-permission="['admin']" so only admin can see this sentence
         </el-tag>
       </div>
       <div>
         <el-tag v-permission="['editor']" type="success" size="large" effect="plain">
-          这里采用了 v-permission="['editor']" 所以只有 editor 可以看见这句话
+          This uses v-permission="['editor']" so only editor can see this sentence
         </el-tag>
       </div>
       <div class="margin-top-15">
         <el-tag v-permission="['admin', 'editor']" type="success" size="large" effect="plain">
-          这里采用了 v-permission="['admin', 'editor']" 所以 admin 和 editor 都可以看见这句话
+          This uses v-permission="['admin', 'editor']" so both admin and editor can see this sentence
         </el-tag>
       </div>
     </div>
-    <!-- checkPermission 示例 -->
+    <!-- checkPermission example -->
     <div class="margin-top-30">
       <el-tag type="warning" size="large">
-        例如 Element Plus 的 el-tab-pane 或 el-table-column 以及其它动态渲染 Dom 的场景不适合使用
-        v-permission，这种情况下你可以通过 v-if 和 checkPermission 来实现：
+        For example, Element Plus's el-tab-pane or el-table-column and other dynamically rendered DOM scenarios are not suitable for
+        v-permission. In this case, you can use v-if and checkPermission:
       </el-tag>
       <el-tabs type="border-card" class="margin-top-15">
         <el-tab-pane v-if="checkPermission(['admin'])" label="admin">
-          这里采用了 <el-tag>v-if="checkPermission(['admin'])"</el-tag> 所以只有 admin 可以看见这句话
+          This uses <el-tag>v-if="checkPermission(['admin'])"</el-tag> so only admin can see this sentence
         </el-tab-pane>
         <el-tab-pane v-if="checkPermission(['editor'])" label="editor">
-          这里采用了 <el-tag>v-if="checkPermission(['editor'])"</el-tag> 所以只有 editor 可以看见这句话
+          This uses <el-tag>v-if="checkPermission(['editor'])"</el-tag> so only editor can see this sentence
         </el-tab-pane>
-        <el-tab-pane v-if="checkPermission(['admin', 'editor'])" label="admin 和 editor">
-          这里采用了 <el-tag>v-if="checkPermission(['admin', 'editor'])"</el-tag> 所以 admin 和 editor 都可以看见这句话
+        <el-tab-pane v-if="checkPermission(['admin', 'editor'])" label="admin and editor">
+          This uses <el-tag>v-if="checkPermission(['admin', 'editor'])"</el-tag> so both admin and editor can see this sentence
         </el-tab-pane>
       </el-tabs>
     </div>

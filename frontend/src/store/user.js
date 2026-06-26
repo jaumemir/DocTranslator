@@ -30,7 +30,7 @@ export const useUserStore = defineStore('user-info', () => {
     userInfo.value.storage = storage
     userInfo.value.total_storage = total_storage
   };
-  // 退出登录
+  // Logout
   const logout = () => {
     token.value = '';
     userInfo.value = {}

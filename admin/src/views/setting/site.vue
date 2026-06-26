@@ -4,8 +4,8 @@ import { type FormInstance, ElMessage } from "element-plus"
 import { getSiteSettingData, setSiteSettingData } from "@/api/setting"
 
 defineOptions({
-  // 命名当前组件
-  name: "接口配置"
+  // Name the current component
+  name: "Interface Configuration"
 })
 
 const setting = ref({
@@ -15,7 +15,7 @@ const setting = ref({
 const settingForm = ref<FormInstance | null>(null)
 
 const rules = {
-  version: [{ required: true, message: "请选择版本", trigger: "blur" }]
+  version: [{ required: true, message: "Please select version", trigger: "blur" }]
 }
 
 onMounted(() => {
@@ -36,7 +36,7 @@ function onSubmit(settingForm: FormInstance | null) {
       })
         .then((data) => {
           if (data.code == 200) {
-            ElMessage.success("保存成功")
+            ElMessage.success("Saved successfully")
           } else {
             ElMessage.error(data.message)
           }
@@ -63,14 +63,14 @@ function onSubmit(settingForm: FormInstance | null) {
   <div class="app-container">
     <el-card shadow="never">
       <el-form class="settingForm" ref="settingForm" :model="setting" label-position="top" :rules="rules">
-        <el-form-item label="选择版本" required prop="version">
-          <el-select v-model="setting.version" placeholder="请选择服务商">
-            <el-option value="community" label="个人版" />
-            <el-option value="business" label="企业版" />
+        <el-form-item label="Select Version" required prop="version">
+          <el-select v-model="setting.version" placeholder="Please select service provider">
+            <el-option value="community" label="Community Edition" />
+            <el-option value="business" label="Business Edition" />
           </el-select>
         </el-form-item>
         <el-form-item class="setting-btns">
-          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">保存</el-button>
+          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">Save</el-button>
         </el-form-item>
       </el-form>
     </el-card>

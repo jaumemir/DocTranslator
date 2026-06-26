@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { useTheme } from "@/hooks/useTheme"
-// 将 Element Plus 的语言设置为中文
+// Set Element Plus language to Chinese
 import zhCn from "element-plus/es/locale/lang/zh-cn"
 
 const { initTheme } = useTheme()
 
-/** 初始化主题 */
+/** Initialize theme */
 initTheme()
 </script>
 

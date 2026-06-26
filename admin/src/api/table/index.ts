@@ -1,7 +1,7 @@
 import { request } from "@/utils/service"
 import type * as Table from "./types/table"
 
-/** 增 */
+/** Create */
 export function createTableDataApi(data: Table.CreateOrUpdateTableRequestData) {
   return request({
     url: "table",
@@ -10,7 +10,7 @@ export function createTableDataApi(data: Table.CreateOrUpdateTableRequestData) {
   })
 }
 
-/** 删 */
+/** Delete */
 export function deleteTableDataApi(id: string) {
   return request({
     url: `table/${id}`,
@@ -18,7 +18,7 @@ export function deleteTableDataApi(id: string) {
   })
 }
 
-/** 改 */
+/** Update */
 export function updateTableDataApi(data: Table.CreateOrUpdateTableRequestData) {
   return request({
     url: "table",
@@ -27,7 +27,7 @@ export function updateTableDataApi(data: Table.CreateOrUpdateTableRequestData) {
   })
 }
 
-/** 查 */
+/** Query */
 export function getTableDataApi(params: Table.GetTableRequestData) {
   return request<Table.GetTableResponseData>({
     url: "table",

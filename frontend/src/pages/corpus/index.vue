@@ -8,8 +8,8 @@
   >
     <div class="container">
       <div class="tab_box">
-        <div class="tab_li actived">我的</div>
-        <div class="tab_li" @click="$router.push('/corpus/square')">广场</div>
+        <div class="tab_li actived">Mine</div>
+        <div class="tab_li" @click="$router.push('/corpus/square')">Public</div>
       </div>
       <div class="content_box" v-if="true">
         <div class="flex_box flex-between phone_box">
@@ -20,7 +20,7 @@
               :type="tab_active == 'terms' ? 'primary' : ''"
               @click="tabSelect('terms')"
             >
-              我的术语表
+              My Glossaries
             </el-button>
             <el-button
               :class="tab_active == 'prompt' ? 'btn_active' : 'my_button'"
@@ -28,12 +28,12 @@
               :type="tab_active == 'prompt' ? 'primary' : ''"
               @click="tabSelect('prompt')"
             >
-              我的提示语
+              My Prompts
             </el-button>
           </el-button-group>
 
           <div class="btn_box" v-if="tab_active == 'terms'">
-            <el-button type="primary" color="#055CF9" @click="openTerms">新建</el-button>
+            <el-button type="primary" color="#055CF9" @click="openTerms">Create</el-button>
             <el-dropdown split-button type="" style="margin: 0 12px" @command="command_terms">
               <el-upload
                 name="file"
@@ -44,22 +44,22 @@
                 :on-success="(response, file, fileList) => upload_success(response)"
                 class="blue_color"
               >
-                导入
+                Import
               </el-upload>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="down">模板下载</el-dropdown-item>
+                  <el-dropdown-item command="down">Download Template</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-button type="" @click="export_terms_all">全部导出</el-button>
+            <el-button type="" @click="export_terms_all">Export All</el-button>
           </div>
 
           <div class="btn_box" v-if="tab_active == 'prompt'">
-            <el-button type="primary" color="#055CF9" @click="openPrompt">新建</el-button>
+            <el-button type="primary" color="#055CF9" @click="openPrompt">Create</el-button>
           </div>
         </div>
-        <!-- 术语列表 -->
+        <!-- Terms list -->
         <div class="term_box" v-if="tab_active == 'terms'">
           <el-row :gutter="24" v-if="termsData.length > 0">
             <el-col :xs="24" :sm="8" v-for="(item, index) in termsData" :key="index">
@@ -70,11 +70,11 @@
                 </div>
                 <div class="btn_box flex_box flex-between">
                   <div class="left">
-                    <el-button type="text" @click="openTerms(item)">编辑</el-button>
+                    <el-button type="text" @click="openTerms(item)">Edit</el-button>
                     <el-button type="text" style="color: red" @click="delTerms(item)"
-                      >删除</el-button
+                      >Delete</el-button
                     >
-                    <el-button type="text" @click="export_terms(item)">导出</el-button>
+                    <el-button type="text" @click="export_terms(item)">Export</el-button>
                   </div>
                   <div class="right">
                     <el-switch
@@ -111,10 +111,10 @@
           </el-row>
           <div v-else class="no_data">
             <img src="@/assets/nodata.png" alt="" />
-            <div class="text">暂无数据</div>
+            <div class="text">No data available</div>
           </div>
         </div>
-        <!-- 提示语列表 -->
+        <!-- Prompts list -->
         <div class="prompt_box" v-if="tab_active == 'prompt'">
           <el-row :gutter="24" v-if="promptData.length > 0">
             <el-col :xs="24" :sm="8" v-for="(item, index) in promptData" :key="index">
@@ -124,9 +124,9 @@
                 </div>
                 <div class="btn_box flex_box flex-between" v-if="!item.undelete">
                   <div class="left">
-                    <el-button type="text" @click="openPrompt(item)">编辑</el-button>
+                    <el-button type="text" @click="openPrompt(item)">Edit</el-button>
                     <el-button type="text" style="color: red" @click="delPrompt(item)"
-                      >删除</el-button
+                      >Delete</el-button
                     >
                   </div>
                   <div class="right">
@@ -147,12 +147,12 @@
           </el-row>
           <div v-else class="no_data">
             <img src="@/assets/nodata.png" alt="" />
-            <div class="text">暂无数据</div>
+            <div class="text">No data available</div>
           </div>
         </div>
       </div>
 
-      <!-- 备案信息 -->
+      <!-- Filing information -->
       <Filing />
     </div>
 
@@ -225,7 +225,7 @@ const getPromptList = async () => {
       promptData.value = JSON.parse(JSON.stringify(res.data.data))
       if (store.prompt) {
         promptData.value.unshift({
-          title: '默认提示语(无法删除)',
+          title: '默认提示语(无法Delete)',
           content: store.prompt,
           undelete: true
         })
@@ -351,7 +351,7 @@ function openPrompt(item) {
 
 // Delete terminology
 function delTerms(item) {
-  ElMessageBox.confirm('确定要删除？', '提示', {
+  ElMessageBox.confirm('确定要Delete？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -359,7 +359,7 @@ function delTerms(item) {
     pageLoad.value = true
     comparison_del(item.id).then((data) => {
       if (data.code == 200) {
-        ElMessage({ message: '删除成功', type: 'success' })
+        ElMessage({ message: 'Delete成功', type: 'success' })
         getTermList()
       } else {
         ElMessage({ message: data.message, type: 'error' })
@@ -434,7 +434,7 @@ async function export_terms_all() {
     })
 
     if (!response.ok) {
-      throw new Error('术语表导出失败')
+      throw new Error('术语表Export失败')
     }
 
     // Get file content
@@ -451,7 +451,7 @@ async function export_terms_all() {
     window.URL.revokeObjectURL(url) // Release URL object
   } catch (error) {
     console.error('Export failed:', error)
-    ElMessage.error('术语表导出失败，请稍后重试')
+    ElMessage.error('术语表Export失败，请稍后重试')
   }
 }
 
@@ -505,7 +505,7 @@ function share_change_prompt(item) {
 
 // Delete prompt
 function delPrompt(item) {
-  ElMessageBox.confirm('确定要删除？', '提示', {
+  ElMessageBox.confirm('确定要Delete？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -513,7 +513,7 @@ function delPrompt(item) {
     pageLoad.value = true
     prompt_del(item.id).then((data) => {
       if (data.code == 200) {
-        ElMessage({ message: '删除成功', type: 'success' })
+        ElMessage({ message: 'Delete成功', type: 'success' })
         getPromptList()
       } else {
         ElMessage({ message: data.message, type: 'error' })

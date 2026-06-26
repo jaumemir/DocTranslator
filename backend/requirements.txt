@@ -51,3 +51,4 @@ uvicorn
 python-dotenv==1.0.1
 pymdown-extensions
 openai==1.65.3
+requests>=2.31.0

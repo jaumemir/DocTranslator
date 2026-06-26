@@ -1,12 +1,12 @@
 import { request } from "@/utils/service"
-// 获取系统存储文件列表
+// Get system storage file list
 export function getFileList() {
   return request({
     url: "system/storage",
     method: "get"
   })
 }
-// 删除文件
+// Delete file
 export function deleteFile(data) {
   return request({
     url: "system/storage",

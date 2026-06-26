@@ -8,59 +8,59 @@ import {
 } from "vue-router"
 import { cloneDeep, omit } from "lodash-es"
 
-/** 路由模式 */
+/** Router mode */
 export const history =
   import.meta.env.VITE_ROUTER_HISTORY === "hash"
     ? createWebHashHistory(import.meta.env.VITE_PUBLIC_PATH)
     : createWebHistory(import.meta.env.VITE_PUBLIC_PATH)
 
-/** 路由降级（把三级及其以上的路由转化为二级路由） */
+/** Route flattening (converts level-3 and above routes to level-2 routes) */
 export const flatMultiLevelRoutes = (routes: RouteRecordRaw[]) => {
   const routesMirror = cloneDeep(routes)
   routesMirror.forEach((route) => {
-    // 如果路由是三级及其以上路由，对其进行降级处理
+    // If route is level-3 or above, flatten it
     isMultipleRoute(route) && promoteRouteLevel(route)
   })
   return routesMirror
 }
 
-/** 判断路由层级是否大于 2 */
+/** Check if route level is greater than 2 */
 const isMultipleRoute = (route: RouteRecordRaw) => {
   const children = route.children
   if (children?.length) {
-    // 只要有一个子路由的 children 长度大于 0，就说明是三级及其以上路由
+    // If any child route has children length > 0, it's a level-3+ route
     return children.some((child) => child.children?.length)
   }
   return false
 }
 
-/** 生成二级路由 */
+/** Generate level-2 routes */
 const promoteRouteLevel = (route: RouteRecordRaw) => {
-  // 创建 router 实例是为了获取到当前传入的 route 的所有路由信息
+  // Create router instance to get all route information for the current route
   let router: Router | null = createRouter({
     history,
     routes: [route]
   })
   const routes = router.getRoutes()
-  // 在 addToChildren 函数中使用上面获取到的路由信息来更新 route 的 children
+  // Use route information obtained above in addToChildren function to update route's children
   addToChildren(routes, route.children || [], route)
   router = null
-  // 转为二级路由后，去除所有子路由中的 children
+  // After converting to level-2 routes, remove children from all child routes
   route.children = route.children?.map((item) => omit(item, "children") as RouteRecordRaw)
 }
 
-/** 将给定的子路由添加到指定的路由模块中 */
+/** Add given child routes to specified route module */
 const addToChildren = (routes: RouteRecordNormalized[], children: RouteRecordRaw[], routeModule: RouteRecordRaw) => {
   children.forEach((child) => {
     const route = routes.find((item) => item.name === child.name)
     if (route) {
-      // 初始化 routeModule 的 children
+      // Initialize routeModule's children
       routeModule.children = routeModule.children || []
-      // 如果 routeModule 的 children 属性中不包含该路由，则将其添加进去
+      // If routeModule's children property doesn't include this route, add it
       if (!routeModule.children.includes(route)) {
         routeModule.children.push(route)
       }
-      // 如果该子路由还有自己的子路由，则递归调用此函数将它们也添加进去
+      // If child route has its own children, recursively call this function to add them too
       if (child.children?.length) {
         addToChildren(routes, child.children, routeModule)
       }

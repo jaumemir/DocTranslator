@@ -1,36 +1,36 @@
 <template>
   <div class="auth-page">
-    <!-- 装饰背景球（极淡，增加层次感） -->
+    <!-- Decorative background shapes (very subtle, adds depth) -->
     <div class="bg-shape shape-1"></div>
     <div class="bg-shape shape-2"></div>
 
     <div class="auth-box">
-      <!-- 左侧：品牌与开源信息 -->
+      <!-- Left side: Brand and open source info -->
       <div class="auth-sidebar">
         <div class="sidebar-top">
-          <!-- Logo和名称放一行 -->
+          <!-- Logo and name in one line -->
           <div class="brand-header">
             <img src="@/assets/logo.png" alt="Logo" class="brand-logo" />
             <span class="brand-name">DocTranslator</span>
           </div>
 
           <div class="brand-slogan">
-            <p class="main-slogan">开源的AI文档智能翻译平台</p>
-            <p class="sub-slogan">一站式文档翻译平台</p>
+            <p class="main-slogan">Open Source AI Document Translation Platform</p>
+            <p class="sub-slogan">All-in-One Document Translation Solution</p>
           </div>
 
           <div class="feature-list">
             <div class="feature-item">
               <el-icon><Connection /></el-icon>
-              <span>开源项目，社区支持</span>
+              <span>Open Source, Community Supported</span>
             </div>
             <div class="feature-item">
               <el-icon><Lock /></el-icon>
-              <span>支持本地/云端部署</span>
+              <span>Local/Cloud Deployment Support</span>
             </div>
             <div class="feature-item">
               <el-icon><Document /></el-icon>
-              <span>支持定制化功能开发</span>
+              <span>Customizable Feature Development</span>
             </div>
           </div>
         </div>
@@ -38,37 +38,37 @@
         <div class="sidebar-footer">
           <div class="copyright-info">
             <a href="https://www.doctranslator.cn" target="_blank" class="github-link">
-              <p class="copyright">© 2025 DocTranslator 1.5.0 保留所有权利</p>
-              <!-- 未经同意，不得删除。 -->
+              <p class="copyright">© 2025 DocTranslator 1.5.0 All Rights Reserved</p>
+              <!-- Do not remove without permission. -->
             </a>
           </div>
         </div>
       </div>
 
-      <!-- 右侧：登录/注册表单 -->
+      <!-- Right side: Login/Register form -->
       <div class="auth-form-container">
-        <!-- 移动端专用头部 -->
+        <!-- Mobile-specific header -->
         <div class="mobile-header">
           <div class="mobile-brand">
             <img src="@/assets/logo.png" alt="Logo" class="mobile-logo" />
             <div class="mobile-text">
               <h1 class="mobile-title">DocTranslator Pro</h1>
-              <p class="mobile-subtitle">AI文档智能翻译平台</p>
+              <p class="mobile-subtitle">AI Document Translation Platform</p>
             </div>
           </div>
         </div>
 
         <div class="form-wrapper">
           <div class="auth-header">
-            <h2 class="auth-title">{{ activeTab === 'login' ? '欢迎回来' : '创建账号' }}</h2>
+            <h2 class="auth-title">{{ activeTab === 'login' ? 'Welcome Back' : 'Create Account' }}</h2>
             <p class="auth-subtitle">
-              {{ activeTab === 'login' ? '登录您的账户' : '注册新账户开始使用' }}
+              {{ activeTab === 'login' ? 'Sign in to your account' : 'Register a new account to get started' }}
             </p>
           </div>
 
           <el-tabs v-model="activeTab" stretch class="custom-tabs">
-            <!-- 登录 Tab -->
-            <el-tab-pane label="登录" name="login">
+            <!-- Login Tab -->
+            <el-tab-pane label="Login" name="login">
               <el-form
                 ref="loginFormRef"
                 :model="loginForm"
@@ -81,7 +81,7 @@
                 <el-form-item>
                   <el-input
                     v-model="loginForm.email"
-                    placeholder="请输入邮箱地址"
+                    placeholder="Enter email address"
                     prefix-icon="Message"
                   />
                 </el-form-item>
@@ -91,14 +91,14 @@
                     v-model="loginForm.password"
                     type="password"
                     show-password
-                    placeholder="请输入密码"
+                    placeholder="Enter password"
                     prefix-icon="Lock"
                   />
                 </el-form-item>
 
                 <div class="form-actions">
                   <el-link :underline="false" class="forget-link" @click="goToForgot"
-                    >忘记密码?</el-link
+                    >Forgot password?</el-link
                   >
                 </div>
 
@@ -107,13 +107,13 @@
                   class="submit-btn"
                   :loading="loginLoading"
                   @click="doLogin"
-                  >登录</el-button
+                  >Login</el-button
                 >
               </el-form>
             </el-tab-pane>
 
-            <!-- 注册 Tab -->
-            <el-tab-pane label="注册" name="register">
+            <!-- Register Tab -->
+            <el-tab-pane label="Register" name="register">
               <el-form
                 ref="registerFormRef"
                 :model="registerForm"
@@ -125,21 +125,21 @@
                 <el-form-item prop="name">
                   <el-input
                     v-model="registerForm.name"
-                    placeholder="请输入昵称"
+                    placeholder="Enter nickname"
                     prefix-icon="User"
                   />
                 </el-form-item>
                 <el-form-item prop="email">
                   <el-input
                     v-model="registerForm.email"
-                    placeholder="请输入邮箱地址"
+                    placeholder="Enter email address"
                     prefix-icon="Message"
                   />
                 </el-form-item>
                 <el-form-item prop="code">
                   <el-input
                     v-model="registerForm.code"
-                    placeholder="请输入验证码"
+                    placeholder="Enter verification code"
                     prefix-icon="Key"
                   >
                     <template #suffix>
@@ -161,7 +161,7 @@
                     v-model="registerForm.password"
                     type="password"
                     show-password
-                    placeholder="请设置密码"
+                    placeholder="Set password"
                     prefix-icon="Lock"
                   />
                 </el-form-item>
@@ -170,7 +170,7 @@
                     v-model="registerForm.password2"
                     type="password"
                     show-password
-                    placeholder="请确认密码"
+                    placeholder="Confirm password"
                     prefix-icon="Lock"
                   />
                 </el-form-item>
@@ -181,19 +181,19 @@
                   :loading="registerLoading"
                   @click="doRegister"
                 >
-                  注册
+                  Register
                 </el-button>
               </el-form>
             </el-tab-pane>
           </el-tabs>
 
-          <!-- 底部说明 -->
+          <!-- Footer notes -->
           <div class="form-footer">
             <p class="footer-text">
-              继续使用即表示同意
-              <el-link type="primary" class="footer-link">服务条款</el-link>
-              和
-              <el-link type="primary" class="footer-link">隐私政策</el-link>
+              By continuing, you agree to our
+              <el-link type="primary" class="footer-link">Terms of Service</el-link>
+              and
+              <el-link type="primary" class="footer-link">Privacy Policy</el-link>
             </p>
           </div>
         </div>
@@ -225,12 +225,12 @@ const loginForm = reactive({
 })
 const loginRules = reactive({
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: 'Please enter email address', trigger: 'blur' },
+    { type: 'email', message: 'Please enter a valid email format', trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: 'Please enter password', trigger: 'blur' },
+    { min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' }
   ]
 })
 
@@ -244,19 +244,19 @@ const registerForm = reactive({
 })
 const registerRules = reactive({
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: 'Please enter email address', trigger: 'blur' },
+    { type: 'email', message: 'Please enter a valid email format', trigger: 'blur' }
   ],
-  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  code: [{ required: true, message: 'Please enter verification code', trigger: 'blur' }],
   password: [
-    { required: true, message: '请设置密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: 'Please set a password', trigger: 'blur' },
+    { min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' }
   ],
   password2: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: 'Please confirm password', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
-        if (value !== registerForm.password) callback(new Error('两次密码输入不一致'))
+        if (value !== registerForm.password) callback(new Error('Passwords do not match'))
         else callback()
       },
       trigger: 'blur'
@@ -264,42 +264,42 @@ const registerRules = reactive({
   ]
 })
 
-// 验证码逻辑
-const codeText = ref('获取验证码')
+// Verification code logic
+const codeText = ref('Get Code')
 const codeDisabled = ref(false)
 
 const sendCode = async () => {
   if (codeDisabled.value || codeSending.value) return
   if (!registerForm.email) {
-    ElMessage.warning('请先输入邮箱地址')
+    ElMessage.warning('Please enter email address first')
     return
   }
   try {
     codeSending.value = true
     await registerSendEmail(registerForm.email)
-    ElMessage.success('验证码已发送到您的邮箱')
+    ElMessage.success('Verification code has been sent to your email')
     codeDisabled.value = true
 
     let count = 60
-    codeText.value = `${count}s后重新发送`
+    codeText.value = `Resend in ${count}s`
     const timer = setInterval(() => {
       count--
       if (count <= 0) {
         clearInterval(timer)
         codeDisabled.value = false
-        codeText.value = '获取验证码'
+        codeText.value = 'Get Code'
       } else {
-        codeText.value = `${count}s后重新发送`
+        codeText.value = `Resend in ${count}s`
       }
     }, 1000)
   } catch (error) {
-    ElMessage.error(error.message || '发送失败，请稍后重试')
+    ElMessage.error(error.message || 'Failed to send, please try again later')
   } finally {
     codeSending.value = false
   }
 }
 
-// 登录提交
+// Login submission
 const doLogin = () => {
   if (!loginFormRef.value) return
   loginFormRef.value.validate(async (valid) => {
@@ -309,23 +309,23 @@ const doLogin = () => {
         const res = await login(loginForm)
         if (res.code === 200) {
           userStore.updateToken(res.data.token)
-          ElMessage.success('登录成功')
+          ElMessage.success('Login successful')
           router.push({ name: 'home' })
         } else {
-          ElMessage.error(res.message || '登录失败')
+          ElMessage.error(res.message || 'Login failed')
         }
       } catch (err) {
-        ElMessage.error(err.response.data.message || '登录失败，请稍后重试')
+        ElMessage.error(err.response.data.message || 'Login failed, please try again later')
       } finally {
         loginLoading.value = false
       }
     } else {
-      ElMessage.error('请正确填写表单')
+      ElMessage.error('Please fill in the form correctly')
     }
   })
 }
 
-// 注册提交
+// Register submission
 const doRegister = () => {
   if (!registerFormRef.value) return
   registerFormRef.value.validate(async (valid) => {
@@ -334,11 +334,11 @@ const doRegister = () => {
       try {
         const res = await register(registerForm)
         if (res.code === 200) {
-          ElMessage.success('注册成功，请登录')
+          ElMessage.success('Registration successful, please login')
           activeTab.value = 'login'
-          // 将注册邮箱填入登录表单
+          // Fill registration email into login form
           loginForm.email = registerForm.email
-          // 清空注册表单
+          // Clear registration form
           Object.assign(registerForm, {
             email: '',
             name:'',
@@ -347,15 +347,15 @@ const doRegister = () => {
             password2: ''
           })
         } else {
-          ElMessage.error(res.message || '注册失败')
+          ElMessage.error(res.message || 'Registration failed')
         }
       } catch (err) {
-        ElMessage.error(err.message || '注册失败，请稍后重试')
+        ElMessage.error(err.message || 'Registration failed, please try again later')
       } finally {
         registerLoading.value = false
       }
     } else {
-      ElMessage.error('请正确填写表单')
+      ElMessage.error('Please fill in the form correctly')
     }
   })
 }

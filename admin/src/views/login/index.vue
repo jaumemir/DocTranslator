@@ -7,29 +7,29 @@ import { type FormInstance, type FormRules } from "element-plus"
 import { type LoginRequestData } from "@/api/login/types/login"
 
 const router = useRouter()
-/** 登录表单元素的引用 */
+/** Login form element reference */
 const loginFormRef = ref<FormInstance | null>(null)
 
-/** 登录按钮 Loading */
+/** Login button loading state */
 const loading = ref(false)
-/** 验证码图片 URL */
+/** Verification code image URL */
 //const codeUrl = ref("")
-/** 登录表单数据 */
+/** Login form data */
 const loginFormData: LoginRequestData = reactive({
   email: "",
   password: ""
   // code: ""
 })
-/** 登录表单校验规则 */
+/** Login form validation rules */
 const loginFormRules: FormRules = {
-  email: [{ required: true, message: "请输入登录邮箱", trigger: "blur" }],
+  email: [{ required: true, message: "Please enter your login email", trigger: "blur" }],
   password: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-    { min: 6, max: 16, message: "长度在 6 到 16 个字符", trigger: "blur" }
+    { required: true, message: "Please enter your password", trigger: "blur" },
+    { min: 6, max: 16, message: "Length must be between 6 and 16 characters", trigger: "blur" }
   ]
-  // code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+  // code: [{ required: true, message: "Please enter verification code", trigger: "blur" }]
 }
-/** 登录逻辑 */
+/** Login logic */
 const handleLogin = () => {
   loginFormRef.value?.validate((valid: boolean, fields) => {
     if (valid) {
@@ -46,22 +46,22 @@ const handleLogin = () => {
           loading.value = false
         })
     } else {
-      console.error("表单校验不通过", fields)
+      console.error("Form validation failed", fields)
     }
   })
 }
-/** 创建验证码 */
+/** Create verification code */
 /*const createCode = () => {
-  // 先清空验证码的输入
+  // Clear verification code input first
   // loginFormData.code = ""
-  // 获取验证码
+  // Get verification code
   codeUrl.value = ""
   getLoginCodeApi().then((res) => {
     codeUrl.value = res.data
   })
 }*/
 
-/** 初始化验证码 */
+/** Initialize verification code */
 // createCode()
 </script>
 
@@ -82,19 +82,19 @@ const handleLogin = () => {
           :rules="loginFormRules"
           @keyup.enter="handleLogin"
         >
-          <el-form-item label="用户名" prop="email">
+          <el-form-item label="Username" prop="email">
             <el-input
               v-model.trim="loginFormData.email"
-              placeholder="请输入登录邮箱"
+              placeholder="Please enter your login email"
               type="text"
               tabindex="1"
               size="large"
             />
           </el-form-item>
-          <el-form-item label="密码" prop="password">
+          <el-form-item label="Password" prop="password">
             <el-input
               v-model.trim="loginFormData.password"
-              placeholder="密码"
+              placeholder="Password"
               type="password"
               tabindex="2"
               size="large"
@@ -104,7 +104,7 @@ const handleLogin = () => {
           <!-- <el-form-item prop="code">
             <el-input
               v-model.trim="loginFormData.code"
-              placeholder="验证码"
+              placeholder="Verification code"
               type="text"
               tabindex="3"
               :prefix-icon="Key"
@@ -127,7 +127,7 @@ const handleLogin = () => {
               </template>
             </el-input>
           </el-form-item> -->
-          <el-button :loading="loading" type="primary" size="large" @click.prevent="handleLogin">登 录</el-button>
+          <el-button :loading="loading" type="primary" size="large" @click.prevent="handleLogin">Login</el-button>
         </el-form>
       </div>
     </div>

@@ -1,16 +1,16 @@
 import dayjs from "dayjs"
 import { removeConfigLayout } from "@/utils/cache/local-storage"
 
-/** 格式化时间 */
+/** Format time */
 export const formatDateTime = (time: string | number | Date) => {
   return time ? dayjs(new Date(time)).format("YYYY-MM-DD HH:mm:ss") : "N/A"
 }
 
-/** 用 JS 获取全局 css 变量 */
+/** Get global CSS variable using JS */
 export const getCssVariableValue = (cssVariableName: string) => {
   let cssVariableValue = ""
   try {
-    // 没有拿到值时，会返回空串
+    // Returns empty string when no value is retrieved
     cssVariableValue = getComputedStyle(document.documentElement).getPropertyValue(cssVariableName)
   } catch (error) {
     console.error(error)
@@ -18,7 +18,7 @@ export const getCssVariableValue = (cssVariableName: string) => {
   return cssVariableValue
 }
 
-/** 用 JS 设置全局 CSS 变量 */
+/** Set global CSS variable using JS */
 export const setCssVariableValue = (cssVariableName: string, cssVariableValue: string) => {
   try {
     document.documentElement.style.setProperty(cssVariableName, cssVariableValue)
@@ -27,7 +27,7 @@ export const setCssVariableValue = (cssVariableName: string, cssVariableValue: s
   }
 }
 
-/** 重置项目配置 */
+/** Reset project configuration */
 export const resetConfigLayout = () => {
   removeConfigLayout()
   location.reload()

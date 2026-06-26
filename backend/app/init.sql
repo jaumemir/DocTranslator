@@ -15,7 +15,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- 表的结构 `alembic_version`
+-- Table structure for `alembic_version`
 --
 
 CREATE TABLE `alembic_version` (
@@ -25,7 +25,7 @@ CREATE TABLE `alembic_version` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `comparison`
+-- Table structure for `comparison`
 --
 
 CREATE TABLE `comparison` (
@@ -45,7 +45,7 @@ CREATE TABLE `comparison` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `comparison_fav`
+-- Table structure for `comparison_fav`
 --
 
 CREATE TABLE `comparison_fav` (
@@ -59,7 +59,7 @@ CREATE TABLE `comparison_fav` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `customer`
+-- Table structure for `customer`
 --
 
 CREATE TABLE `customer` (
@@ -79,7 +79,7 @@ CREATE TABLE `customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- 转存表中的数据 `customer`
+-- Dumping data for table `customer`
 --
 
 INSERT INTO `customer` (`id`, `customer_no`, `phone`, `name`, `password`, `email`, `level`, `status`, `deleted_flag`, `created_at`, `updated_at`, `storage`, `total_storage`) VALUES
@@ -88,7 +88,7 @@ INSERT INTO `customer` (`id`, `customer_no`, `phone`, `name`, `password`, `email
 -- --------------------------------------------------------
 
 --
--- 表的结构 `prompt`
+-- Table structure for `prompt`
 --
 
 CREATE TABLE `prompt` (
@@ -104,7 +104,7 @@ CREATE TABLE `prompt` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- 转存表中的数据 `prompt`
+-- Dumping data for table `prompt`
 --
 
 INSERT INTO `prompt` (`id`, `title`, `share_flag`, `added_count`, `content`, `customer_id`, `created_at`, `updated_at`, `deleted_flag`) VALUES
@@ -121,7 +121,7 @@ INSERT INTO `prompt` (`id`, `title`, `share_flag`, `added_count`, `content`, `cu
 -- --------------------------------------------------------
 
 --
--- 表的结构 `prompt_fav`
+-- Table structure for `prompt_fav`
 --
 
 CREATE TABLE `prompt_fav` (
@@ -135,7 +135,7 @@ CREATE TABLE `prompt_fav` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `send_code`
+-- Table structure for `send_code`
 --
 
 CREATE TABLE `send_code` (
@@ -151,7 +151,7 @@ CREATE TABLE `send_code` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `setting`
+-- Table structure for `setting`
 --
 
 CREATE TABLE `setting` (
@@ -168,7 +168,7 @@ CREATE TABLE `setting` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `translate`
+-- Table structure for `translate`
 --
 
 CREATE TABLE `translate` (
@@ -213,7 +213,7 @@ CREATE TABLE `translate` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- 转存表中的数据 `translate`
+-- Dumping data for table `translate`
 --
 
 INSERT INTO `translate` (`id`, `translate_no`, `uuid`, `customer_id`, `rand_user_id`, `origin_filename`, `origin_filepath`, `target_filepath`, `status`, `start_at`, `end_at`, `deleted_flag`, `created_at`, `updated_at`, `origin_filesize`, `target_filesize`, `lang`, `model`, `prompt`, `api_url`, `api_key`, `threads`, `failed_reason`, `failed_count`, `word_count`, `backup_model`, `md5`, `type`, `origin_lang`, `process`, `doc2x_flag`, `doc2x_secret_key`, `prompt_id`, `comparison_id`, `size`, `server`, `app_id`, `app_key`) VALUES
@@ -222,7 +222,7 @@ INSERT INTO `translate` (`id`, `translate_no`, `uuid`, `customer_id`, `rand_user
 -- --------------------------------------------------------
 
 --
--- 表的结构 `mcp_api_key`
+-- Table structure for `mcp_api_key`
 --
 
 CREATE TABLE `mcp_api_key` (
@@ -242,7 +242,7 @@ CREATE TABLE `mcp_api_key` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `user`
+-- Table structure for `user`
 --
 
 CREATE TABLE `user` (
@@ -256,143 +256,143 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- 转存表中的数据 `user`
+-- Dumping data for table `user`
 --
 
 INSERT INTO `user` (`id`, `name`, `password`, `email`, `deleted_flag`, `created_at`, `updated_at`) VALUES
 (1, 'admin', '123456', 'admin', 'N', NULL, NULL);
 
 --
--- 转储表的索引
+-- Indexes for dumped tables
 --
 
 --
--- 表的索引 `alembic_version`
+-- Indexes for table `alembic_version`
 --
 ALTER TABLE `alembic_version`
   ADD PRIMARY KEY (`version_num`(255));
 
 --
--- 表的索引 `comparison`
+-- Indexes for table `comparison`
 --
 ALTER TABLE `comparison`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `comparison_fav`
+-- Indexes for table `comparison_fav`
 --
 ALTER TABLE `comparison_fav`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `customer`
+-- Indexes for table `customer`
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `prompt`
+-- Indexes for table `prompt`
 --
 ALTER TABLE `prompt`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `prompt_fav`
+-- Indexes for table `prompt_fav`
 --
 ALTER TABLE `prompt_fav`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `send_code`
+-- Indexes for table `send_code`
 --
 ALTER TABLE `send_code`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `setting`
+-- Indexes for table `setting`
 --
 ALTER TABLE `setting`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `translate`
+-- Indexes for table `translate`
 --
 ALTER TABLE `translate`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `mcp_api_key`
+-- Indexes for table `mcp_api_key`
 --
 ALTER TABLE `mcp_api_key`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `idx_key_hash` (`key_hash`);
 
 --
--- 表的索引 `user`
+-- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
--- 在导出的表使用AUTO_INCREMENT
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- 使用表AUTO_INCREMENT `comparison`
+-- AUTO_INCREMENT for table `comparison`
 --
 ALTER TABLE `comparison`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `comparison_fav`
+-- AUTO_INCREMENT for table `comparison_fav`
 --
 ALTER TABLE `comparison_fav`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `customer`
+-- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- 使用表AUTO_INCREMENT `prompt`
+-- AUTO_INCREMENT for table `prompt`
 --
 ALTER TABLE `prompt`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- 使用表AUTO_INCREMENT `prompt_fav`
+-- AUTO_INCREMENT for table `prompt_fav`
 --
 ALTER TABLE `prompt_fav`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `send_code`
+-- AUTO_INCREMENT for table `send_code`
 --
 ALTER TABLE `send_code`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `setting`
+-- AUTO_INCREMENT for table `setting`
 --
 ALTER TABLE `setting`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `translate`
+-- AUTO_INCREMENT for table `translate`
 --
 ALTER TABLE `translate`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- 使用表AUTO_INCREMENT `mcp_api_key`
+-- AUTO_INCREMENT for table `mcp_api_key`
 --
 ALTER TABLE `mcp_api_key`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- 使用表AUTO_INCREMENT `user`
+-- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;

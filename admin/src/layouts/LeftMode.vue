@@ -11,7 +11,7 @@ const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const { showTagsView, fixedHeader } = storeToRefs(settingsStore)
 
-/** 定义计算属性 layoutClasses，用于控制布局的类名 */
+/** Define computed property layoutClasses for controlling layout class names */
 const layoutClasses = computed(() => {
   return {
     hideSidebar: !appStore.sidebar.opened,
@@ -21,7 +21,7 @@ const layoutClasses = computed(() => {
   }
 })
 
-/** 用于处理点击 mobile 端侧边栏遮罩层的事件 */
+/** Handle click events on mobile sidebar mask layer */
 const handleClickOutside = () => {
   appStore.closeSidebar(false)
 }
@@ -29,18 +29,18 @@ const handleClickOutside = () => {
 
 <template>
   <div :class="layoutClasses" class="app-wrapper">
-    <!-- mobile 端侧边栏遮罩层 -->
+    <!-- Mobile sidebar mask layer -->
     <div v-if="layoutClasses.mobile && layoutClasses.openSidebar" class="drawer-bg" @click="handleClickOutside" />
-    <!-- 左侧边栏 -->
+    <!-- Left sidebar -->
     <Sidebar class="sidebar-container" />
-    <!-- 主容器 -->
+    <!-- Main container -->
     <div :class="{ hasTagsView: showTagsView }" class="main-container">
-      <!-- 头部导航栏和标签栏 -->
+      <!-- Header navigation bar and tags bar -->
       <div :class="{ 'fixed-header': fixedHeader }" class="layout-header">
         <NavigationBar />
         <TagsView v-show="showTagsView" />
       </div>
-      <!-- 页面主体内容 -->
+      <!-- Page main content -->
       <AppMain class="app-main" />
     </div>
   </div>
@@ -136,7 +136,7 @@ $transition-time: 0.35s;
   }
 }
 
-// 适配 mobile 端
+// Adapt for mobile
 .mobile {
   .sidebar-container {
     transition: transform $transition-time;

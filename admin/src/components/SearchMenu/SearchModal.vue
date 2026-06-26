@@ -9,7 +9,7 @@ import { cloneDeep, debounce } from "lodash-es"
 import { useDevice } from "@/hooks/useDevice"
 import { isExternal } from "@/utils/validate"
 
-/** 控制 modal 显隐 */
+/** Control modal visibility */
 const modelValue = defineModel<boolean>({ required: true })
 
 const router = useRouter()
@@ -22,26 +22,26 @@ const searchResultRef = ref<InstanceType<typeof SearchResult> | null>(null)
 const keyword = ref<string>("")
 const resultList = shallowRef<RouteRecordRaw[]>([])
 const activeRouteName = ref<RouteRecordName | undefined>(undefined)
-/** 是否按下了上键或下键（用于解决和 mouseenter 事件的冲突） */
+/** Whether up or down key is pressed (to resolve conflicts with mouseenter event) */
 const isPressUpOrDown = ref<boolean>(false)
 
-/** 控制搜索对话框宽度 */
+/** Control search dialog width */
 const modalWidth = computed(() => (isMobile.value ? "80vw" : "40vw"))
-/** 树形菜单 */
+/** Tree menu */
 const menusData = computed(() => cloneDeep(usePermissionStore().routes))
 
-/** 搜索（防抖） */
+/** Search (debounced) */
 const handleSearch = debounce(() => {
   const flatMenusData = flatTree(menusData.value)
   resultList.value = flatMenusData.filter((menu) =>
     keyword.value ? menu.meta?.title?.toLocaleLowerCase().includes(keyword.value.toLocaleLowerCase().trim()) : false
   )
-  // 默认选中搜索结果的第一项
+  // Select first search result by default
   const length = resultList.value?.length
   activeRouteName.value = length > 0 ? resultList.value[0].name : undefined
 }, 500)
 
-/** 将树形菜单扁平化为一维数组，用于菜单搜索 */
+/** Flatten tree menu into one-dimensional array for menu search */
 const flatTree = (arr: RouteRecordRaw[], result: RouteRecordRaw[] = []) => {
   arr.forEach((item) => {
     result.push(item)
@@ -50,40 +50,40 @@ const flatTree = (arr: RouteRecordRaw[], result: RouteRecordRaw[] = []) => {
   return result
 }
 
-/** 关闭搜索对话框 */
+/** Close search dialog */
 const handleClose = () => {
   modelValue.value = false
-  // 延时处理防止用户看到重置数据的操作
+  // Delayed processing to prevent users from seeing data reset operation
   setTimeout(() => {
     keyword.value = ""
     resultList.value = []
   }, 200)
 }
 
-/** 根据下标位置进行滚动 */
+/** Scroll based on index position */
 const scrollTo = (index: number) => {
   if (!searchResultRef.value) return
   const scrollTop = searchResultRef.value.getScrollTop(index)
-  // 手动控制 el-scrollbar 滚动条滚动，设置滚动条到顶部的距离
+  // Manually control el-scrollbar scrolling, set distance from scrollbar to top
   scrollbarRef.value?.setScrollTop(scrollTop)
 }
 
-/** 键盘上键 */
+/** Keyboard up key */
 const handleUp = () => {
   isPressUpOrDown.value = true
   const { length } = resultList.value
   if (length === 0) return
-  // 获取该 name 在菜单中第一次出现的位置
+  // Get the first occurrence position of this name in the menu
   const index = resultList.value.findIndex((item) => item.name === activeRouteName.value)
-  // 如果已处在顶部
+  // If already at the top
   if (index === 0) {
     const bottomName = resultList.value[length - 1].name
-    // 如果顶部和底部的 bottomName 相同，且长度大于 1，就再跳一个位置（可解决遇到首尾两个相同 name 导致的上键不能生效的问题）
+    // If top and bottom bottomName are the same and length is greater than 1, jump one more position (to solve the problem of up key not working when encountering two same names at the beginning and end)
     if (activeRouteName.value === bottomName && length > 1) {
       activeRouteName.value = resultList.value[length - 2].name
       scrollTo(length - 2)
     } else {
-      // 跳转到底部
+      // Jump to bottom
       activeRouteName.value = bottomName
       scrollTo(length - 1)
     }
@@ -93,22 +93,22 @@ const handleUp = () => {
   }
 }
 
-/** 键盘下键 */
+/** Keyboard down key */
 const handleDown = () => {
   isPressUpOrDown.value = true
   const { length } = resultList.value
   if (length === 0) return
-  // 获取该 name 在菜单中最后一次出现的位置（可解决遇到连续两个相同 name 导致的下键不能生效的问题）
+  // Get the last occurrence position of this name in the menu (to solve the problem of down key not working when encountering two consecutive same names)
   const index = resultList.value.map((item) => item.name).lastIndexOf(activeRouteName.value)
-  // 如果已处在底部
+  // If already at the bottom
   if (index === length - 1) {
     const topName = resultList.value[0].name
-    // 如果底部和顶部的 topName 相同，且长度大于 1，就再跳一个位置（可解决遇到首尾两个相同 name 导致的下键不能生效的问题）
+    // If bottom and top topName are the same and length is greater than 1, jump one more position (to solve the problem of down key not working when encountering two same names at the beginning and end)
     if (activeRouteName.value === topName && length > 1) {
       activeRouteName.value = resultList.value[1].name
       scrollTo(1)
     } else {
-      // 跳转到顶部
+      // Jump to top
       activeRouteName.value = topName
       scrollTo(0)
     }
@@ -118,7 +118,7 @@ const handleDown = () => {
   }
 }
 
-/** 键盘回车键 */
+/** Keyboard enter key */
 const handleEnter = () => {
   const { length } = resultList.value
   if (length === 0) return
@@ -129,19 +129,19 @@ const handleEnter = () => {
     return
   }
   if (!name) {
-    ElMessage.warning("无法通过搜索进入该菜单，请为对应的路由设置唯一的 Name")
+    ElMessage.warning("Cannot enter this menu through search, please set a unique Name for the corresponding route")
     return
   }
   try {
     router.push({ name })
   } catch {
-    ElMessage.error("该菜单有必填的动态参数，无法通过搜索进入")
+    ElMessage.error("This menu has required dynamic parameters and cannot be entered through search")
     return
   }
   handleClose()
 }
 
-/** 释放上键或下键 */
+/** Release up or down key */
 const handleReleaseUpOrDown = () => {
   isPressUpOrDown.value = false
 }
@@ -162,14 +162,14 @@ const handleReleaseUpOrDown = () => {
     class="search-modal__private"
     append-to-body
   >
-    <el-input ref="inputRef" v-model="keyword" @input="handleSearch" placeholder="搜索菜单" size="large" clearable>
+    <el-input ref="inputRef" v-model="keyword" @input="handleSearch" placeholder="Search Menu" size="large" clearable>
       <template #prefix>
         <SvgIcon name="search" />
       </template>
     </el-input>
-    <el-empty v-if="resultList.length === 0" description="暂无搜索结果" :image-size="100" />
+    <el-empty v-if="resultList.length === 0" description="No search results" :image-size="100" />
     <template v-else>
-      <p>搜索结果</p>
+      <p>Search Results</p>
       <el-scrollbar ref="scrollbarRef" max-height="40vh" always>
         <SearchResult
           ref="searchResultRef"

@@ -4,7 +4,7 @@ import { getActiveThemeName, setActiveThemeName } from "@/utils/cache/local-stor
 const DEFAULT_THEME_NAME = "normal"
 type DefaultThemeName = typeof DEFAULT_THEME_NAME
 
-/** 注册的主题名称, 其中 DefaultThemeName 是必填的 */
+/** Registered theme names, DefaultThemeName is required */
 export type ThemeName = DefaultThemeName | "dark" | "dark-blue"
 
 interface ThemeList {
@@ -12,38 +12,38 @@ interface ThemeList {
   name: ThemeName
 }
 
-/** 主题列表 */
+/** Theme list */
 const themeList: ThemeList[] = [
   {
-    title: "默认",
+    title: "Default",
     name: DEFAULT_THEME_NAME
   },
   {
-    title: "黑暗",
+    title: "Dark",
     name: "dark"
   },
   {
-    title: "深蓝",
+    title: "Dark Blue",
     name: "dark-blue"
   }
 ]
 
-/** 正在应用的主题名称 */
+/** Currently applied theme name */
 const activeThemeName = ref<ThemeName>(getActiveThemeName() || DEFAULT_THEME_NAME)
 
-/** 设置主题 */
+/** Set theme */
 const setTheme = (value: ThemeName) => {
   activeThemeName.value = value
 }
 
-/** 在 html 根元素上挂载 class */
+/** Mount class on html root element */
 const setHtmlRootClassName = (value: ThemeName) => {
   document.documentElement.className = value
 }
 
-/** 初始化 */
+/** Initialize */
 const initTheme = () => {
-  // watchEffect 来收集副作用
+  // Use watchEffect to collect side effects
   watchEffect(() => {
     const value = activeThemeName.value
     setHtmlRootClassName(value)
@@ -51,7 +51,7 @@ const initTheme = () => {
   })
 }
 
-/** 主题 hook */
+/** Theme hook */
 export function useTheme() {
   return { themeList, activeThemeName, initTheme, setTheme }
 }

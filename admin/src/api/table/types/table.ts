@@ -5,13 +5,13 @@ export interface CreateOrUpdateTableRequestData {
 }
 
 export interface GetTableRequestData {
-  /** 当前页码 */
+  /** Current page number */
   currentPage: number
-  /** 查询条数 */
+  /** Query limit */
   size: number
-  /** 查询参数：用户名 */
+  /** Query parameter: username */
   username?: string
-  /** 查询参数：手机号 */
+  /** Query parameter: phone number */
   phone?: string
 }
 

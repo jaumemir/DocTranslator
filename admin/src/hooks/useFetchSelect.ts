@@ -2,17 +2,17 @@ import { ref, onMounted } from "vue"
 
 type OptionValue = string | number
 
-/** Select 需要的数据格式 */
+/** Data format required by Select */
 interface SelectOption {
   value: OptionValue
   label: string
   disabled?: boolean
 }
 
-/** 接口响应格式 */
+/** API response format */
 type ApiData = ApiResponseData<SelectOption[]>
 
-/** 入参格式，暂时只需要传递 api 函数即可 */
+/** Input parameter format, currently only need to pass api function */
 interface FetchSelectProps {
   api: () => Promise<ApiData>
 }
@@ -24,7 +24,7 @@ export function useFetchSelect(props: FetchSelectProps) {
   const options = ref<SelectOption[]>([])
   const value = ref<OptionValue>("")
 
-  /** 调用接口获取数据 */
+  /** Call API to get data */
   const loadData = () => {
     loading.value = true
     options.value = []

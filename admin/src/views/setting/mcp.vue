@@ -44,44 +44,44 @@ const adminKeys = computed(() => keys.value.filter((k) => k.scope === "admin"))
 const typeOptions = [
   {
     value: "trans_text",
-    label: "仅文字部分",
+    label: "Text Only",
     children: [
       {
         value: "trans_text_only",
-        label: "仅译文",
+        label: "Translation Only",
         children: [
-          { value: "trans_text_only_new", label: "重排版面" },
-          { value: "trans_text_only_inherit", label: "继承原版面" }
+          { value: "trans_text_only_new", label: "Reformat Layout" },
+          { value: "trans_text_only_inherit", label: "Inherit Original Layout" }
         ]
       },
       {
         value: "trans_text_both",
-        label: "原文+译文",
+        label: "Original + Translation",
         children: [
-          { value: "trans_text_both_new", label: "重排版面" },
-          { value: "trans_text_both_inherit", label: "继承原版面" }
+          { value: "trans_text_both_new", label: "Reformat Layout" },
+          { value: "trans_text_both_inherit", label: "Inherit Original Layout" }
         ]
       }
     ]
   },
   {
     value: "trans_all",
-    label: "全部内容",
+    label: "All Content",
     children: [
       {
         value: "trans_all_only",
-        label: "仅译文",
+        label: "Translation Only",
         children: [
-          { value: "trans_all_only_new", label: "重排版面" },
-          { value: "trans_all_only_inherit", label: "继承原版面" }
+          { value: "trans_all_only_new", label: "Reformat Layout" },
+          { value: "trans_all_only_inherit", label: "Inherit Original Layout" }
         ]
       },
       {
         value: "trans_all_both",
-        label: "原文+译文",
+        label: "Original + Translation",
         children: [
-          { value: "trans_all_both_new", label: "重排版面" },
-          { value: "trans_all_both_inherit", label: "继承原版面" }
+          { value: "trans_all_both_new", label: "Reformat Layout" },
+          { value: "trans_all_both_inherit", label: "Inherit Original Layout" }
         ]
       }
     ]
@@ -89,16 +89,16 @@ const typeOptions = [
 ]
 
 const languageOptions = [
-  { label: "中文", value: "中文" },
-  { label: "英语", value: "英语" },
-  { label: "日语", value: "日语" },
-  { label: "韩语", value: "韩语" },
-  { label: "法语", value: "法语" },
-  { label: "德语", value: "德语" },
-  { label: "西班牙语", value: "西班牙语" },
-  { label: "俄语", value: "俄语" },
-  { label: "葡萄牙语", value: "葡萄牙语" },
-  { label: "阿拉伯语", value: "阿拉伯语" }
+  { label: "Chinese", value: "中文" },
+  { label: "English", value: "英语" },
+  { label: "Japanese", value: "日语" },
+  { label: "Korean", value: "韩语" },
+  { label: "French", value: "法语" },
+  { label: "German", value: "德语" },
+  { label: "Spanish", value: "西班牙语" },
+  { label: "Russian", value: "俄语" },
+  { label: "Portuguese", value: "葡萄牙语" },
+  { label: "Arabic", value: "阿拉伯语" }
 ]
 
 const createVisible = ref(false)
@@ -115,7 +115,7 @@ const createForm = reactive({
     prompt_id: 0,
     backup_model: "",
     threads: 5,
-    lang: "中文",
+    lang: "Chinese",
     comparison_id: null as number | null,
     doc2x_flag: "N",
     doc2x_secret_key: ""
@@ -128,13 +128,13 @@ const customerList = ref<any[]>([])
 
 const promptList = ref<any[]>([])
 const promptLoading = ref(false)
-  const default_prompt = ref(`你是一个文档翻译助手，请将以下内容直接翻译成{target_lang}，不返回原文本。如果文本中包含{target_lang}文本、特殊名词（比如邮箱、品牌名、单位名词如mm、px、℃等）、无法翻译等特殊情况，请直接返回原词语而无需解释原因。遇到无法翻译的文本直接返回原内容。保留多余空格。`)
+  const default_prompt = ref(`You are a document translation assistant. Please translate the following content directly into {target_lang} without returning the original text. If the text contains {target_lang} text, special terms (such as email addresses, brand names, unit names like mm, px, ℃, etc.), or untranslatable content, return the original term directly without explanation. For untranslatable text, return the original content. Preserve extra spaces.`)
 
 const fetchPromptList = () => {
   promptLoading.value = true
   getAdminPromptList()
     .then(({ data }: any) => {
-      promptList.value = [{ id: 0, title: '默认系统提示语', content: default_prompt.value }, ...(data.data || [])]
+      promptList.value = [{ id: 0, title: 'Default System Prompt', content: default_prompt.value }, ...(data.data || [])]
     })
     .finally(() => {
       promptLoading.value = false
@@ -179,13 +179,13 @@ const openCreateDialog = (scope: "user" | "admin") => {
 }
 
 const handleCreate = () => {
-  if (!createForm.name) { ElMessage.warning("请输入密钥名称"); return }
+  if (!createForm.name) { ElMessage.warning("Please enter key name"); return }
   if (createForm.scope === "user" && !createForm.customer_id) {
-    ElMessage.warning("请选择用户"); return
+    ElMessage.warning("Please select a user"); return
   }
   if (createForm.scope === "admin") {
     if (!createForm.config.api_url || !createForm.config.api_key || !createForm.config.model) {
-      ElMessage.warning("管理端密钥必须填写 API 地址、API 密钥和模型"); return
+      ElMessage.warning("Admin keys must include API URL, API key and model"); return
     }
   }
   createLoading.value = true
@@ -201,7 +201,7 @@ const handleCreate = () => {
         showNewKeyDialog(res.data.key)
         fetchKeys()
       } else {
-        ElMessage.error(res.message || "创建失败")
+        ElMessage.error(res.message || "Creation failed")
       }
     })
     .finally(() => {
@@ -218,7 +218,7 @@ const showNewKeyDialog = (key: string) => {
 }
 
 const copyText = (text: string) => {
-  navigator.clipboard.writeText(text).then(() => ElMessage.success("已复制"))
+  navigator.clipboard.writeText(text).then(() => ElMessage.success("Copied"))
 }
 
 const editVisible = ref(false)
@@ -249,7 +249,7 @@ const openEditDialog = (row: any) => {
 }
 
 const handleEdit = () => {
-  if (!editForm.name) { ElMessage.warning("请输入密钥名称"); return }
+  if (!editForm.name) { ElMessage.warning("Please enter key name"); return }
   editLoading.value = true
   updateAdminMcpKey(editKeyPrefix.value, {
     name: editForm.name,
@@ -258,10 +258,10 @@ const handleEdit = () => {
     .then((res: any) => {
       if (res.code === 200) {
         editVisible.value = false
-        ElMessage.success("更新成功")
+        ElMessage.success("Updated successfully")
         fetchKeys()
       } else {
-        ElMessage.error(res.message || "更新失败")
+        ElMessage.error(res.message || "Update failed")
       }
     })
     .finally(() => {
@@ -271,12 +271,12 @@ const handleEdit = () => {
 
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
-    `确认删除密钥「${row.name || row.key_prefix}」？删除后不可恢复。`,
-    "删除确认",
-    { confirmButtonText: "确认删除", cancelButtonText: "取消", type: "warning" }
+    `Confirm delete key「${row.name || row.key_prefix}」? This cannot be undone.`,
+    "Delete Confirmation",
+    { confirmButtonText: "Confirm Delete", cancelButtonText: "Cancel", type: "warning" }
   ).then(() => {
     deleteAdminMcpKey(row.key_prefix).then(() => {
-      ElMessage.success("已删除")
+      ElMessage.success("Deleted")
       fetchKeys()
     })
   })
@@ -284,9 +284,9 @@ const handleDelete = (row: any) => {
 
 const handleRegenerate = (row: any) => {
   ElMessageBox.confirm(
-    `重新生成密钥「${row.name || row.key_prefix}」？旧密钥将立即失效。`,
-    "重新生成确认",
-    { confirmButtonText: "确认重新生成", cancelButtonText: "取消", type: "warning" }
+    `Regenerate key「${row.name || row.key_prefix}」? The old key will be immediately invalidated.`,
+    "Regenerate Confirmation",
+    { confirmButtonText: "Confirm Regenerate", cancelButtonText: "Cancel", type: "warning" }
   ).then(() => {
     regenerateAdminMcpKey(row.key_prefix).then((res: any) => {
       if (res.data?.key) showNewKeyDialog(res.data.key)
@@ -321,103 +321,103 @@ onMounted(() => {
       <div class="mcp-header">
         <div class="mcp-header-left">
           <el-icon :size="22" color="#3b82f6"><Connection /></el-icon>
-          <h3 class="mcp-title">MCP 密钥管理</h3>
+          <h3 class="mcp-title">MCP Key Management</h3>
         </div>
         <div class="mcp-header-right">
-          <el-button type="primary" :icon="Plus" @click="openCreateDialog('user')">为用户创建密钥</el-button>
+          <el-button type="primary" :icon="Plus" @click="openCreateDialog('user')">Create Key for User</el-button>
           <el-button type="primary" plain :icon="Plus" @click="openCreateDialog('admin')" :disabled="currentAdminKeys >= maxKeys">
-            创建管理端密钥 ({{ currentAdminKeys }}/{{ maxKeys }})
+            Create Admin Key ({{ currentAdminKeys }}/{{ maxKeys }})
           </el-button>
         </div>
       </div>
 
       <el-tabs v-model="activeTab" class="mcp-tabs">
-        <el-tab-pane label="用户密钥" name="user">
+        <el-tab-pane label="User Keys" name="user">
           <div v-if="false" class="tab-info">
-            <span>用户端连接地址：</span>
+            <span>User connection URL: </span>
             <el-link type="primary" @click="copyText(userMcpUrl)">{{ userMcpUrl }}</el-link>
             <el-icon style="margin-left:2px;cursor:pointer;" @click="copyText(userMcpUrl)"><CopyDocument /></el-icon>
-            <span style="margin-left:16px;">共 {{ userKeys.length }} 个密钥</span>
+            <span style="margin-left:16px;">Total {{ userKeys.length }} keys</span>
           </div>
           <div class="key-cards" v-if="userKeys.length">
             <div class="mcp-key-card" v-for="key in userKeys" :key="key.key_prefix">
               <div class="key-meta">
-                <div class="key-name">{{ key.name || '未命名' }}</div>
+                <div class="key-name">{{ key.name || 'Unnamed' }}</div>
                 <div class="key-info">
                   <span class="key-prefix"><code>{{ key.key_prefix }}••••</code></span>
                   <el-tag :type="key.status === 'active' ? 'success' : 'danger'" effect="plain" size="small">
-                    {{ key.status === 'active' ? '启用' : '已禁用' }}
+                    {{ key.status === 'active' ? 'Enabled' : 'Disabled' }}
                   </el-tag>
-                  <span class="key-detail">用户：{{ key.customer_email }}</span>
-                  <span class="key-detail" v-if="key.config">模型：{{ key.config.model || '-' }}</span>
-                  <span class="key-detail" v-if="key.config">语言：{{ key.config.lang || '-' }}</span>
-                  <span class="key-detail" v-if="key.config">类型：{{ getTypeLabel(key.config.type) }}</span>
+                  <span class="key-detail">User: {{ key.customer_email }}</span>
+                  <span class="key-detail" v-if="key.config">Model: {{ key.config.model || '-' }}</span>
+                  <span class="key-detail" v-if="key.config">Language: {{ key.config.lang || '-' }}</span>
+                  <span class="key-detail" v-if="key.config">Type: {{ getTypeLabel(key.config.type) }}</span>
                 </div>
-                <div class="key-time">创建：{{ key.created_at }} · 最后使用：{{ key.last_used_at || '从未' }}</div>
+                <div class="key-time">Created: {{ key.created_at }} · Last used: {{ key.last_used_at || 'Never' }}</div>
               </div>
               <div class="key-actions">
-                <el-button type="primary" text size="small" @click="openEditDialog(key)">编辑</el-button>
-                <el-button type="warning" text size="small" @click="handleRegenerate(key)">重新生成</el-button>
-                <el-button type="danger" text size="small" @click="handleDelete(key)">删除</el-button>
+                <el-button type="primary" text size="small" @click="openEditDialog(key)">Edit</el-button>
+                <el-button type="warning" text size="small" @click="handleRegenerate(key)">Regenerate</el-button>
+                <el-button type="danger" text size="small" @click="handleDelete(key)">Delete</el-button>
               </div>
             </div>
           </div>
           <div class="no-keys" v-else>
             <div class="empty-visual">🔑</div>
-            <p class="empty-title">暂无用户端密钥</p>
-            <p class="empty-desc">点击上方「为用户创建密钥」为用户分配 MCP 访问权限</p>
+            <p class="empty-title">No user keys yet</p>
+            <p class="empty-desc">Click "Create Key for User" above to assign MCP access to users</p>
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="管理端密钥" name="admin">
+        <el-tab-pane label="Admin Keys" name="admin">
           <div v-if="false" class="tab-info">
-            <span>管理端连接地址：</span>
+            <span>Admin connection URL: </span>
             <el-link type="primary" @click="copyText(adminMcpUrl)">{{ adminMcpUrl }}</el-link>
             <el-icon style="margin-left:2px;cursor:pointer;" @click="copyText(adminMcpUrl)"><CopyDocument /></el-icon>
-            <span style="margin-left:16px;">已创建 {{ currentAdminKeys }} / {{ maxKeys }}</span>
+            <span style="margin-left:16px;">Created {{ currentAdminKeys }} / {{ maxKeys }}</span>
           </div>
           <div class="key-cards" v-if="adminKeys.length">
             <div class="mcp-key-card" v-for="key in adminKeys" :key="key.key_prefix">
               <div class="key-meta">
-                <div class="key-name">{{ key.name || '未命名' }}</div>
+                <div class="key-name">{{ key.name || 'Unnamed' }}</div>
                 <div class="key-info">
                   <span class="key-prefix"><code>{{ key.key_prefix }}••••</code></span>
                   <el-tag :type="key.status === 'active' ? 'success' : 'danger'" effect="plain" size="small">
-                    {{ key.status === 'active' ? '启用' : '已禁用' }}
+                    {{ key.status === 'active' ? 'Enabled' : 'Disabled' }}
                   </el-tag>
                   <span class="key-detail" v-if="key.config">模型：{{ key.config.model || '-' }}</span>
                   <span class="key-detail" v-if="key.config">语言：{{ key.config.lang || '-' }}</span>
                   <span class="key-detail" v-if="key.config">类型：{{ getTypeLabel(key.config.type) }}</span>
                 </div>
-                <div class="key-time">创建：{{ key.created_at }} · 最后使用：{{ key.last_used_at || '从未' }}</div>
+                <div class="key-time">Created: {{ key.created_at }} · Last used: {{ key.last_used_at || 'Never' }}</div>
               </div>
               <div class="key-actions">
-                <el-button type="primary" text size="small" @click="openEditDialog(key)">编辑</el-button>
-                <el-button type="warning" text size="small" @click="handleRegenerate(key)">重新生成</el-button>
-                <el-button type="danger" text size="small" @click="handleDelete(key)">删除</el-button>
+                <el-button type="primary" text size="small" @click="openEditDialog(key)">Edit</el-button>
+                <el-button type="warning" text size="small" @click="handleRegenerate(key)">Regenerate</el-button>
+                <el-button type="danger" text size="small" @click="handleDelete(key)">Delete</el-button>
               </div>
             </div>
           </div>
           <div class="no-keys" v-else>
             <div class="empty-visual">🔐</div>
-            <p class="empty-title">暂无管理端密钥</p>
-            <p class="empty-desc">管理端密钥可访问系统管理工具（统计、客户管理、翻译监控等）</p>
+            <p class="empty-title">No Admin Keys</p>
+            <p class="empty-desc">Admin Keys can access system management tools (statistics, customer management, translation monitoring, etc.)</p>
           </div>
         </el-tab-pane>
       </el-tabs>
     </div>
 
-    <!-- 创建密钥弹窗 -->
-    <ResponsiveModal v-model="createVisible" :title="createForm.scope === 'admin' ? '创建管理端密钥' : '为用户创建密钥'" width="560px" :close-on-click-overlay="false">
+    <!-- Create Key dialog -->
+    <ResponsiveModal v-model="createVisible" :title="createForm.scope === 'admin' ? 'Create Admin Key' : 'Create Key for User'" width="560px" :close-on-click-overlay="false">
       <el-form :model="createForm" label-position="top" class="mcp-form">
-        <el-form-item label="密钥名称">
-          <el-input v-model="createForm.name" placeholder="如：生产环境密钥" />
+        <el-form-item label="Key Name">
+          <el-input v-model="createForm.name" placeholder="e.g., Production Environment Key" />
         </el-form-item>
 
-        <el-form-item v-if="createForm.scope === 'user'" label="选择用户" required>
+        <el-form-item v-if="createForm.scope === 'user'" label="Select User" required>
           <el-select
             v-model="createForm.customer_id"
-            placeholder="搜索用户邮箱或姓名"
+            placeholder="Search user email or name"
             filterable
             remote
             :remote-method="searchCustomerList"
@@ -434,44 +434,44 @@ onMounted(() => {
         </el-form-item>
 
         <div class="form-section-title">
-          <span class="section-label required-label">翻译配置</span>
+          <span class="section-label required-label">Translation Configuration</span>
         </div>
 
-        <el-form-item label="API 地址" :required="createForm.scope === 'admin'">
+        <el-form-item label="API URL" :required="createForm.scope === 'admin'">
           <el-input v-model="createForm.config.api_url" placeholder="https://api.openai.com/v1" />
         </el-form-item>
-        <el-form-item label="API 密钥" :required="createForm.scope === 'admin'">
+        <el-form-item label="API Key" :required="createForm.scope === 'admin'">
           <el-input v-model="createForm.config.api_key" placeholder="sk-xxxx" show-password />
         </el-form-item>
-        <el-form-item label="模型名称" :required="createForm.scope === 'admin'">
+        <el-form-item label="Model Name" :required="createForm.scope === 'admin'">
           <el-input v-model="createForm.config.model" placeholder="gpt-4o" />
         </el-form-item>
-        <el-form-item label="译文形式">
-          <el-cascader v-model="createForm.config.type" :options="typeOptions" :props="{ expandTrigger: 'hover', emitPath: false }" placeholder="选择译文形式" style="width: 100%" clearable />
+        <el-form-item label="Translation Format">
+          <el-cascader v-model="createForm.config.type" :options="typeOptions" :props="{ expandTrigger: 'hover', emitPath: false }" placeholder="Select translation format" style="width: 100%" clearable />
         </el-form-item>
-        <el-form-item label="目标语言">
-          <el-select v-model="createForm.config.lang" placeholder="请选择目标语言" style="width: 100%">
+        <el-form-item label="Target Language">
+          <el-select v-model="createForm.config.lang" placeholder="Please select target language" style="width: 100%">
             <el-option v-for="lang in languageOptions" :key="lang.value" :label="lang.label" :value="lang.value" />
           </el-select>
         </el-form-item>
 
         <div class="form-section-title">
-          <span class="section-label optional-label">可选配置</span>
+          <span class="section-label optional-label">Optional Configuration</span>
         </div>
 
-        <el-form-item label="备用模型">
-          <el-input v-model="createForm.config.backup_model" placeholder="备用模型在主模型不可用时自动切换" />
+        <el-form-item label="Backup Model">
+          <el-input v-model="createForm.config.backup_model" placeholder="Backup model automatically switches when primary model is unavailable" />
         </el-form-item>
-        <el-form-item label="并发线程数">
+        <el-form-item label="Concurrent Thread Count">
           <el-input-number v-model="createForm.config.threads" :min="1" :max="20" />
         </el-form-item>
-        <el-form-item label="术语库 ID">
+        <el-form-item label="Glossary ID">
           <el-input-number v-model="createForm.config.comparison_id" :min="0" />
         </el-form-item>
-        <el-form-item label="提示词模板">
+        <el-form-item label="Prompt Template">
           <el-select
             v-model="createForm.config.prompt_id"
-            placeholder="请选择提示词模板"
+            placeholder="Please select prompt template"
             :loading="promptLoading"
             style="width: 100%"
           >
@@ -483,48 +483,48 @@ onMounted(() => {
             />
           </el-select>
           <div v-if="createForm.config.prompt_id !== 0 && getSelectedPromptContent(createForm.config.prompt_id)" class="prompt-preview">
-            <div class="prompt-preview-label">提示词内容：</div>
+            <div class="prompt-preview-label">Prompt Content:</div>
             <div class="prompt-preview-content">{{ getSelectedPromptContent(createForm.config.prompt_id) }}</div>
           </div>
           <!-- <div v-else-if="createForm.config.prompt_id === 0" class="prompt-preview">
-            <div class="prompt-preview-label">提示词内容：</div>
-            <div class="prompt-preview-content" style="color: #94a3b8;">使用系统内置默认提示词</div>
+            <div class="prompt-preview-label">Prompt Content:</div>
+            <div class="prompt-preview-content" style="color: #94a3b8;">Use system built-in default prompt</div>
           </div> -->
         </el-form-item>
         <el-form-item label="Doc2X">
           <el-radio-group v-model="createForm.config.doc2x_flag">
-            <el-radio-button value="N">禁用</el-radio-button>
-            <el-radio-button value="Y">启用</el-radio-button>
+            <el-radio-button value="N">Disable</el-radio-button>
+            <el-radio-button value="Y">Enable</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="createForm.config.doc2x_flag === 'Y'" label="Doc2X 密钥">
-          <el-input v-model="createForm.config.doc2x_secret_key" placeholder="输入 Doc2X API Key" show-password />
+        <el-form-item v-if="createForm.config.doc2x_flag === 'Y'" label="Doc2X Key">
+          <el-input v-model="createForm.config.doc2x_secret_key" placeholder="Enter Doc2X API Key" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="createVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleCreate" :loading="createLoading">创建密钥</el-button>
+        <el-button @click="createVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="handleCreate" :loading="createLoading">Create Key</el-button>
       </template>
     </ResponsiveModal>
 
-    <!-- 编辑密钥弹窗 -->
-    <ResponsiveModal v-model="editVisible" title="编辑密钥" width="560px" :close-on-click-overlay="false">
+    <!-- Edit key dialog -->
+    <ResponsiveModal v-model="editVisible" title="Edit Key" width="560px" :close-on-click-overlay="false">
       <el-form :model="editForm" label-position="top" class="mcp-form">
-        <el-form-item label="密钥名称">
-          <el-input v-model="editForm.name" placeholder="密钥名称" />
+        <el-form-item label="Key Name">
+          <el-input v-model="editForm.name" placeholder="Key Name" />
         </el-form-item>
-        <el-form-item v-if="editForm.customer_email && editForm.scope === 'user'" label="所属用户">
+        <el-form-item v-if="editForm.customer_email && editForm.scope === 'user'" label="Belongs to User">
           <el-input :model-value="editForm.customer_email" disabled />
         </el-form-item>
 
         <div class="form-section-title">
-          <span class="section-label required-label">翻译配置</span>
+          <span class="section-label required-label">Translation Configuration</span>
         </div>
 
         <el-form-item label="API 地址">
           <el-input v-model="editForm.config.api_url" placeholder="https://api.ezworkapi.top/v1" />
         </el-form-item>
-        <el-form-item label="API 密钥">
+        <el-form-item label="API Key">
           <el-input v-model="editForm.config.api_key" placeholder="sk-xxxx" show-password />
         </el-form-item>
         <el-form-item label="模型名称">
@@ -540,13 +540,13 @@ onMounted(() => {
         </el-form-item>
 
         <div class="form-section-title">
-          <span class="section-label optional-label">可选配置</span>
+          <span class="section-label optional-label">Optional Configuration</span>
         </div>
 
-        <el-form-item label="备用模型">
-          <el-input v-model="editForm.config.backup_model" placeholder="备用模型" />
+        <el-form-item label="Backup Model">
+          <el-input v-model="editForm.config.backup_model" placeholder="Backup Model" />
         </el-form-item>
-        <el-form-item label="并发线程数">
+        <el-form-item label="并发Thread Count">
           <el-input-number v-model="editForm.config.threads" :min="1" :max="20" />
         </el-form-item>
         <el-form-item label="术语库 ID">
@@ -555,7 +555,7 @@ onMounted(() => {
         <el-form-item label="提示词模板">
           <el-select
             v-model="editForm.config.prompt_id"
-            placeholder="请选择提示词模板"
+            placeholder="请Select Prompt模板"
             :loading="promptLoading"
             style="width: 100%"
           >
@@ -567,12 +567,12 @@ onMounted(() => {
             />
           </el-select>
           <div v-if="editForm.config.prompt_id>=0 && getSelectedPromptContent(editForm.config.prompt_id)" class="prompt-preview">
-            <div class="prompt-preview-label">提示词内容：</div>
+            <div class="prompt-preview-label">Prompt Content:</div>
             <div class="prompt-preview-content">{{ getSelectedPromptContent(editForm.config.prompt_id) }}</div>
           </div>
           <div v-else class="prompt-preview">
-            <div class="prompt-preview-label">提示词内容：</div>
-            <div class="prompt-preview-content" style="color: #94a3b8;">使用系统内置默认提示词</div>
+            <div class="prompt-preview-label">Prompt Content:</div>
+            <div class="prompt-preview-content" style="color: #94a3b8;">Use system built-in default prompt</div>
           </div>
         </el-form-item>
         <el-form-item label="Doc2X">
@@ -581,29 +581,29 @@ onMounted(() => {
             <el-radio-button value="Y">启用</el-radio-button>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="editForm.config.doc2x_flag === 'Y'" label="Doc2X 密钥">
+        <el-form-item v-if="editForm.config.doc2x_flag === 'Y'" label="Doc2X Key">
           <el-input v-model="editForm.config.doc2x_secret_key" placeholder="输入 Doc2X API Key" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="editVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleEdit" :loading="editLoading">保存</el-button>
+        <el-button @click="editVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="handleEdit" :loading="editLoading">Save</el-button>
       </template>
     </ResponsiveModal>
 
-    <!-- 新密钥展示弹窗 -->
-    <ResponsiveModal v-model="newKeyVisible" title="密钥已创建" width="460px" :close-on-click-overlay="false" :show-close="false">
+    <!-- New key display dialog -->
+    <ResponsiveModal v-model="newKeyVisible" title="Key Created" width="460px" :close-on-click-overlay="false" :show-close="false">
       <div class="new-key-display">
         <div class="new-key-icon">🎉</div>
-        <p class="new-key-title">密钥创建成功</p>
-        <div class="new-key-warning">⚠️ 此密钥仅显示一次，关闭后无法再次查看</div>
+        <p class="new-key-title">Key created successfully</p>
+        <div class="new-key-warning">⚠️ This key will only be displayed once and cannot be viewed again after closing</div>
         <div class="key-display-box">
           <span class="key-value">{{ newKeyValue }}</span>
-          <el-button type="primary" text :icon="CopyDocument" @click="copyText(newKeyValue)" class="copy-key-btn">复制</el-button>
+          <el-button type="primary" text :icon="CopyDocument" @click="copyText(newKeyValue)" class="copy-key-btn">Copy</el-button>
         </div>
       </div>
       <template #footer>
-        <el-button type="primary" @click="newKeyVisible = false" class="confirm-saved-btn">我已安全保存</el-button>
+        <el-button type="primary" @click="newKeyVisible = false" class="confirm-saved-btn">I have securely saved it</el-button>
       </template>
     </ResponsiveModal>
   </div>

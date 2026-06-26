@@ -6,35 +6,35 @@ interface CompConsumerProps {
   component: VNode
 }
 
-/** 定义 compMap 对象，用于存储路由名称和对应的组件 */
+/** Define compMap object for storing route names and corresponding components */
 const compMap = new Map<string, VNode>()
 
 /**
- * CompConsumer 组件
- * 用法：替换 <keep-alive> 标签以及内部代码，变成：<CompConsumer :component="Component" />
- * 优点：缓存路由时只需写路由 Name，无需再写组件 Name
- * 缺点：当路由表有动态路由匹配时（指向同一个组件），会出现复用组件的情况（例如修改 /info/1 时 /info/2 也会跟着改变）
+ * CompConsumer component
+ * Usage: Replace <keep-alive> tag and internal code with: <CompConsumer :component="Component" />
+ * Advantages: When caching routes, only need to write route Name, no need to write component Name
+ * Disadvantages: When route table has dynamic route matching (pointing to the same component), component reuse will occur (e.g., modifying /info/1 will also change /info/2)
  */
 export const CompConsumer = defineComponent(
   (props: CompConsumerProps) => {
     const tagsViewStore = useTagsViewStore()
     const route = useRoute()
     return () => {
-      // 获取传入的组件
+      // Get the passed component
       const component = props.component
-      // 判断当前是否包含 name，如果不包含 name，那就直接处理掉 name
+      // Check if current route has name, if not, directly handle name removal
       if (!route.name) return component
-      // 获取当前组件的名称
+      // Get current component name
       const compName = (component.type as any)?.name
-      // 获取当前路由的名称
+      // Get current route name
       const routeName = route.name as string
       let Comp: VNode
-      // 检查 compMap 中是否已经存在对应的组件
+      // Check if compMap already has the corresponding component
       if (compMap.has(routeName)) {
-        // 如果存在，则直接使用该组件进行渲染
+        // If exists, directly use the component for rendering
         Comp = compMap.get(routeName)!
       } else {
-        // 如果不存在，则克隆传入的组件并创建一个新的组件，将其添加到 compMap 中
+        // If not exists, clone the passed component and create a new component, add it to compMap
         const node = cloneVNode(component)
         if (compName && compName === routeName) {
           ;(node.type as any).name = `__${compName}__CUSTOM_NAME`
@@ -48,7 +48,7 @@ export const CompConsumer = defineComponent(
         })
         compMap.set(routeName, Comp)
       }
-      // 使用 createVNode 函数创建一个 KeepAlive 组件，并缓存 cachedViews 数组中对应的组件
+      // Use createVNode function to create a KeepAlive component and cache the corresponding component in cachedViews array
       return createVNode(
         KeepAlive,
         {

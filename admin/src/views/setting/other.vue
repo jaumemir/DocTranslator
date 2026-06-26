@@ -4,8 +4,8 @@ import { type FormInstance, ElMessage } from "element-plus"
 import { getOtherSettingData, setOtherSettingData } from "@/api/setting"
 
 defineOptions({
-  // 命名当前组件
-  name: "接口配置"
+  // Name the current component
+  name: "Other Configuration"
 })
 const loading = ref(false)
 const setting = ref({
@@ -17,8 +17,8 @@ const setting = ref({
 const settingForm = ref<FormInstance | null>(null)
 
 const rules = {
-  prompt: [{ required: true, message: "请填写默认提示语", trigger: "blur" }],
-  threads: [{ required: true, message: "请填写默认线程数", trigger: "blur" }]
+  prompt: [{ required: true, message: "Please enter the default prompt", trigger: "blur" }],
+  threads: [{ required: true, message: "Please enter the default thread count", trigger: "blur" }]
 }
 
 onMounted(async () => {
@@ -48,7 +48,7 @@ function onSubmit(settingForm: FormInstance | null) {
       })
         .then((data) => {
           if (data.code == 200) {
-            ElMessage.success("保存成功")
+            ElMessage.success("Saved successfully")
           } else {
             ElMessage.error(data.message)
           }
@@ -73,19 +73,19 @@ function onSubmit(settingForm: FormInstance | null) {
 
 <template>
   <div class="app-container">
-    <el-card shadow="never" v-loading="loading" :element-loading-text="'加载中...'">
+    <el-card shadow="never" v-loading="loading" :element-loading-text="'Loading...'">
       <el-form class="settingForm" ref="settingForm" :model="setting" label-position="top" :rules="rules">
-        <el-form-item label="默认提示语" required prop="prompt">
+        <el-form-item label="Default Prompt" required prop="prompt">
           <el-input type="textarea" resize="none" :rows="5" v-model="setting.prompt" />
         </el-form-item>
-        <el-form-item label="默认线程数" required prop="threads">
+        <el-form-item label="Default Thread Count" required prop="threads">
           <el-input v-model="setting.threads" />
         </el-form-item>
-        <el-form-item label="限定注册邮箱后缀" prop="email_limit">
-          <el-input v-model="setting.email_limit" placeholder="多个用逗号隔开,完全匹配域名" />
+        <el-form-item label="Restrict Registration Email Suffix" prop="email_limit">
+          <el-input v-model="setting.email_limit" placeholder="Separate multiple with commas, exact domain match" />
         </el-form-item>
         <el-form-item class="setting-btns">
-          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">保存</el-button>
+          <el-button style="width: 88px" type="primary" @click="onSubmit(settingForm)">Save</el-button>
         </el-form-item>
       </el-form>
     </el-card>

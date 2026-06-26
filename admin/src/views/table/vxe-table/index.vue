@@ -15,7 +15,7 @@ import {
 } from "vxe-table"
 
 defineOptions({
-  // 命名当前组件
+  // Name the current component
   name: "VxeTable"
 })
 
@@ -28,32 +28,32 @@ interface RowMeta {
   email: string
   status: boolean
   createTime: string
-  /** vxe-table 自动添加上去的属性 */
+  /** Attribute automatically added by vxe-table */
   _VXE_ID?: string
 }
 const xGridDom = ref<VxeGridInstance>()
 const xGridOpt: VxeGridProps = reactive({
   loading: true,
   autoResize: true,
-  /** 分页配置项 */
+  /** Pagination configuration */
   pagerConfig: {
     align: "right"
   },
-  /** 表单配置项 */
+  /** Form configuration */
   formConfig: {
     items: [
       {
         field: "username",
         itemRender: {
           name: "$input",
-          props: { placeholder: "用户名", clearable: true }
+          props: { placeholder: "Username", clearable: true }
         }
       },
       {
         field: "phone",
         itemRender: {
           name: "$input",
-          props: { placeholder: "手机号", clearable: true }
+          props: { placeholder: "Phone", clearable: true }
         }
       },
       {
@@ -61,28 +61,28 @@ const xGridOpt: VxeGridProps = reactive({
           name: "$buttons",
           children: [
             {
-              props: { type: "submit", content: "查询", status: "primary" }
+              props: { type: "submit", content: "Search", status: "primary" }
             },
             {
-              props: { type: "reset", content: "重置" }
+              props: { type: "reset", content: "Reset" }
             }
           ]
         }
       }
     ]
   },
-  /** 工具栏配置 */
+  /** Toolbar configuration */
   toolbarConfig: {
     refresh: true,
     custom: true,
     slots: { buttons: "toolbar-btns" }
   },
-  /** 自定义列配置项 */
+  /** Custom column configuration */
   customConfig: {
-    /** 是否允许列选中  */
+    /** Whether to allow column selection */
     checkMethod: ({ column }) => !["username"].includes(column.field)
   },
-  /** 列配置 */
+  /** Column configuration */
   columns: [
     {
       type: "checkbox",
@@ -90,46 +90,46 @@ const xGridOpt: VxeGridProps = reactive({
     },
     {
       field: "username",
-      title: "用户名"
+      title: "Username"
     },
     {
       field: "roles",
-      title: "角色",
-      /** 自定义列与 type: "html" 的列一起使用，会产生错误，所以采用 TSX 实现 */
+      title: "Role",
+      /** Using custom columns with type: "html" columns together will cause errors, so use TSX implementation */
       slots: RoleColumnSolts
     },
     {
       field: "phone",
-      title: "手机号"
+      title: "Phone"
     },
     {
       field: "email",
-      title: "邮箱"
+      title: "Email"
     },
     {
       field: "status",
-      title: "状态",
+      title: "Status",
       slots: StatusColumnSolts
     },
     {
       field: "createTime",
-      title: "创建时间"
+      title: "Create Time"
     },
     {
-      title: "操作",
+      title: "Actions",
       width: "150px",
       fixed: "right",
       showOverflow: false,
       slots: { default: "row-operate" }
     }
   ],
-  /** 数据代理配置项（基于 Promise API） */
+  /** Data proxy configuration (based on Promise API) */
   proxyConfig: {
-    /** 启用动态序号代理 */
+    /** Enable dynamic sequence proxy */
     seq: true,
-    /** 是否代理表单 */
+    /** Whether to proxy form */
     form: true,
-    /** 是否自动加载，默认为 true */
+    /** Whether to auto load, default is true */
     // autoLoad: false,
     props: {
       total: "total"
@@ -141,27 +141,27 @@ const xGridOpt: VxeGridProps = reactive({
         return new Promise((resolve) => {
           let total = 0
           let result: RowMeta[] = []
-          /** 加载数据 */
+          /** Load data */
           const callback = (res: GetTableResponseData) => {
             if (res?.data) {
-              // 总数
+              // Total
               total = res.data.total
-              // 列表数据
+              // List data
               result = res.data.list
             }
             xGridOpt.loading = false
-            // 返回值有格式要求，详情见 vxe-table 官方文档
+            // Return value has format requirements, see vxe-table official documentation for details
             resolve({ total, result })
           }
 
-          /** 接口需要的参数 */
+          /** Parameters required by API */
           const params = {
             username: form.username || undefined,
             phone: form.phone || undefined,
             size: page.pageSize,
             currentPage: page.currentPage
           }
-          /** 调用接口 */
+          /** Call API */
           getTableDataApi(params).then(callback).catch(callback)
         })
       }
@@ -190,40 +190,40 @@ const xFormOpt: VxeFormProps = reactive({
   span: 24,
   titleWidth: "100px",
   loading: false,
-  /** 是否显示标题冒号 */
+  /** Whether to display title colon */
   titleColon: false,
-  /** 表单数据 */
+  /** Form data */
   data: {
     username: "",
     password: ""
   },
-  /** 项列表 */
+  /** Item list */
   items: [
     {
       field: "username",
-      title: "用户名",
-      itemRender: { name: "$input", props: { placeholder: "请输入" } }
+      title: "Username",
+      itemRender: { name: "$input", props: { placeholder: "Please enter" } }
     },
     {
       field: "password",
-      title: "密码",
-      itemRender: { name: "$input", props: { placeholder: "请输入" } }
+      title: "Password",
+      itemRender: { name: "$input", props: { placeholder: "Please enter" } }
     },
     {
       align: "right",
       itemRender: {
         name: "$buttons",
         children: [
-          { props: { content: "取消" }, events: { click: () => xModalDom.value?.close() } },
+          { props: { content: "Cancel" }, events: { click: () => xModalDom.value?.close() } },
           {
-            props: { type: "submit", content: "确定", status: "primary" },
+            props: { type: "submit", content: "Confirm", status: "primary" },
             events: { click: () => crudStore.onSubmitForm() }
           }
         ]
       }
     }
   ],
-  /** 校验规则 */
+  /** Validation rules */
   rules: {
     username: [
       {
@@ -231,9 +231,9 @@ const xFormOpt: VxeFormProps = reactive({
         validator: ({ itemValue }) => {
           switch (true) {
             case !itemValue:
-              return new Error("请输入")
+              return new Error("Please enter")
             case !itemValue.trim():
-              return new Error("空格无效")
+              return new Error("Spaces are invalid")
           }
         }
       }
@@ -244,9 +244,9 @@ const xFormOpt: VxeFormProps = reactive({
         validator: ({ itemValue }) => {
           switch (true) {
             case !itemValue:
-              return new Error("请输入")
+              return new Error("Please enter")
             case !itemValue.trim():
-              return new Error("空格无效")
+              return new Error("Spaces are invalid")
           }
         }
       }
@@ -255,26 +255,26 @@ const xFormOpt: VxeFormProps = reactive({
 })
 //#endregion
 
-//#region 增删改查
+//#region CRUD operations
 const crudStore = reactive({
-  /** 表单类型，true 表示修改，false 表示新增 */
+  /** Form type, true means update, false means create */
   isUpdate: true,
-  /** 加载表格数据 */
+  /** Load table data */
   commitQuery: () => xGridDom.value?.commitProxy("query"),
-  /** 清空表格数据 */
+  /** Clear table data */
   clearTable: () => xGridDom.value?.reloadData([]),
-  /** 点击显示弹窗 */
+  /** Click to show modal */
   onShowModal: (row?: RowMeta) => {
     if (row) {
       crudStore.isUpdate = true
-      xModalOpt.title = "修改用户"
-      // 赋值
+      xModalOpt.title = "Edit User"
+      // Assign values
       xFormOpt.data.username = row.username
     } else {
       crudStore.isUpdate = false
-      xModalOpt.title = "新增用户"
+      xModalOpt.title = "Add User"
     }
-    // 禁用表单项
+    // Disable form item
     const props = xFormOpt.items?.[0]?.itemRender?.props
     props && (props.disabled = crudStore.isUpdate)
     xModalDom.value?.open()
@@ -283,7 +283,7 @@ const crudStore = reactive({
       xFormDom.value?.clearValidate()
     })
   },
-  /** 确定并保存 */
+  /** Confirm and save */
   onSubmitForm: () => {
     if (xFormOpt.loading) return
     xFormDom.value?.validate((errMap) => {
@@ -292,20 +292,20 @@ const crudStore = reactive({
       const callback = () => {
         xFormOpt.loading = false
         xModalDom.value?.close()
-        ElMessage.success("操作成功")
+        ElMessage.success("Operation successful")
         !crudStore.isUpdate && crudStore.afterInsert()
         crudStore.commitQuery()
       }
       if (crudStore.isUpdate) {
-        // 模拟调用修改接口成功
+        // Simulate successful update API call
         setTimeout(() => callback(), 1000)
       } else {
-        // 模拟调用新增接口成功
+        // Simulate successful create API call
         setTimeout(() => callback(), 1000)
       }
     })
   },
-  /** 新增后是否跳入最后一页 */
+  /** Whether to jump to last page after insert */
   afterInsert: () => {
     const pager = xGridDom.value?.getProxyInfo()?.pager
     if (pager) {
@@ -315,27 +315,27 @@ const crudStore = reactive({
       }
     }
   },
-  /** 删除 */
+  /** Delete */
   onDelete: (row: RowMeta) => {
-    const tip = `确定 <strong style="color: var(--el-color-danger);"> 删除 </strong> 用户 <strong style="color: var(--el-color-primary);"> ${row.username} </strong> ？`
+    const tip = `Confirm <strong style="color: var(--el-color-danger);"> delete </strong> user <strong style="color: var(--el-color-primary);"> ${row.username} </strong>?`
     const config: ElMessageBoxOptions = {
       type: "warning",
       showClose: true,
       closeOnClickModal: true,
       closeOnPressEscape: true,
-      cancelButtonText: "取消",
-      confirmButtonText: "确定",
+      cancelButtonText: "Cancel",
+      confirmButtonText: "Confirm",
       dangerouslyUseHTMLString: true
     }
-    ElMessageBox.confirm(tip, "提示", config).then(() => {
+    ElMessageBox.confirm(tip, "Confirm", config).then(() => {
       deleteTableDataApi(row.id).then(() => {
-        ElMessage.success("删除成功")
+        ElMessage.success("Delete successful")
         crudStore.afterDelete()
         crudStore.commitQuery()
       })
     })
   },
-  /** 删除后是否返回上一页 */
+  /** Whether to return to previous page after delete */
   afterDelete: () => {
     const tableData: RowMeta[] = xGridDom.value!.getData()
     const pager = xGridDom.value?.getProxyInfo()?.pager
@@ -343,7 +343,7 @@ const crudStore = reactive({
       --pager.currentPage
     }
   },
-  /** 更多自定义方法 */
+  /** More custom methods */
   moreFn: () => {}
 })
 //#endregion
@@ -351,22 +351,22 @@ const crudStore = reactive({
 
 <template>
   <div class="app-container">
-    <!-- 表格 -->
+    <!-- Table -->
     <vxe-grid ref="xGridDom" v-bind="xGridOpt">
-      <!-- 左侧按钮列表 -->
+      <!-- Left button list -->
       <template #toolbar-btns>
-        <vxe-button status="primary" icon="vxe-icon-add" @click="crudStore.onShowModal()">新增用户</vxe-button>
-        <vxe-button status="danger" icon="vxe-icon-delete">批量删除</vxe-button>
+        <vxe-button status="primary" icon="vxe-icon-add" @click="crudStore.onShowModal()">Add User</vxe-button>
+        <vxe-button status="danger" icon="vxe-icon-delete">Batch Delete</vxe-button>
       </template>
-      <!-- 操作 -->
+      <!-- Actions -->
       <template #row-operate="{ row }">
-        <el-button link type="primary" @click="crudStore.onShowModal(row)">修改</el-button>
-        <el-button link type="danger" @click="crudStore.onDelete(row)">删除</el-button>
+        <el-button link type="primary" @click="crudStore.onShowModal(row)">Edit</el-button>
+        <el-button link type="danger" @click="crudStore.onDelete(row)">Delete</el-button>
       </template>
     </vxe-grid>
-    <!-- 弹窗 -->
+    <!-- Modal -->
     <vxe-modal ref="xModalDom" v-bind="xModalOpt">
-      <!-- 表单 -->
+      <!-- Form -->
       <vxe-form ref="xFormDom" v-bind="xFormOpt" />
     </vxe-modal>
   </div>

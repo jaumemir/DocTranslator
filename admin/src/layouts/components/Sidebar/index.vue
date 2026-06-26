@@ -43,7 +43,7 @@ const sidebarMenuHoverBgColor = computed(() => {
 const tipLineWidth = computed(() => {
   return !isTop.value ? "2px" : "0px"
 })
-// 当为顶部模式时隐藏垂直滚动条
+// Hide vertical scrollbar when in top mode
 const hiddenScrollbarVerticalBar = computed(() => {
   return isTop.value ? "none" : "block"
 })
@@ -84,29 +84,29 @@ const hiddenScrollbarVerticalBar = computed(() => {
 
 .has-logo {
   .el-scrollbar {
-    // 多 1% 是为了在左侧模式时侧边栏最底部不显示 1px 左右的白色线条
+    // Add 1% to prevent showing 1px white line at bottom of sidebar in left mode
     height: calc(101% - var(--v3-header-height));
   }
 }
 
 .el-scrollbar {
-  // 多 1% 是为了在顶部模式时防止垂直滚动
+  // Add 1% to prevent vertical scrolling in top mode
   height: 101%;
   :deep(.scrollbar-wrapper) {
-    // 限制水平宽度
+    // Limit horizontal width
     overflow-x: hidden !important;
     .el-scrollbar__view {
       height: 100%;
     }
   }
-  // 滚动条
+  // Scrollbar
   :deep(.el-scrollbar__bar) {
     &.is-horizontal {
-      // 隐藏水平滚动条
+      // Hide horizontal scrollbar
       display: none;
     }
     &.is-vertical {
-      // 当为顶部模式时隐藏垂直滚动条
+      // Hide vertical scrollbar when in top mode
       display: v-bind(hiddenScrollbarVerticalBar);
     }
   }

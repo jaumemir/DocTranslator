@@ -1,4 +1,4 @@
-/** 统一处理 Cookie */
+/** Unified Cookie handling */
 
 import CacheKey from "@/constants/cache-key"
 import Cookies from "js-cookie"

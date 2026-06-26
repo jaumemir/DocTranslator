@@ -7,7 +7,7 @@
       rel="noopener noreferrer"
       class="copyright-link"
     >
-      <p>© 2026 DocTranslator 1.6.0 保留所有权利</p>
+      <p>© 2026 DocTranslator 1.6.0 All Rights Reserved</p>
     </a>
   </div>
 </template>

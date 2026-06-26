@@ -6,26 +6,26 @@
           <div class="nav-header">
             <el-avatar :size="36" :src="userInfo.avatar || defaultAvatar" />
             <div class="nav-user-info">
-              <span class="nav-username">{{ userInfo.name || userInfo.email || '用户' }}</span>
-              <span class="nav-role" :class="userInfo.level">{{ userInfo.level === 'vip' ? '尊享会员' : '普通用户' }}</span>
+              <span class="nav-username">{{ userInfo.name || userInfo.email || 'User' }}</span>
+              <span class="nav-role" :class="userInfo.level">{{ userInfo.level === 'vip' ? 'VIP Member' : 'Regular User' }}</span>
             </div>
           </div>
           <el-divider style="margin: 8px 0 12px;" />
           <el-menu-item index="basic">
             <el-icon><User /></el-icon>
-            <span>基本信息</span>
+            <span>Basic Info</span>
           </el-menu-item>
           <el-menu-item index="security">
             <el-icon><Lock /></el-icon>
-            <span>账号安全</span>
+            <span>Account Security</span>
           </el-menu-item>
           <el-menu-item index="translation">
             <el-icon><Setting /></el-icon>
-            <span>翻译设置</span>
+            <span>Translation Settings</span>
           </el-menu-item>
           <el-menu-item index="mcp">
             <el-icon><Connection /></el-icon>
-            <span>MCP 配置</span>
+            <span>MCP Configuration</span>
           </el-menu-item>
         </el-menu>
 
@@ -36,7 +36,7 @@
                 <template #label>
                   <div class="tab-label">
                     <el-icon><User /></el-icon>
-                    <span>基本信息</span>
+                    <span>Basic Info</span>
                   </div>
                 </template>
               </el-tab-pane>
@@ -44,7 +44,7 @@
                 <template #label>
                   <div class="tab-label">
                     <el-icon><Lock /></el-icon>
-                    <span>账号安全</span>
+                    <span>Account Security</span>
                   </div>
                 </template>
               </el-tab-pane>
@@ -52,7 +52,7 @@
                 <template #label>
                   <div class="tab-label">
                     <el-icon><Setting /></el-icon>
-                    <span>翻译设置</span>
+                    <span>Translation Settings</span>
                   </div>
                 </template>
               </el-tab-pane>
@@ -60,7 +60,7 @@
                 <template #label>
                   <div class="tab-label">
                     <el-icon><Connection /></el-icon>
-                    <span>MCP 配置</span>
+                    <span>MCP Configuration</span>
                   </div>
                 </template>
               </el-tab-pane>
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import Filing from '@/components/Filing.vue'
+import Filing from '@/components/filing.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Lock, Setting, Connection } from '@element-plus/icons-vue'

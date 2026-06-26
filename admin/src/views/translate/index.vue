@@ -8,56 +8,56 @@ import { Search, Refresh, Download, Delete } from "@element-plus/icons-vue"
 import { usePagination } from "@/hooks/usePagination"
 const BASE_URL = import.meta.env.VITE_BASE_API
 defineOptions({
-  // 命名当前组件
+  // Name the current component
   name: "Translate"
 })
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 删
+//#region Delete
 const handleDelete = (row: GetTranslateData) => {
-  ElMessageBox.confirm(`确认删除当前文档吗？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(`Confirm deleting the current document?`, "Prompt", {
+    confirmButtonText: "Confirm",
+    cancelButtonText: "Cancel",
     type: "warning"
   }).then(() => {
     deleteTranslateDataApi(row.id).then(() => {
-      ElMessage.success("删除成功")
+      ElMessage.success("Deleted successfully")
       getTableData()
     })
   })
 }
 
-//获取选择项
+// Get selected items
 const selectedItems = ref<number[]>([])
 const handleSelectionChange = (selection: any[]) => {
   selectedItems.value = selection.map((item) => item.id)
   console.log(selectedItems.value)
 }
 
-//#region 批量删除
+//#region Batch delete
 const handleMoreDelete = () => {
   if (selectedItems.value.length === 0) {
-    ElMessage.warning("请选择要删除的文档")
+    ElMessage.warning("Please select documents to delete")
     return
   }
-  ElMessageBox.confirm(`正在批量删除选中文档，确认删除？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(`Batch deleting selected documents, confirm deletion?`, "Prompt", {
+    confirmButtonText: "Confirm",
+    cancelButtonText: "Cancel",
     type: "warning"
   }).then(() => {
     deleteMoreTranslateDataApi({ ids: selectedItems.value }).then(() => {
-      ElMessage.success("删除成功")
+      ElMessage.success("Deleted successfully")
       getTableData()
     })
   })
 }
 
-//#region 批量下载
+//#region Batch download
 const handleMoreDownload = () => {
   if (selectedItems.value.length === 0) {
-    ElMessage.warning("请选择要下载的文档")
+    ElMessage.warning("Please select documents to download")
     return
   }
 
@@ -79,7 +79,7 @@ const handleMoreDownload = () => {
       return response.blob()
     })
     .then((blob) => {
-      const currentDate = new Date().toISOString().split("T")[0] // 获取当前日期，格式为 YYYY-MM-DD
+      const currentDate = new Date().toISOString().split("T")[0] // Get current date in YYYY-MM-DD format
       const filename = `downloads_${currentDate}.zip`
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement("a")
@@ -92,12 +92,12 @@ const handleMoreDownload = () => {
     })
     .catch((error) => {
       console.log(error)
-      ElMessage.error("下载失败，请稍后重试")
+      ElMessage.error("Download failed, please try again later")
     })
 }
 //#endregion
 
-//#region 查
+//#region Query
 const translateData = ref<GetTranslateData[]>([])
 const searchFormRef = ref<FormInstance | null>(null)
 const searchData = reactive({
@@ -130,7 +130,7 @@ const resetSearch = () => {
 }
 //#endregion
 
-/** 监听分页参数的变化 */
+/** Watch pagination parameter changes */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getTableData, { immediate: true })
 </script>
 
@@ -139,46 +139,46 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
     <el-card v-loading="loading" shadow="never">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="keyword" label="" style="width: 320px; max-width: 100%">
-          <el-input v-model="searchData.keyword" placeholder="输入查询" />
+          <el-input v-model="searchData.keyword" placeholder="Enter search query" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
-          <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
-          <el-button :icon="Delete" @click="handleMoreDelete">删除</el-button>
-          <el-button :icon="Download" @click="handleMoreDownload">下载</el-button>
+          <el-button type="primary" :icon="Search" @click="handleSearch">Search</el-button>
+          <el-button :icon="Refresh" @click="resetSearch">Reset</el-button>
+          <el-button :icon="Delete" @click="handleMoreDelete">Delete</el-button>
+          <el-button :icon="Download" @click="handleMoreDownload">Download</el-button>
         </el-form-item>
       </el-form>
       <div class="table-wrapper">
         <el-table :data="translateData" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="40" align="left" />
-          <el-table-column prop="customer_no" width="70" label="用户ID" align="left" />
-          <el-table-column prop="customer_email" label="用户邮箱" width="150" align="left" />
-          <el-table-column prop="origin_filename" label="文档名称" align="left" />
-          <el-table-column prop="status" label="任务状态" align="left" width="120">
+          <el-table-column prop="customer_no" width="70" label="User ID" align="left" />
+          <el-table-column prop="customer_email" label="User Email" width="150" align="left" />
+          <el-table-column prop="origin_filename" label="Document Name" align="left" />
+          <el-table-column prop="status" label="Task Status" align="left" width="120">
             <template #default="scope">
-              <el-tag v-if="scope.row.status == 'none'" type="primary" effect="plain">未完成</el-tag>
-              <el-tag v-else-if="scope.row.status == 'process'" type="warning" effect="plain">翻译中</el-tag>
-              <el-tag v-else-if="scope.row.status == 'failed'" type="danger" effect="plain">翻译失败</el-tag>
-              <el-tag v-else type="success" effect="plain">已完成</el-tag>
+              <el-tag v-if="scope.row.status == 'none'" type="primary" effect="plain">Incomplete</el-tag>
+              <el-tag v-else-if="scope.row.status == 'process'" type="warning" effect="plain">In Progress</el-tag>
+              <el-tag v-else-if="scope.row.status == 'failed'" type="danger" effect="plain">Failed</el-tag>
+              <el-tag v-else type="success" effect="plain">Completed</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="start_at" label="任务开始时间" align="left" />
-          <el-table-column prop="spend_time" label="完成用时" width="100" align="left" />
-          <el-table-column prop="deleted_flag" label="用户是否删除" align="left" width="120">
+          <el-table-column prop="start_at" label="Task Start Time" align="left" />
+          <el-table-column prop="spend_time" label="Time Spent" width="100" align="left" />
+          <el-table-column prop="deleted_flag" label="User Deleted" align="left" width="120">
             <template #default="scope">
-              <el-tag v-if="scope.row.deleted_flag == 'Y'" type="primary" effect="plain">是</el-tag>
-              <el-tag v-else-if="scope.row.deleted_flag == 'N'" type="warning" effect="plain">否</el-tag>
+              <el-tag v-if="scope.row.deleted_flag == 'Y'" type="primary" effect="plain">Yes</el-tag>
+              <el-tag v-else-if="scope.row.deleted_flag == 'N'" type="warning" effect="plain">No</el-tag>
             </template>
           </el-table-column>
-          <el-table-column fixed="right" label="操作" width="100" align="left">
+          <el-table-column fixed="right" label="Actions" width="100" align="left">
             <template #default="scope">
               <el-link
                 style="color: #409eff; margin-right: 12px"
                 v-if="scope.row.target_filepath"
                 :href="BASE_URL + '/api/admin/translate/download/' + scope.row.id"
-                >下载</el-link
+                >Download</el-link
               >
-              <el-button type="danger" text size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text size="small" @click="handleDelete(scope.row)">Delete</el-button>
             </template>
           </el-table-column>
         </el-table>

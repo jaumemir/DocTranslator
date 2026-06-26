@@ -2,54 +2,54 @@
   <div class="security-settings">
     <!-- 卡片容器 -->
     <el-card class="settings-card">
-      <!-- 标题区 -->
+      <!-- Title Area -->
       <div class="card-header">
-        <h2 class="title">账户安全设置</h2>
-        <p class="subtitle">请谨慎修改您的账户信息</p>
+        <h2 class="title">Account Security Settings</h2>
+        <p class="subtitle">Please modify your account information carefully</p>
       </div>
 
-      <!-- 表单区 -->
+      <!-- Form Area -->
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top" class="settings-form">
-        <!-- 用户名修改 -->
-        <el-form-item label="用户名" prop="user">
-          <el-input v-model="formData.user" placeholder="请输入新的用户名(邮箱)" clearable :prefix-icon="User" />
+        <!-- Username Modification -->
+        <el-form-item label="Username" prop="user">
+          <el-input v-model="formData.user" placeholder="Please enter new username (email)" clearable :prefix-icon="User" />
         </el-form-item>
 
-        <!-- 密码修改 -->
-        <el-form-item label="原密码" prop="old_password">
+        <!-- Password Modification -->
+        <el-form-item label="Current Password" prop="old_password">
           <el-input
             v-model="formData.old_password"
             type="password"
             show-password
-            placeholder="请输入当前密码"
+            placeholder="Please enter current password"
             :prefix-icon="Lock"
           />
         </el-form-item>
 
-        <el-form-item label="新密码" prop="new_password">
+        <el-form-item label="New Password" prop="new_password">
           <el-input
             v-model="formData.new_password"
             type="password"
             show-password
-            placeholder="6-16位长度"
+            placeholder="6-16 characters length"
             :prefix-icon="Key"
           />
         </el-form-item>
 
-        <el-form-item label="确认新密码" prop="confirm_password">
+        <el-form-item label="Confirm New Password" prop="confirm_password">
           <el-input
             v-model="formData.confirm_password"
             type="password"
             show-password
-            placeholder="请再次输入新密码"
+            placeholder="Please enter new password again"
             :prefix-icon="Key"
           />
         </el-form-item>
 
-        <!-- 操作按钮 -->
+        <!-- Action Buttons -->
         <el-form-item class="form-actions">
-          <el-button type="primary" :loading="submitting" @click="handleSubmit"> 保存修改 </el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" :loading="submitting" @click="handleSubmit"> Save Changes </el-button>
+          <el-button @click="handleReset">Reset</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -73,72 +73,72 @@ const formData = reactive({
   confirm_password: ""
 })
 
-// 用户名验证
+// Username validation
 // const validateUsername = (rule, value, callback) => {
 //   if (!value) {
-//    callback(new Error("用户名不能为空"))
+//    callback(new Error("Username cannot be empty"))
 //    }
 //   if (value.length < 6 || value.length > 16) {
-//     callback(new Error("用户名长度需在6到16个字符之间"))
+//     callback(new Error("Username length must be between 6 and 16 characters"))
 //   } else {
 //     callback()
 //   }
 // }
 
-// 密码复杂度验证
+// Password complexity validation
 const validatePassword = (rule, value, callback) => {
   if (value.length < 6) {
-    callback(new Error("密码至少需要6位"))
+    callback(new Error("Password must be at least 6 characters"))
   } else {
     callback()
   }
 }
 
-// 确认密码验证
+// Confirm password validation
 const validateConfirm = (rule, value, callback) => {
   if (value !== formData.new_password) {
-    callback(new Error("两次输入的密码不一致"))
+    callback(new Error("Passwords do not match"))
   } else {
     callback()
   }
 }
 
-// 表单验证规则
+// Form validation rules
 const rules = {
   // user: [{ required: false, validator: validateUsername, trigger: "blur" }],
-  old_password: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+  old_password: [{ required: true, message: "Please enter current password", trigger: "blur" }],
   new_password: [
-    { required: true, message: "请输入新密码", trigger: "blur" },
+    { required: true, message: "Please enter new password", trigger: "blur" },
     { validator: validatePassword, trigger: "blur" }
   ],
   confirm_password: [
-    { required: true, message: "请确认新密码", trigger: "blur" },
+    { required: true, message: "Please confirm new password", trigger: "blur" },
     { validator: validateConfirm, trigger: "blur" }
   ]
 }
 
-// 提交表单
+// Submit form
 const handleSubmit = async () => {
   try {
     await formRef.value.validate()
     submitting.value = true
-    // 修改密码请求
+    // Password change request
     const res = await updatePasswordApi(formData)
     if (res.code === 200) {
       submitting.value = false
-      ElMessage.success("修改成功")
+      ElMessage.success("Update successful")
       router.push("/login")
     } else {
       submitting.value = false
-      ElMessage.error("修改失败，请重试")
+      ElMessage.error("Update failed, please try again")
     }
   } catch (error) {
-    ElMessage.error(error.message || "修改失败")
+    ElMessage.error(error.message || "Update failed")
     submitting.value = false
   }
 }
 
-// 重置表单
+// Reset form
 const handleReset = () => {
   formRef.value.resetFields()
 }

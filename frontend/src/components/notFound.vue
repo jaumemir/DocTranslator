@@ -5,8 +5,8 @@
         <img src="@/assets/404.png" alt="">
       </div>
       <div class="text_box">
-        <div class="title">抱歉，页面走丢了...</div>
-        <el-button type="text" @click="back"><span class="btn">返回首页</span></el-button>
+        <div class="title">Sorry, page not found...</div>
+        <el-button type="text" @click="back"><span class="btn">Back to Home</span></el-button>
       </div>
     </div>
   </div>

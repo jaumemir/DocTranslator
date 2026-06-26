@@ -2,7 +2,7 @@ import { request } from "@/utils/service"
 import type * as Setting from "./types/setting"
 
 
-/** 列表 */
+/** List */
 export function getApiSettingData() {
   return request<Setting.GetApiSettingResponseData>({
     url: `setting/api`,
@@ -10,7 +10,7 @@ export function getApiSettingData() {
   })
 }
 
-/** 设置 */
+/** Settings */
 export function setApiSettingData(data:Setting.ApiSetting) {
   return request<Setting.SettingNoResponseData>({
     url: `setting/api`,
@@ -19,7 +19,7 @@ export function setApiSettingData(data:Setting.ApiSetting) {
   })
 }
 
-/** 列表 */
+/** List */
 export function getOtherSettingData() {
   return request<Setting.GetOtherSettingResponseData>({
     url: `setting/other`,
@@ -27,7 +27,7 @@ export function getOtherSettingData() {
   })
 }
 
-/** 设置 */
+/** Settings */
 export function setOtherSettingData(data:Setting.OtherSetting) {
   return request<Setting.SettingNoResponseData>({
     url: `setting/other`,
@@ -36,7 +36,7 @@ export function setOtherSettingData(data:Setting.OtherSetting) {
   })
 }
 
-/** 列表 */
+/** List */
 export function getSiteSettingData() {
   return request<Setting.GetSiteSettingResponseData>({
     url: `setting/site`,
@@ -44,7 +44,7 @@ export function getSiteSettingData() {
   })
 }
 
-/** 设置 */
+/** Settings */
 export function setSiteSettingData(data:Setting.SiteSetting) {
   return request<Setting.SettingNoResponseData>({
     url: `setting/site`,

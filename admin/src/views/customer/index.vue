@@ -9,14 +9,14 @@ import { cloneDeep } from "lodash-es"
 import Register from "./components/register.vue"
 
 defineOptions({
-  // 命名当前组件
+  // Name the current component
   name: "ElementPlus"
 })
 
 const loading = ref<boolean>(false)
 const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
 
-//#region 增
+//#region Create
 const DEFAULT_FORM_DATA: CreateOrUpdateCustomerRequestData = {
   id: undefined,
   email: "",
@@ -31,18 +31,18 @@ const dialogVisible = ref<boolean>(false)
 const formRef = ref<FormInstance | null>(null)
 const formData = ref<CreateOrUpdateCustomerRequestData>(cloneDeep(DEFAULT_FORM_DATA))
 const formRules: FormRules<CreateOrUpdateCustomerRequestData> = {
-  email: [{ required: true, trigger: "blur", message: "请输入注册邮箱" }],
-  password: [{ min: 6, max: 16, message: "长度在 6 到 16 个字符", trigger: "blur" }],
-  level: [{ required: true, trigger: "blur", message: "请选择用户等级" }]
+  email: [{ required: true, trigger: "blur", message: "Please enter registration email" }],
+  password: [{ min: 6, max: 16, message: "Length must be between 6 and 16 characters", trigger: "blur" }],
+  level: [{ required: true, trigger: "blur", message: "Please select user level" }]
 }
 const handleCreateOrUpdate = () => {
   formRef.value?.validate((valid: boolean, fields) => {
-    if (!valid) return console.error("表单校验不通过", fields)
+    if (!valid) return console.error("Form validation failed", fields)
     loading.value = true
     // const api = formData.value.id === undefined ? createTableDataApi : updateTableDataApi
     updateCustomerDataApi(formData.value)
       .then(() => {
-        ElMessage.success("操作成功")
+        ElMessage.success("Operation successful")
         dialogVisible.value = false
         getCustomerData()
       })
@@ -58,16 +58,16 @@ const resetForm = () => {
 }
 //#endregion
 
-//#region 删
+//#region Delete
 const handleStatus = (id: number, status: string) => {
   changeCustomerStatusApi(id, status).then(() => {
-    ElMessage.success("更改状态成功")
+    ElMessage.success("Status changed successfully")
     getCustomerData()
   })
 }
 //#endregion
 
-//#region 改
+//#region Update
 const handleUpdate = (row: GetCustomerData) => {
   dialogVisible.value = true
   // formData.value = cloneDeep(row)
@@ -75,7 +75,7 @@ const handleUpdate = (row: GetCustomerData) => {
 }
 //#endregion
 
-//#region 查
+//#region Query
 const customerData = ref<GetCustomerData[]>([])
 const searchFormRef = ref<FormInstance | null>(null)
 const searchData = reactive({
@@ -108,7 +108,7 @@ const resetSearch = () => {
   handleSearch()
 }
 //#endregion
-// 新增用户
+// Add new user
 const registerVisible = ref<boolean>(false)
 const newUser = () => {
   registerVisible.value = true
@@ -119,7 +119,7 @@ const registerSuccess = () => {
   getCustomerData()
 }
 
-/** 监听分页参数的变化 */
+/** Watch pagination parameter changes */
 watch([() => paginationData.currentPage, () => paginationData.pageSize], getCustomerData, { immediate: true })
 </script>
 <template>
@@ -127,56 +127,56 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getCust
     <el-card v-loading="loading" shadow="never">
       <el-form ref="searchFormRef" :inline="true" :model="searchData">
         <el-form-item prop="username" label="" style="width: 320px; max-width: 100%">
-          <el-input v-model="searchData.keyword" placeholder="输入查询" />
+          <el-input v-model="searchData.keyword" placeholder="Enter search query" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
-          <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
+          <el-button type="primary" :icon="Search" @click="handleSearch">Search</el-button>
+          <el-button :icon="Refresh" @click="resetSearch">Reset</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :icon="CirclePlus" @click="newUser">新增用户</el-button>
+          <el-button type="primary" :icon="CirclePlus" @click="newUser">Add User</el-button>
         </el-form-item>
       </el-form>
 
       <div class="table-wrapper">
         <el-table :data="customerData">
           <!-- <el-table-column type="selection" width="50" align="center" /> -->
-          <el-table-column prop="id" label="用户编号" align="left" width="100" />
-          <el-table-column prop="email" label="注册邮箱" align="left" />
-          <el-table-column prop="level" label="用户等级" align="left" width="100">
+          <el-table-column prop="id" label="User ID" align="left" width="100" />
+          <el-table-column prop="email" label="Email" align="left" />
+          <el-table-column prop="level" label="User Level" align="left" width="100">
             <template #default="scope">
-              <el-tag v-if="scope.row.level == 'vip'" type="primary" effect="plain">会员用户</el-tag>
-              <el-tag v-else type="warning" effect="plain">普通用户</el-tag>
+              <el-tag v-if="scope.row.level == 'vip'" type="primary" effect="plain">VIP User</el-tag>
+              <el-tag v-else type="warning" effect="plain">Regular User</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="storage" label="已用存储空间" align="left" width="120">
+          <el-table-column prop="storage" label="Used Storage" align="left" width="120">
             <template #default="{ row }"> {{ (row.storage / (1024 * 1024)).toFixed(2) }} MB </template>
           </el-table-column>
-          <el-table-column prop="storage" label="总存储空间" align="left" width="120">
+          <el-table-column prop="storage" label="Total Storage" align="left" width="120">
             <template #default="{ row }"> {{ (row.total_storage / (1024 * 1024)).toFixed(2) }} MB </template>
           </el-table-column>
 
-          <!-- <el-table-column prop="storage" label="已用存储空间" align="left" /> -->
-          <el-table-column prop="status" label="账户状态" align="left" width="80">
+          <!-- <el-table-column prop="storage" label="Used Storage" align="left" /> -->
+          <el-table-column prop="status" label="Account Status" align="left" width="80">
             <template #default="scope">
-              <el-tag v-if="scope.row.status == 'enabled'" type="success" effect="plain">启用</el-tag>
-              <el-tag v-else type="danger" effect="plain">禁用</el-tag>
+              <el-tag v-if="scope.row.status == 'enabled'" type="success" effect="plain">Enabled</el-tag>
+              <el-tag v-else type="danger" effect="plain">Disabled</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="created_at" label="注册时间" align="left" />
-          <el-table-column fixed="right" label="操作" width="100" align="left">
+          <el-table-column prop="created_at" label="Registration Time" align="left" />
+          <el-table-column fixed="right" label="Actions" width="100" align="left">
             <template #default="scope">
-              <el-button type="primary" text size="small" @click="handleUpdate(scope.row)">编辑</el-button>
+              <el-button type="primary" text size="small" @click="handleUpdate(scope.row)">Edit</el-button>
               <el-button
                 type="danger"
                 v-if="scope.row.status == 'enabled'"
                 text
                 size="small"
                 @click="handleStatus(scope.row.id, 'disabled')"
-                >禁用</el-button
+                >Disable</el-button
               >
               <el-button type="success" v-else text size="small" @click="handleStatus(scope.row.id, 'enabled')"
-                >启用</el-button
+                >Enable</el-button
               >
             </template>
           </el-table-column>
@@ -195,45 +195,45 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getCust
         />
       </div>
     </el-card>
-    <!-- 新增/修改 -->
+    <!-- Add/Edit -->
     <el-dialog modal-class="custom_dialog" v-model="dialogVisible" :show-close="false">
       <template #header>
         <div class="dialog_head">
-          <div class="title">{{ formData.id === undefined ? "新增用户" : "编辑用户信息" }}</div>
+          <div class="title">{{ formData.id === undefined ? "Add User" : "Edit User Information" }}</div>
           <el-icon @click="resetForm"><Close /></el-icon>
         </div>
       </template>
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="150px" label-position="left">
-        <el-form-item prop="email" label="注册邮箱">
-          <el-input v-model="formData.email" placeholder="请输入注册邮箱" />
+        <el-form-item prop="email" label="Email">
+          <el-input v-model="formData.email" placeholder="Please enter registration email" />
         </el-form-item>
-        <el-form-item prop="level" label="用户等级">
+        <el-form-item prop="level" label="User Level">
           <el-select v-model="formData.level" placeholder="">
-            <el-option label="会员用户" value="vip" />
-            <el-option label="普通用户" value="common" />
+            <el-option label="VIP User" value="vip" />
+            <el-option label="Regular User" value="common" />
           </el-select>
         </el-form-item>
-        <!-- 新增的存储空间字段 -->
-        <el-form-item prop="storage" label="新增存储空间(MB)">
+        <!-- Additional storage space field -->
+        <el-form-item prop="storage" label="Add Storage (MB)">
           <el-input-number
             style="width: 80%"
             :precision="0"
             v-model="formData.add_storage"
             :step="5"
-            placeholder="请输入需要添加的存储空间(MB)"
+            placeholder="Please enter storage space to add (MB)"
           />
           <span class="ml-2">MB</span>
         </el-form-item>
-        <el-form-item prop="password" label="密码">
-          <el-input type="password" v-model="formData.password" placeholder="请输入" />
+        <el-form-item prop="password" label="Password">
+          <el-input type="password" v-model="formData.password" placeholder="Please enter" />
         </el-form-item>
       </el-form>
       <div class="btn_box">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleCreateOrUpdate" :loading="loading">确认</el-button>
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="handleCreateOrUpdate" :loading="loading">Confirm</el-button>
       </div>
     </el-dialog>
-    <!-- 注册弹窗 -->
+    <!-- Registration dialog -->
     <el-dialog
       v-model="registerVisible"
       center
@@ -241,7 +241,7 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getCust
       modal-class="custom_dialog login_dialog"
       :show-close="false"
     >
-      <template #header> 添加用户 </template>
+      <template #header> Add User </template>
       <Register @success="registerSuccess" />
     </el-dialog>
   </div>

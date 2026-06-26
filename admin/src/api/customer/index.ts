@@ -1,7 +1,7 @@
 import { request } from "@/utils/service"
 import type * as Customer from "./types/customer"
 
-/** 更新账户状态 */
+/** Update account status */
 export function changeCustomerStatusApi(id: number, status: string) {
   return request({
     url: `customer/status/${id}`,
@@ -10,7 +10,7 @@ export function changeCustomerStatusApi(id: number, status: string) {
   })
 }
 
-/** 编辑 */
+/** Edit */
 export function updateCustomerDataApi(data: Customer.CreateOrUpdateCustomerRequestData) {
   return request({
     url: `customer/${data.id}`,
@@ -19,7 +19,7 @@ export function updateCustomerDataApi(data: Customer.CreateOrUpdateCustomerReque
   })
 }
 
-/** 列表 */
+/** List */
 export function getCustomerDataApi(params: Customer.GetCustomerRequestData) {
   return request<Customer.GetCustomerResponseData>({
     url: `customers`,
@@ -28,7 +28,7 @@ export function getCustomerDataApi(params: Customer.GetCustomerRequestData) {
   })
 }
 
-/** 详情 */
+/** Detail */
 export function getCustomerDetailApi(id: number) {
   return request<Customer.GetCustomerData>({
     url: `customer/${id}`,
@@ -36,7 +36,7 @@ export function getCustomerDetailApi(id: number) {
   })
 }
 
-/** 新增 */
+/** Add */
 export function registerCustomer(data: Customer.RegisterData) {
   return request<Customer.RegisterData>({
     url: `customer`,

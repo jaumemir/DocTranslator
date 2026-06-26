@@ -1,6 +1,6 @@
 import { useUserStoreHook } from "@/store/modules/user"
 
-/** 全局权限判断函数，和权限指令 v-permission 功能类似 */
+/** Global permission check function, similar to v-permission directive */
 export const checkPermission = (permissionRoles: string[]): boolean => {
   return true
   // if (Array.isArray(permissionRoles) && permissionRoles.length > 0) {

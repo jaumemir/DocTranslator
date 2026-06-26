@@ -1,14 +1,14 @@
 import { type RouteLocationNormalized } from "vue-router"
 
-/** 免登录白名单（匹配路由 path） */
+/** Login-free whitelist (match route path) */
 const whiteListByPath: string[] = ["/login"]
 
-/** 免登录白名单（匹配路由 name） */
+/** Login-free whitelist (match route name) */
 const whiteListByName: string[] = []
 
-/** 判断是否在白名单 */
+/** Check if in whitelist */
 const isWhiteList = (to: RouteLocationNormalized) => {
-  // path 和 name 任意一个匹配上即可
+  // Match either path or name
   return whiteListByPath.indexOf(to.path) !== -1 || whiteListByName.indexOf(to.name as any) !== -1
 }
 

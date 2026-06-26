@@ -1,19 +1,19 @@
 <template>
   <el-form :model="user" ref="userform" label-width="auto" :rules="rules">
-    <el-form-item prop="email" label="邮箱">
-      <el-input v-model="user.email" placeholder="请输入邮箱" autocomplete="new-password" />
+    <el-form-item prop="email" label="Email">
+      <el-input v-model="user.email" placeholder="Please enter email" autocomplete="new-password" />
     </el-form-item>
-    <el-form-item prop="level" label="用户等级">
+    <el-form-item prop="level" label="User Level">
       <el-select v-model="user.level" placeholder="">
-        <el-option label="会员用户" value="vip" />
-        <el-option label="普通用户" value="common" />
+        <el-option label="VIP User" value="vip" />
+        <el-option label="Regular User" value="common" />
       </el-select>
     </el-form-item>
-    <el-form-item prop="password" label="密码">
-      <el-input type="password" v-model="user.password" placeholder="请输入" autocomplete="new-password" />
+    <el-form-item prop="password" label="Password">
+      <el-input type="password" v-model="user.password" placeholder="Please enter" autocomplete="new-password" />
     </el-form-item>
     <el-form-item label="" class="center">
-      <el-button type="primary" size="large" color="#055CF9" @click="doRegister()" style="width: 100%">提交</el-button>
+      <el-button type="primary" size="large" color="#055CF9" @click="doRegister()" style="width: 100%">Submit</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -36,16 +36,16 @@ const user = ref<CreateOrUpdateCustomerRequestData>(cloneDeep(DEFAULT_FORM_DATA)
 
 const userform = ref<FormInstance | null>(null)
 const rules = reactive({
-  email: [{ required: true, message: "请填写邮箱地址", trigger: "blur" }],
-  level: [{ required: true, message: "请填写用户等级" }],
-  password: [{ required: true, message: "请填写密码", trigger: "blur" }]
+  email: [{ required: true, message: "Please enter email address", trigger: "blur" }],
+  level: [{ required: true, message: "Please select user level" }],
+  password: [{ required: true, message: "Please enter password", trigger: "blur" }]
 })
 const doRegister = () => {
   userform.value?.validate((valid: boolean, fields: any) => {
-    if (!valid) return console.error("表单校验不通过", fields)
+    if (!valid) return console.error("Form validation failed", fields)
     registerCustomer(user.value)
       .then(() => {
-        ElMessage.success("操作成功")
+        ElMessage.success("Operation successful")
         emit("success")
         user.value = cloneDeep(DEFAULT_FORM_DATA)
       })

@@ -1,15 +1,15 @@
 import { type Directive } from "vue"
 import { useUserStoreHook } from "@/store/modules/user"
 
-/** 权限指令，和权限判断函数 checkPermission 功能类似 */
+/** Permission directive, similar to checkPermission function */
 export const permission: Directive = {
   mounted(el, binding) {
     const { value: permissionRoles } = binding
     const { roles } = useUserStoreHook()
     if (Array.isArray(permissionRoles) && permissionRoles.length > 0) {
       const hasPermission = roles.some((role) => permissionRoles.includes(role))
-      // hasPermission || (el.style.display = "none") // 隐藏
-      hasPermission || el.parentNode?.removeChild(el) // 销毁
+      // hasPermission || (el.style.display = "none") // Hide
+      hasPermission || el.parentNode?.removeChild(el) // Destroy
     } else {
       throw new Error(`need roles! Like v-permission="['admin','editor']"`)
     }

@@ -15,18 +15,18 @@ const svg = `
 `
 
 const options = {
-  text: "即将发生错误...",
+  text: "Error about to occur...",
   background: "#F56C6C20",
   svg,
   svgViewBox: "-10, -10, 50, 50"
 }
 
 const querySuccess = async () => {
-  // 注意：
-  // 1. getSuccessApi 是一个函数而非函数调用
-  // 2. 如需给 getSuccessApi 函数传递参数，请在后面的括号中进行（真正的 getSuccessApi 调用）
+  // Note:
+  // 1. getSuccessApi is a function, not a function call
+  // 2. If you need to pass parameters to getSuccessApi, do so in the brackets after (the actual getSuccessApi call)
   const res = await useFullscreenLoading(getSuccessApi)([2, 3, 3])
-  ElMessage.success(`${res.message}，传参为 ${res.data.list.toString()}`)
+  ElMessage.success(`${res.message}, parameters: ${res.data.list.toString()}`)
 }
 
 const queryError = async () => {
@@ -40,8 +40,8 @@ const queryError = async () => {
 
 <template>
   <div class="app-container">
-    <h4>该示例是演示：通过将要执行的函数传递给 hook，让 hook 自动开启全屏 loading，函数执行结束后自动关闭 loading</h4>
-    <el-button type="primary" @click="querySuccess">查询成功</el-button>
-    <el-button type="danger" @click="queryError">查询失败</el-button>
+    <h4>This example demonstrates: By passing the function to be executed to a hook, the hook automatically opens fullscreen loading, and automatically closes loading after function execution ends</h4>
+    <el-button type="primary" @click="querySuccess">Query Success</el-button>
+    <el-button type="danger" @click="queryError">Query Error</el-button>
   </div>
 </template>

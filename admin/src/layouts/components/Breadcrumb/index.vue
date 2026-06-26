@@ -8,21 +8,21 @@ const route = useRoute()
 const router = useRouter()
 const { listenerRouteChange } = useRouteListener()
 
-/** 定义响应式数据 breadcrumbs，用于存储面包屑导航信息 */
+/** Define reactive data breadcrumbs for storing breadcrumb navigation information */
 const breadcrumbs = ref<RouteLocationMatched[]>([])
 
-/** 获取面包屑导航信息 */
+/** Get breadcrumb navigation information */
 const getBreadcrumb = () => {
   breadcrumbs.value = route.matched.filter((item) => item.meta?.title && item.meta?.breadcrumb !== false)
 }
 
-/** 编译路由路径 */
+/** Compile route path */
 const pathCompile = (path: string) => {
   const toPath = compile(path)
   return toPath(route.params)
 }
 
-/** 处理面包屑导航点击事件 */
+/** Handle breadcrumb navigation click events */
 const handleLink = (item: RouteLocationMatched) => {
   const { redirect, path } = item
   if (redirect) {
@@ -32,7 +32,7 @@ const handleLink = (item: RouteLocationMatched) => {
   router.push(pathCompile(path))
 }
 
-/** 监听路由变化，更新面包屑导航信息 */
+/** Listen to route changes and update breadcrumb navigation information */
 listenerRouteChange((route) => {
   if (route.path.startsWith("/redirect/")) return
   getBreadcrumb()

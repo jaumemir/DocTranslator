@@ -17,28 +17,28 @@ export const useUserStore = defineStore("user", () => {
   const tagsViewStore = useTagsViewStore()
   const settingsStore = useSettingsStore()
 
-  /** 登录 */
+  /** Login */
   const login = async ({ email, password }: LoginRequestData) => {
     const { data } = await loginApi({ email, password })
     setToken(data.token)
     token.value = data.token
   }
-  /** 获取用户详情 */
+  /** Get user details */
   const getInfo = async () => {
     const { data } = await getUserInfoApi()
     // username.value = data.username
-    // 验证返回的 roles 是否为一个非空数组，否则塞入一个没有任何作用的默认角色，防止路由守卫逻辑进入无限循环
+    // Verify that the returned roles is a non-empty array, otherwise insert a default role with no effect to prevent the route guard logic from entering an infinite loop
     roles.value = data.roles?.length > 0 ? data.roles : routeSettings.defaultRoles
   }
-  /** 模拟角色变化 */
+  /** Simulate role change */
   const changeRoles = async (role: string) => {
     const newToken = "token-" + role
     token.value = newToken
     setToken(newToken)
-    // 用刷新页面代替重新登录
+    // Use page refresh instead of re-login
     window.location.reload()
   }
-  /** 登出 */
+  /** Logout */
   const logout = () => {
     removeToken()
     token.value = ""
@@ -46,13 +46,13 @@ export const useUserStore = defineStore("user", () => {
     resetRouter()
     _resetTagsView()
   }
-  /** 重置 Token */
+  /** Reset Token */
   const resetToken = () => {
     removeToken()
     token.value = ""
     roles.value = []
   }
-  /** 重置 Visited Views 和 Cached Views */
+  /** Reset Visited Views and Cached Views */
   const _resetTagsView = () => {
     if (!settingsStore.cacheTagsView) {
       tagsViewStore.delAllVisitedViews()
@@ -63,7 +63,7 @@ export const useUserStore = defineStore("user", () => {
   return { token, roles, email, login, getInfo, changeRoles, logout, resetToken }
 })
 
-/** 在 setup 外使用 */
+/** For use outside setup */
 export function useUserStoreHook() {
   return useUserStore(store)
 }

@@ -9,12 +9,12 @@ const { loading, options, value } = useFetchSelect({
 
 <template>
   <div class="app-container">
-    <h4>该示例是演示：通过 hook 自动调用 api 后拿到 Select 组件需要的数据并传递给 Select 组件</h4>
-    <h5>Select 示例</h5>
+    <h4>This example demonstrates: Automatically calling an API through a hook to get data required by the Select component and pass it to the Select component</h4>
+    <h5>Select Example</h5>
     <el-select :loading="loading" v-model="value" filterable>
-      <el-option v-for="(item, index) in options" v-bind="item" :key="index" placeholder="请选择" />
+      <el-option v-for="(item, index) in options" v-bind="item" :key="index" placeholder="Please select" />
     </el-select>
-    <h5>Select V2 示例（如果数据量过多，可以选择该组件）</h5>
-    <el-select-v2 :loading="loading" v-model="value" :options="options" filterable placeholder="请选择" />
+    <h5>Select V2 Example (Choose this component if data volume is large)</h5>
+    <el-select-v2 :loading="loading" v-model="value" :options="options" filterable placeholder="Please select" />
   </div>
 </template>

@@ -1,33 +1,33 @@
 <template>
   <div class="file-manager">
-    <!-- 顶部标题栏 -->
+    <!-- Top title bar -->
     <div class="header">
       <h2>
         <el-icon class="header-icon"><FolderOpened /></el-icon>
-        文件存储管理
+        File Storage Management
       </h2>
       <el-button type="primary" plain @click="refreshData" :loading="loading" class="refresh-btn">
-        <el-icon><Refresh /></el-icon>刷新
+        <el-icon><Refresh /></el-icon>Refresh
       </el-button>
     </div>
 
-    <!-- 主内容区 -->
-    <el-card class="content-card" v-loading="loading" :element-loading-text="'加载中...'">
-      <!-- 分类标签页 - 强制显示两个tab -->
+    <!-- Main content area -->
+    <el-card class="content-card" v-loading="loading" :element-loading-text="'Loading...'">
+      <!-- Category tabs - force display of two tabs -->
       <el-tabs v-model="activeTab" class="main-tabs">
-        <!-- 上传文档标签页 -->
+        <!-- Upload documents tab -->
         <el-tab-pane name="uploads">
           <template #label>
             <div class="tab-label">
               <el-icon class="tab-icon uploads"><Upload /></el-icon>
-              <span>上传文档</span>
+              <span>Upload Documents</span>
               <el-tag size="small" effect="light" class="size-tag">
                 {{ formatSize(fileData.uploads?.size || 0) }}
               </el-tag>
             </div>
           </template>
 
-          <!-- 上传文档内容区 -->
+          <!-- Upload documents content area -->
           <template v-if="hasData('uploads')">
             <div class="category-actions">
               <el-button
@@ -36,7 +36,7 @@
                 @click="confirmDelete('category', 'uploads')"
                 class="delete-category-btn"
               >
-                <el-icon><Delete /></el-icon>删除全部文件
+                <el-icon><Delete /></el-icon>Delete All Files
               </el-button>
             </div>
 
@@ -52,8 +52,8 @@
                     <el-icon size="20" class="date-icon"><Calendar /></el-icon>
                     <span class="date-text">{{ date }}</span>
                     <div class="date-meta">
-                      <span class="file-count">{{ dateData.files.length }}个文件</span>
-                      <span class="date-size">共{{ formatSize(dateData.size) }}</span>
+                      <span class="file-count">{{ dateData.files.length }} files</span>
+                      <span class="date-size">Total {{ formatSize(dateData.size) }}</span>
                     </div>
                     <div class="date-actions">
                       <el-button
@@ -63,15 +63,15 @@
                         @click.stop="confirmDelete('date', `uploads/${date}`)"
                         class="delete-date-btn"
                       >
-                        <el-icon><Delete /></el-icon>删除本日所有文件
+                        <el-icon><Delete /></el-icon>Delete All Files from This Date
                       </el-button>
                     </div>
                   </div>
                 </template>
 
                 <div class="file-table-container">
-                  <el-table :data="dateData.files" border stripe empty-text="该日期没有文件" class="file-table">
-                    <el-table-column label="文件名" width="220">
+                  <el-table :data="dateData.files" border stripe empty-text="No files for this date" class="file-table">
+                    <el-table-column label="Filename" width="220">
                       <template #default="{ row }">
                         <div class="file-name-cell">
                           <el-icon class="file-icon">
@@ -82,7 +82,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="大小" width="120">
+                    <el-table-column label="Size" width="120">
                       <template #default="{ row }">
                         <el-tag size="small" effect="plain">
                           {{ formatSize(row.size) }}
@@ -90,7 +90,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="文件路径" min-width="300">
+                    <el-table-column label="File Path" min-width="300">
                       <template #default="{ row }">
                         <el-tooltip :content="row.path" placement="top">
                           <span class="file-path">{{ row.path }}</span>
@@ -98,11 +98,11 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="操作" width="120" align="center">
+                    <el-table-column label="Actions" width="120" align="center">
                       <template #default="{ row }">
-                        <el-popconfirm title="确定要删除此文件吗？" @confirm="handleDeleteFile(row.path)">
+                        <el-popconfirm title="Are you sure you want to delete this file?" @confirm="handleDeleteFile(row.path)">
                           <template #reference>
-                            <el-button type="danger" size="small" round> 删除 </el-button>
+                            <el-button type="danger" size="small" round> Delete </el-button>
                           </template>
                         </el-popconfirm>
                       </template>
@@ -113,23 +113,23 @@
             </el-collapse>
           </template>
           <div v-else class="empty-container">
-            <el-empty description="暂无上传文件" />
+            <el-empty description="No uploaded files" />
           </div>
         </el-tab-pane>
 
-        <!-- 翻译文档标签页 -->
+        <!-- Translation documents tab -->
         <el-tab-pane name="translate">
           <template #label>
             <div class="tab-label">
               <el-icon class="tab-icon translate"><Files /></el-icon>
-              <span>翻译文档</span>
+              <span>Translation Documents</span>
               <el-tag size="small" effect="light" class="size-tag">
                 {{ formatSize(fileData.translate?.size || 0) }}
               </el-tag>
             </div>
           </template>
 
-          <!-- 翻译文档内容区 -->
+          <!-- Translation documents content area -->
           <template v-if="hasData('translate')">
             <div class="category-actions">
               <el-button
@@ -138,7 +138,7 @@
                 @click="confirmDelete('category', 'translate')"
                 class="delete-category-btn"
               >
-                <el-icon><Delete /></el-icon>删除全部文件
+                <el-icon><Delete /></el-icon>Delete All Files
               </el-button>
             </div>
 
@@ -154,8 +154,8 @@
                     <el-icon size="20" class="date-icon"><Calendar /></el-icon>
                     <span class="date-text">{{ date }}</span>
                     <div class="date-meta">
-                      <span class="file-count">{{ dateData.files.length }}个文件</span>
-                      <span class="date-size">共{{ formatSize(dateData.size) }}</span>
+                      <span class="file-count">{{ dateData.files.length }} files</span>
+                      <span class="date-size">Total {{ formatSize(dateData.size) }}</span>
                     </div>
                     <div class="date-actions">
                       <el-button
@@ -164,15 +164,15 @@
                         @click.stop="confirmDelete('date', `translate/${date}`)"
                         class="delete-date-btn"
                       >
-                        <el-icon><Delete /></el-icon>删除本日所有文件
+                        <el-icon><Delete /></el-icon>Delete All Files from This Date
                       </el-button>
                     </div>
                   </div>
                 </template>
 
                 <div class="file-table-container">
-                  <el-table :data="dateData.files" border stripe empty-text="该日期没有文件" class="file-table">
-                    <el-table-column label="文件名" width="220">
+                  <el-table :data="dateData.files" border stripe empty-text="No files for this date" class="file-table">
+                    <el-table-column label="Filename" width="220">
                       <template #default="{ row }">
                         <div class="file-name-cell">
                           <el-icon class="file-icon">
@@ -183,7 +183,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="大小" width="120">
+                    <el-table-column label="Size" width="120">
                       <template #default="{ row }">
                         <el-tag size="small" effect="plain">
                           {{ formatSize(row.size) }}
@@ -191,7 +191,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="文件路径" min-width="300">
+                    <el-table-column label="File Path" min-width="300">
                       <template #default="{ row }">
                         <el-tooltip :content="row.path" placement="top">
                           <span class="file-path">{{ row.path }}</span>
@@ -199,11 +199,11 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="操作" width="120" align="center">
+                    <el-table-column label="Actions" width="120" align="center">
                       <template #default="{ row }">
-                        <el-popconfirm title="确定要删除此文件吗？" @confirm="handleDeleteFile(row.path)">
+                        <el-popconfirm title="Are you sure you want to delete this file?" @confirm="handleDeleteFile(row.path)">
                           <template #reference>
-                            <el-button type="danger" size="small" round> 删除 </el-button>
+                            <el-button type="danger" size="small" round> Delete </el-button>
                           </template>
                         </el-popconfirm>
                       </template>
@@ -214,21 +214,21 @@
             </el-collapse>
           </template>
           <div v-else class="empty-container">
-            <el-empty description="暂无翻译文件" />
+            <el-empty description="No translated files" />
           </div>
         </el-tab-pane>
         <el-tab-pane name="doc2x_results">
           <template #label>
             <div class="tab-label">
               <el-icon class="tab-icon translate"><Files /></el-icon>
-              <span>doc2x文档</span>
+              <span>doc2x Documents</span>
               <el-tag size="small" effect="light" class="size-tag">
                 {{ formatSize(fileData.doc2x_results?.size || 0) }}
               </el-tag>
             </div>
           </template>
 
-          <!-- 翻译文档内容区 -->
+          <!-- Translation documents content area -->
           <template v-if="hasData('doc2x_results')">
             <div class="category-actions">
               <el-button
@@ -237,7 +237,7 @@
                 @click="confirmDelete('category', 'doc2x_results')"
                 class="delete-category-btn"
               >
-                <el-icon><Delete /></el-icon>删除全部文件
+                <el-icon><Delete /></el-icon>Delete All Files
               </el-button>
             </div>
 
@@ -253,8 +253,8 @@
                     <el-icon size="20" class="date-icon"><Calendar /></el-icon>
                     <span class="date-text">{{ date }}</span>
                     <div class="date-meta">
-                      <span class="file-count">{{ dateData.files.length }}个文件</span>
-                      <span class="date-size">共{{ formatSize(dateData.size) }}</span>
+                      <span class="file-count">{{ dateData.files.length }} files</span>
+                      <span class="date-size">Total {{ formatSize(dateData.size) }}</span>
                     </div>
                     <div class="date-actions">
                       <el-button
@@ -263,15 +263,15 @@
                         @click.stop="confirmDelete('date', `doc2x_results/${date}`)"
                         class="delete-date-btn"
                       >
-                        <el-icon><Delete /></el-icon>删除本日所有文件
+                        <el-icon><Delete /></el-icon>Delete All Files from This Date
                       </el-button>
                     </div>
                   </div>
                 </template>
 
                 <div class="file-table-container">
-                  <el-table :data="dateData.files" border stripe empty-text="该日期没有文件" class="file-table">
-                    <el-table-column label="文件名" width="220">
+                  <el-table :data="dateData.files" border stripe empty-text="No files for this date" class="file-table">
+                    <el-table-column label="Filename" width="220">
                       <template #default="{ row }">
                         <div class="file-name-cell">
                           <el-icon class="file-icon">
@@ -282,7 +282,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="大小" width="120">
+                    <el-table-column label="Size" width="120">
                       <template #default="{ row }">
                         <el-tag size="small" effect="plain">
                           {{ formatSize(row.size) }}
@@ -290,7 +290,7 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="文件路径" min-width="300">
+                    <el-table-column label="File Path" min-width="300">
                       <template #default="{ row }">
                         <el-tooltip :content="row.path" placement="top">
                           <span class="file-path">{{ row.path }}</span>
@@ -298,11 +298,11 @@
                       </template>
                     </el-table-column>
 
-                    <el-table-column label="操作" width="120" align="center">
+                    <el-table-column label="Actions" width="120" align="center">
                       <template #default="{ row }">
-                        <el-popconfirm title="确定要删除此文件吗？" @confirm="handleDeleteFile(row.path)">
+                        <el-popconfirm title="Are you sure you want to delete this file?" @confirm="handleDeleteFile(row.path)">
                           <template #reference>
-                            <el-button type="danger" size="small" round> 删除 </el-button>
+                            <el-button type="danger" size="small" round> Delete </el-button>
                           </template>
                         </el-popconfirm>
                       </template>
@@ -313,7 +313,7 @@
             </el-collapse>
           </template>
           <div v-else class="empty-container">
-            <el-empty description="暂无doc2x处理文件" />
+            <el-empty description="No doc2x processed files" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -338,7 +338,7 @@ import {
 import { getFileList, deleteFile } from "@/api/setting/file"
 import { ElMessage, ElMessageBox } from "element-plus"
 
-// 响应式数据
+// Reactive data
 const loading = ref(false)
 const fileData = ref({
   uploads: { size: 0, dates: {} },
@@ -352,30 +352,30 @@ const expandedDates = ref({
   doc2x_results: []
 })
 
-// 计算是否有数据
+// Calculate if there is data
 const hasData = (category) => {
   return fileData.value[category]?.dates && Object.keys(fileData.value[category].dates).length > 0
 }
 
-// 初始化加载
+// Initialize loading
 onMounted(() => {
   loadData()
 })
 
-// 加载数据
+// Load data
 const loadData = async () => {
   try {
     loading.value = true
     const res = await getFileList()
     if (res.code === 200) {
-      // 合并数据确保两个分类都存在
+      // Merge data to ensure both categories exist
       fileData.value = {
         uploads: res.data.uploads || { size: 0, dates: {} },
         translate: res.data.translate || { size: 0, dates: {} },
         doc2x_results: res.data.doc2x_results || { size: 0, dates: {} }
       }
 
-      // 默认展开每个分类的第一个日期
+      // Expand first date of each category by default
       for (const cat in fileData.value) {
         if (Object.keys(fileData.value[cat].dates).length > 0) {
           expandedDates.value[cat] = [Object.keys(fileData.value[cat].dates)[0]]
@@ -387,10 +387,10 @@ const loadData = async () => {
   }
 }
 
-// 刷新数据
+// Refresh data
 const refreshData = () => loadData()
 
-// 格式化文件大小
+// Format file size
 const formatSize = (bytes) => {
   if (bytes === 0) return "0 B"
   const k = 1024
@@ -399,7 +399,7 @@ const formatSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
 }
 
-// 获取文件图标
+// Get file icon
 const getFileIcon = (filename) => {
   const ext = filename.split(".").pop().toLowerCase()
   return (
@@ -415,39 +415,39 @@ const getFileIcon = (filename) => {
   )
 }
 
-// 删除文件
+// Delete file
 const handleDeleteFile = async (filePath) => {
   try {
     await deleteFile({ type: "file", target: filePath })
-    ElMessage.success("文件删除成功")
+    ElMessage.success("File deleted successfully")
     await loadData()
   } catch (error) {
-    ElMessage.error("删除失败: " + error.message)
+    ElMessage.error("Delete failed: " + error.message)
   }
 }
 
-// 确认删除
+// Confirm delete
 const confirmDelete = (type, target) => {
   const messages = {
-    file: `确定要删除文件 "${target.split("/").pop()}" 吗？`,
-    date: `确定要删除日期 "${target.split("/")[1]}" 的所有文件吗？`,
-    category: `确定要删除整个 "${target}" 分类吗？`
+    file: `Are you sure you want to delete file "${target.split("/").pop()}"?`,
+    date: `Are you sure you want to delete all files from date "${target.split("/")[1]}"?`,
+    category: `Are you sure you want to delete the entire "${target}" category?`
   }
 
-  ElMessageBox.confirm(messages[type], "警告", {
-    confirmButtonText: "确定删除",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(messages[type], "Warning", {
+    confirmButtonText: "Confirm Delete",
+    cancelButtonText: "Cancel",
     type: "warning",
     beforeClose: async (action, instance, done) => {
       if (action === "confirm") {
         instance.confirmButtonLoading = true
         try {
           await deleteFile({ type, target })
-          ElMessage.success("删除成功")
+          ElMessage.success("Deleted successfully")
           await loadData()
           done()
         } catch (error) {
-          ElMessage.error("删除失败: " + error.message)
+          ElMessage.error("Delete failed: " + error.message)
         } finally {
           instance.confirmButtonLoading = false
         }

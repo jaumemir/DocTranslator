@@ -62,21 +62,21 @@ service.interceptors.response.use(
     if (response) {
       switch (response.status) {
         case 401:
-          ElMessage.error('身份过期，请重新登录')
+          ElMessage.error('Session expired, please login again')
           router.push('/login')
           break
         case 422:
-          ElMessage.error('身份过期，请重新登录')
+          ElMessage.error('Session expired, please login again')
           router.push('/login')
-          break  
+          break
         case 403:
-          ElMessage.error('用户状态异常或权限不足!')
+          ElMessage.error('User status abnormal or insufficient permissions!')
           break
         default:
-          ElMessage.error('请求失败')
+          ElMessage.error('Request failed')
       }
     } else {
-      ElMessage.error('网络连接异常')
+      ElMessage.error('Network connection error')
     }
     return Promise.reject(error)
   }

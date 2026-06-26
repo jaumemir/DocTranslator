@@ -2,6 +2,7 @@ from datetime import date
 from sqlalchemy import text, inspect
 from app import db
 from app.models.prompt import Prompt
+from app.models.user import User
 
 
 # 定义初始化数据
@@ -182,7 +183,7 @@ def insert_initial_settings(app):
         {"id": 6, "alias": "default_backup", "value": "deepseek-chat", "serialized": 0,
          "created_at": "2024-07-26 05:26:21", "updated_at": "2024-07-26 13:26:21",
          "group": "api_setting"},
-        {"id": 7, "alias": "prompt", "value": "你是一个文档翻译助手，请将以下文本、单词或短语直接翻译成{target_lang}，不返回原文本。如果文本中包含{target_lang}文本、特殊名词（比如邮箱、品牌名、单位名词如mm、px、℃等）、无法翻译等特殊情况，请直接返回原文而无需解释原因。遇到无法翻译的文本直接返回原内容。保留多余空格。", "serialized": 0,
+        {"id": 7, "alias": "prompt", "value": "You are a document translation assistant. Please translate the following text, words, or phrases directly into {target_lang}, without returning the original text. If the text contains {target_lang} text, proper nouns (such as email addresses, brand names, unit nouns like mm, px, ℃, etc.), or untranslatable content, please return the original text directly without explanation. For untranslatable text, return the original content. Preserve extra spaces.", "serialized": 0,
          "created_at": "2024-09-02 05:55:30", "updated_at": "2024-09-02 13:55:30",
          "group": "other_setting"},
         {"id": 8, "alias": "threads", "value": "6", "serialized": 0,
@@ -238,5 +239,41 @@ def insert_initial_settings(app):
         except Exception as e:
             db.session.rollback()
             print(f"❌ Initialization failed: {str(e)}")
+            raise
+
+
+# Initialize admin user
+def insert_initial_admin(app):
+    """Initialize admin user for both MySQL and SQLite"""
+    INITIAL_ADMIN = {
+        "id": 1,
+        "name": "admin",
+        "password": "123456",  # Plain text password (should be changed after first login)
+        "email": "admin",
+        "deleted_flag": "N"
+    }
+
+    with app.app_context():
+        try:
+            # Check if admin user already exists
+            existing_admin = User.query.filter_by(id=INITIAL_ADMIN["id"]).first()
+            if not existing_admin:
+                # Create admin user
+                admin = User(
+                    id=INITIAL_ADMIN["id"],
+                    name=INITIAL_ADMIN["name"],
+                    password=INITIAL_ADMIN["password"],
+                    email=INITIAL_ADMIN["email"],
+                    deleted_flag=INITIAL_ADMIN["deleted_flag"]
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print(f"✅ Admin user created successfully (email: {INITIAL_ADMIN['email']}, password: {INITIAL_ADMIN['password']})")
+            else:
+                print("⏩ Admin user already exists, no insertion needed")
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Admin user initialization failed: {str(e)}")
             raise
 

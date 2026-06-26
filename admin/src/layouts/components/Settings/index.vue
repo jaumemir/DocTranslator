@@ -10,7 +10,7 @@ import { Refresh } from "@element-plus/icons-vue"
 const { isLeft } = useLayoutMode()
 const settingsStore = useSettingsStore()
 
-/** 使用 storeToRefs 将提取的属性保持其响应性 */
+/** Use storeToRefs to maintain reactivity of extracted properties */
 const {
   showTagsView,
   showLogo,
@@ -26,23 +26,23 @@ const {
   showColorWeakness
 } = storeToRefs(settingsStore)
 
-/** 定义 switch 设置项 */
+/** Define switch settings */
 const switchSettings = {
-  显示标签栏: showTagsView,
-  "显示 Logo": showLogo,
-  "固定 Header": fixedHeader,
-  "显示页脚 Footer": showFooter,
-  显示消息通知: showNotify,
-  显示切换主题按钮: showThemeSwitch,
-  显示全屏按钮: showScreenfull,
-  显示搜索按钮: showSearchMenu,
-  是否缓存标签栏: cacheTagsView,
-  开启系统水印: showWatermark,
-  显示灰色模式: showGreyMode,
-  显示色弱模式: showColorWeakness
+  "Show Tags View": showTagsView,
+  "Show Logo": showLogo,
+  "Fixed Header": fixedHeader,
+  "Show Footer": showFooter,
+  "Show Notifications": showNotify,
+  "Show Theme Switch": showThemeSwitch,
+  "Show Fullscreen": showScreenfull,
+  "Show Search Menu": showSearchMenu,
+  "Cache Tags View": cacheTagsView,
+  "Enable Watermark": showWatermark,
+  "Show Grey Mode": showGreyMode,
+  "Show Color Weakness Mode": showColorWeakness
 }
 
-/** 非左侧模式时，Header 都是 fixed 布局 */
+/** When not in left mode, Header is always fixed layout */
 watchEffect(() => {
   !isLeft.value && (fixedHeader.value = true)
 })
@@ -50,15 +50,15 @@ watchEffect(() => {
 
 <template>
   <div class="setting-container">
-    <h4>布局配置</h4>
+    <h4>Layout Configuration</h4>
     <SelectLayoutMode />
     <el-divider />
-    <h4>功能配置</h4>
+    <h4>Feature Configuration</h4>
     <div class="setting-item" v-for="(settingValue, settingName, index) in switchSettings" :key="index">
       <span class="setting-name">{{ settingName }}</span>
-      <el-switch v-model="settingValue.value" :disabled="!isLeft && settingName === '固定 Header'" />
+      <el-switch v-model="settingValue.value" :disabled="!isLeft && settingName === 'Fixed Header'" />
     </div>
-    <el-button type="danger" :icon="Refresh" @click="resetConfigLayout">重 置</el-button>
+    <el-button type="danger" :icon="Refresh" @click="resetConfigLayout">Reset</el-button>
   </div>
 </template>
 

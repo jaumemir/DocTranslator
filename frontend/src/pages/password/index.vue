@@ -2,11 +2,11 @@
   <div class="auth-page">
     <div class="auth-container">
       <div class="auth-header">
-        <h1 class="auth-title">密码管理</h1>
-        <p class="auth-subtitle">选择需要的操作</p>
+        <h1 class="auth-title">Password Management</h1>
+        <p class="auth-subtitle">Select an operation</p>
       </div>
 
-      <!-- Tab 切换 -->
+      <!-- Tab switching -->
       <div class="tab-container">
         <div class="tab-tabs">
           <div
@@ -20,7 +20,7 @@
         </div>
       </div>
 
-      <!-- 忘记密码表单 -->
+      <!-- Forgot password form -->
       <el-form
         v-show="activeTab === 'forget'"
         ref="forgetForm"
@@ -30,10 +30,10 @@
         @keyup.enter="doForget(forgetForm)"
         class="form-content">
         <el-form-item label="" prop="email">
-          <el-input v-model="forgetUser.email" placeholder="输入邮箱" prefix-icon="el-icon-message" />
+          <el-input v-model="forgetUser.email" placeholder="Enter email" prefix-icon="el-icon-message" />
         </el-form-item>
         <el-form-item label="" prop="code">
-          <el-input v-model="forgetUser.code" placeholder="邮箱验证码" prefix-icon="el-icon-key">
+          <el-input v-model="forgetUser.code" placeholder="Email verification code" prefix-icon="el-icon-key">
             <template #suffix>
               <el-button type="text" class="code-btn" @click="sendCode" :disabled="codeDisabled">
                 {{ codeText }}
@@ -46,7 +46,7 @@
             v-model="forgetUser.password"
             type="password"
             show-password
-            placeholder="设置新密码"
+            placeholder="Set new password"
             prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="" prop="password_confirmation">
@@ -54,15 +54,15 @@
             v-model="forgetUser.password_confirmation"
             type="password"
             show-password
-            placeholder="确认新密码"
+            placeholder="Confirm new password"
             prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="" class="center">
-          <el-button type="primary" size="large" class="auth-btn" @click="doForget(forgetForm)">提交重置</el-button>
+          <el-button type="primary" size="large" class="auth-btn" @click="doForget(forgetForm)">Submit Reset</el-button>
         </el-form-item>
       </el-form>
 
-      <!-- 修改密码表单 -->
+      <!-- Change password form -->
       <el-form
         v-show="activeTab === 'change'"
         ref="changeForm"
@@ -76,7 +76,7 @@
             v-model="changeUser.oldpwd"
             type="password"
             show-password
-            placeholder="原密码"
+            placeholder="Current password"
             prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="" prop="newpwd">
@@ -84,7 +84,7 @@
             v-model="changeUser.newpwd"
             type="password"
             show-password
-            placeholder="设置新密码"
+            placeholder="Set new password"
             prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="" prop="newpwd_confirmation">
@@ -92,12 +92,12 @@
             v-model="changeUser.newpwd_confirmation"
             type="password"
             show-password
-            placeholder="确认新密码"
+            placeholder="Confirm new password"
             prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item label="" class="center">
           <el-button type="primary" size="large" class="auth-btn" @click="doChangePassword(changeForm)">
-            确认修改
+            Confirm Change
           </el-button>
         </el-form-item>
       </el-form>

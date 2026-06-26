@@ -1,17 +1,17 @@
 <template>
   <el-form ref="form" :model="user" label-width="auto" :show-message="false" :rules="rules">
     <el-form-item label="" prop="oldpwd" required>
-      <el-input v-model="user.oldpwd" type="password" show-password placeholder="原密码" />
+      <el-input v-model="user.oldpwd" type="password" show-password placeholder="Current password" />
     </el-form-item>
     <el-form-item label="" prop="newpwd" required>
-      <el-input v-model="user.newpwd" type="password" show-password placeholder="设置新密码" />
+      <el-input v-model="user.newpwd" type="password" show-password placeholder="Set new password" />
     </el-form-item>
     <el-form-item label="" prop="newpwd_confirmation" required>
-      <el-input v-model="user.newpwd_confirmation" type="password" show-password placeholder="确认新密码" />
+      <el-input v-model="user.newpwd_confirmation" type="password" show-password placeholder="Confirm new password" />
     </el-form-item>
     <el-form-item label="" class="center">
       <el-button type="primary" size="large" color="#055CF9" @click="doForget(form)" style="width: 100%">
-        提交
+        Submit
       </el-button>
     </el-form-item>
   </el-form>
@@ -33,19 +33,19 @@ const user = reactive({
 const disabled = ref(false)
 const form = ref()
 const rules = reactive({
-  oldpwd: [{ required: true, message: '请填写旧密码', trigger: 'blur' }],
+  oldpwd: [{ required: true, message: 'Please enter old password', trigger: 'blur' }],
   // code: [
   //     { required: true, message: '请填写邮箱验证码', trigger: 'blur' },
   // ],
-  newpwd: [{ required: true, message: '请填写密码', trigger: 'blur' }],
-  newpwd_confirmation: [{ required: true, message: '请填写确认密码', trigger: 'blur' }],
+  newpwd: [{ required: true, message: 'Please enter password', trigger: 'blur' }],
+  newpwd_confirmation: [{ required: true, message: 'Please confirm password', trigger: 'blur' }],
 })
 function doForget(form) {
   form.validate((valid, fields) => {
     if (valid) {
       if (user.newpwd != user.newpwd_confirmation) {
         ElMessage({
-          message: '两次密码输入不一致',
+          message: 'Passwords do not match',
           type: 'error',
         })
         return
@@ -53,7 +53,7 @@ function doForget(form) {
       changePassword(user).then((data) => {
         if (data.code == 200) {
           ElMessage({
-            message: '修改成功',
+            message: 'Changed successfully',
             type: 'success',
           })
           emit('success')

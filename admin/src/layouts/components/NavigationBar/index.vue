@@ -23,12 +23,12 @@ const userStore = useUserStore()
 const settingsStore = useSettingsStore()
 const { showNotify, showThemeSwitch, showScreenfull, showSearchMenu } = storeToRefs(settingsStore)
 
-/** 切换侧边栏 */
+/** Toggle sidebar */
 const toggleSidebar = () => {
   appStore.toggleSidebar(false)
 }
 
-/** 登出 */
+/** Logout */
 const logout = () => {
   userStore.logout()
   router.push("/login")
@@ -58,10 +58,10 @@ const logout = () => {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item divided @click="$router.push('/setting/password')">
-              <span style="display: block">修改密码</span>
+              <span style="display: block">Change Password</span>
             </el-dropdown-item>
             <el-dropdown-item divided @click="logout">
-              <span style="display: block">退出登录</span>
+              <span style="display: block">Logout</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -86,14 +86,14 @@ const logout = () => {
   }
   .breadcrumb {
     flex: 1;
-    // 参考 Bootstrap 的响应式设计将宽度设置为 576
+    // Reference Bootstrap's responsive design, set width to 576
     @media screen and (max-width: 576px) {
       display: none;
     }
   }
   .sidebar {
     flex: 1;
-    // 设置 min-width 是为了让 Sidebar 里的 el-menu 宽度自适应
+    // Set min-width to make el-menu in Sidebar width adaptive
     min-width: 0px;
     :deep(.el-menu) {
       background-color: transparent;

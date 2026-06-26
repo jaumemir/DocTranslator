@@ -5,7 +5,7 @@ from .extensions import init_extensions, db, api
 from .models.setting import Setting
 from .resources.task.translate_service import TranslateEngine
 from .script.init_db import safe_init_mysql
-from .script.insert_init_db import insert_initial_data, set_auto_increment, insert_initial_settings
+from .script.insert_init_db import insert_initial_data, set_auto_increment, insert_initial_settings, insert_initial_admin
 from .utils.response import APIResponse
 
 
@@ -17,8 +17,10 @@ def create_app(config_class=None):
     if config_class is None:
         config_class = get_config()
     app.config.from_object(config_class)
-    # Initialize database
-    safe_init_mysql(app,'app/init.sql')
+    # Initialize database (only for MySQL, SQLite uses db.create_all())
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if db_uri.startswith('mysql'):
+        safe_init_mysql(app,'app/init.sql')
     # Initialize extensions (routes not registered yet)
     init_extensions(app)
     register_routes(api)
@@ -50,5 +52,6 @@ def create_app(config_class=None):
     insert_initial_data(app)
     set_auto_increment(app)
     insert_initial_settings(app)
+    insert_initial_admin(app)
 
     return app
